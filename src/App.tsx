@@ -5,6 +5,7 @@ import {TeamPage} from "./pages/team/TeamPage.tsx";
 import {RetroPage} from "./pages/retro/RetroPage.tsx";
 import {loader as userLoader} from "./pages/user/userLoader.ts";
 import {loader as teamLoader} from "./pages/team/teamLoader.ts";
+import {loader as retroLoader} from "./pages/retro/retroLoader.ts";
 import {AuthRedirectPage} from "./pages/auth-redirect/AuthRedirectPage.tsx";
 import {configureAxios} from "./services/AxiosConfig.ts";
 
@@ -30,8 +31,9 @@ const router = createBrowserRouter([
         loader: teamLoader
     },
     {
-        path: '/retro/:retroId',
-        element: <RetroPage />
+        path: 'teams/:teamId/retros/:retroId',
+        element: <RetroPage />,
+        loader: retroLoader
     }
 ]);
 

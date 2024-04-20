@@ -1,3 +1,17 @@
+import {RetroContextProvider} from "./RetroContext.tsx";
+import {RetroComponent} from "./Retro.tsx";
+import {WebsocketService} from "../../services/websocket/WebsocketService.ts";
+import {useEffect} from "react";
+
 export function RetroPage() {
-    return <h1>Retro Page</h1>
+    useEffect(() => {
+        WebsocketService.connect().catch();
+        return () => {WebsocketService.disconnect()};
+    });
+
+    return (
+        <RetroContextProvider>
+            <RetroComponent />
+        </RetroContextProvider>
+    )
 }
