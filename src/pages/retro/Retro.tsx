@@ -1,5 +1,5 @@
 import {useRetro} from "./RetroContext.tsx";
-import {Column, RetroService, Thought} from "../../services/RetroService.ts";
+import {Category, RetroService, Thought} from "../../services/RetroService.ts";
 import {useState} from "react";
 
 export function RetroComponent() {
@@ -7,16 +7,16 @@ export function RetroComponent() {
     return (
         <main>
             <h1>Retro</h1>
-            {retro.columns.map(column => createColumn(retro.teamId, column, retro.thoughts.filter(thought => thought.columnId === column.id)))}
+            {retro.template.categories.map(category => createColumn(retro.teamId, category, retro.thoughts.filter(thought => thought.category === category.name)))}
         </main>
     )
 }
 
-function createColumn(teamId: string, column: Column, thoughts: Thought[]) {
+function createColumn(teamId: string, category: Category, thoughts: Thought[]) {
     return (
-        <div key={`column${column.id}`}>
-            <h2>{column.title}</h2>
-            <CreateThought teamId={teamId} columnId={column.id}/>
+        <div key={`column${category.name}`}>
+            <h2>{category.name}</h2>
+            <CreateThought teamId={teamId} columnId={0}/>
             <ul>
                 {thoughts.map(thought => <li key={`thought${thought.id}`}>{thought.message}</li>)}
             </ul>

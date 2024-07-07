@@ -1,4 +1,4 @@
-import {Retro, Thought} from "../../services/RetroService.ts";
+import {Retro, Template, Thought} from "../../services/RetroService.ts";
 import {createContext, PropsWithChildren, useCallback, useContext, useEffect, useState} from "react";
 import {useLoaderData} from "react-router-dom";
 import {WebsocketService} from "../../services/websocket/WebsocketService.ts";
@@ -14,11 +14,12 @@ type RetroContextValue = {
 
 const RetroContext = createContext<RetroContextValue>({
     retro: {
-        id: -1,
+        id: '',
         teamId: '',
+        finished: false,
         dateCreated: new Date(),
         thoughts: [],
-        columns: []
+        template: {} as Template
     },
 })
 
@@ -38,7 +39,7 @@ export function RetroContextProvider(props: PropsWithChildren) {
     }, [setRetroState]);
 
     useEffect(() => {
-        WebsocketService.subscribe(getDestination(retro.teamId), id, createThoughtEventHandler(updateThought))
+        WebsocketService.subscribe(getDestination(retro.id), id, createThoughtEventHandler(updateThought))
     }, [updateThought, retro])
 
 

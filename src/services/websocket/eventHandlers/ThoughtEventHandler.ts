@@ -3,13 +3,14 @@ import {IMessage} from "@stomp/stompjs";
 
 export const id: string = 'this-is-a-thought-subscription-id';
 
-export function getDestination(teamId: string) {
-    return `/topic/${teamId}/thoughts`;
+export function getDestination(retroId: string) {
+    return `/topic/${retroId}.thoughts`;
 }
 
 enum EventType {
-    UPDATE = 'put',
-    DELETE = 'delete'
+    CREATE= 'CREATE',
+    UPDATE = 'UPDATE',
+    DELETE = 'DELETE'
 }
 
 interface WebsocketThoughtEvent {
@@ -19,7 +20,9 @@ interface WebsocketThoughtEvent {
 
 export function createThoughtEventHandler(updateHandler: (updatedThought: Thought) => void): (event: IMessage) => void {
     return (event: IMessage) => {
+        console.log(event)
         const thoughtEvent = <WebsocketThoughtEvent> JSON.parse(event?.body);
+        console.log(thoughtEvent)
         switch (thoughtEvent.type) {
             case EventType.UPDATE:
                 updateHandler(thoughtEvent.payload);
