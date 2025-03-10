@@ -1,0 +1,20 @@
+/* :root {
+    --green: #00FF11;
+    --blue: #0099FF;
+    --red: #FF4400;
+}
+
+.dark {
+    --green: #11FF99;
+} */
+
+:root[data-theme="light"] {
+    --green: #00FF11;
+    --blue: #0099FF;
+    --red: #FF4400;
+}
+
+:root[data-theme="dark"] {
+    /* --green: #11FF99; */
+    --green: #0099FF;
+}

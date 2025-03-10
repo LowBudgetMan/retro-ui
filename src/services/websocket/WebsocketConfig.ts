@@ -10,7 +10,7 @@ export async function getConfig(): Promise<StompConfig> {
     return {
         brokerURL: url,
         connectHeaders: {
-            Authorization: `Bearer ${(await userManager.getUser())?.access_token}`, // TODO: still works without this?
+            Authorization: `Bearer ${(await userManager.getUser())?.access_token}`,
         },
         reconnectDelay: 3000,
         heartbeatIncoming: 4000,

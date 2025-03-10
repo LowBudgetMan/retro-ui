@@ -8,39 +8,54 @@ import {loader as teamLoader} from "./pages/team/teamLoader.ts";
 import {loader as retroLoader} from "./pages/retro/retroLoader.ts";
 import {AuthRedirectPage} from "./pages/auth-redirect/AuthRedirectPage.tsx";
 import {configureAxios} from "./services/AxiosConfig.ts";
+import {Header} from "./components/Header.tsx";
+import {ThemeProvider} from "./styles/ThemeContext.tsx";
 
 configureAxios();
 
 const router = createBrowserRouter([
     {
         path: '/',
-        element: <LandingPage />,
+        element: <LandingPage/>,
     },
     {
         path: '/auth-redirect',
-        element: <AuthRedirectPage />
+        element: <AuthRedirectPage/>
     },
     {
         path: '/user',
-        element: <UserPage />,
+        element: <UserPage/>,
         loader: userLoader
     },
     {
         path: '/teams/:teamId',
-        element: <TeamPage />,
+        element: <TeamPage/>,
         loader: teamLoader
     },
     {
         path: 'teams/:teamId/retros/:retroId',
-        element: <RetroPage />,
+        element: <RetroPage/>,
         loader: retroLoader
     }
 ]);
 
-function App() {
-  return (
-    <RouterProvider router={router} />
-  )
+function AppContent() {
+    return (
+        <div className="app">
+            <Header/>
+            <main className="main-content">
+                <RouterProvider router={router}/>
+            </main>
+        </div>
+    );
 }
 
-export default App
+function App() {
+    return (
+        <ThemeProvider>
+            <AppContent />
+        </ThemeProvider>
+    );
+}
+
+export default App;

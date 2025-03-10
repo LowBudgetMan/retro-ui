@@ -43,7 +43,7 @@ export function RetroContextProvider(props: PropsWithChildren) {
     }, [updateThought, retro])
 
 
-    return <RetroContext.Provider value={{retro: retroState,}}>
+    return <RetroContext.Provider value={{retro: retroState}}>
         {props.children}
     </RetroContext.Provider>
 }
