@@ -26,26 +26,48 @@ const RetroContext = createContext<RetroContextValue>({
 export function RetroContextProvider(props: PropsWithChildren) {
     const retro = useLoaderData() as Retro;
     const [retroState, setRetroState] = useState<Retro>(retro);
+    const createThought = useCallback((createdThought: Thought) => {
+        setRetroState((prevState) => {
+            const newState = {...prevState};
+            newState.thoughts.push(createdThought);
+            return newState;
+        });
+    }, [setRetroState]);
     const updateThought = useCallback((updatedThought: Thought) => {
+        console.log(updatedThought);
         setRetroState((prevState) => {
             const newState = {...prevState};
             const index = newState.thoughts.findIndex((thought) => thought.id === updatedThought.id);
 
-            if(index == -1) newState.thoughts.push(updatedThought);
-            else newState.thoughts[index] = updatedThought;
+            // if(index == -1) newState.thoughts.push(updatedThought);
+            // else newState.thoughts[index] = updatedThought;
+            if(index === -1) {
+                newState.thoughts = [...newState.thoughts, updatedThought];
+            } else {
+                newState.thoughts = newState.thoughts.map(thought => 
+                    thought.id === updatedThought.id ? updatedThought : thought
+                );
+            }
 
             return newState;
-        })
-    }, [setRetroState]);
+        });
+    }, []); // Had setRetroState here before
 
     useEffect(() => {
-        WebsocketService.subscribe(getDestination(retro.id), id, createThoughtEventHandler(updateThought))
-    }, [updateThought, retro])
+        WebsocketService.subscribe(
+            getDestination(retro.id), 
+            id, 
+            createThoughtEventHandler(createThought)
+        );
+        // Note: Currently no cleanup needed as WebsocketService doesn't support unsubscribe
+        // Cleanup will be handled by WebsocketService.disconnect() when the app unmounts
+    }, [retro.id, updateThought]); // Used to be [updateThought, retro]
 
-
-    return <RetroContext.Provider value={{retro: retroState}}>
-        {props.children}
-    </RetroContext.Provider>
+    return (
+        <RetroContext.Provider value={{retro: retroState}}>
+            {props.children}
+        </RetroContext.Provider>
+    );
 }
 
 export function useRetro(): RetroContextValue {

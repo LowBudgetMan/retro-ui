@@ -42,14 +42,16 @@ export interface Column {
     teamId: string
 }
 
-function transformRetro(retro: any): Retro {
+//TODO: I think this can be removed
+function transformRetro(retro: Retro): Retro {
     return {
         ...retro,
         dateCreated: new Date(retro.dateCreated)
     };
 }
 
-function transformThought(thought: any): Thought {
+//TODO: I think this can be removed
+function transformThought(thought: Thought): Thought {
     return {
         ...thought,
         createdAt: new Date(thought.createdAt)
@@ -61,7 +63,7 @@ async function getRetrosForTeam(teamId: string): Promise<Retro[]> {
     return response.data.map(transformRetro);
 }
 
-async function getRetro(teamId: string, retroId: number): Promise<Retro> {
+async function getRetro(teamId: string, retroId: string): Promise<Retro> {
     const response = await axios.get(`http://localhost:8080/api/teams/${teamId}/retros/${retroId}`);
     return transformRetro(response.data);
 }
@@ -72,15 +74,15 @@ async function createRetro(teamId: string, retroTemplateId: string) {
     });
 }
 
-async function createThought(teamId: string, message: string, columnId: number) {
-    return await axios.post(`http://localhost:8080/api/teams/${teamId}/thoughts`, {
+async function createThought(teamId: string, retroId: string, message: string, category: number) {
+    return await axios.post(`http://localhost:8080/api/teams/${teamId}/retros/${retroId}/thoughts`, {
         message,
-        columnId
+        category
     });
 }
 
-async function getThoughts(teamId: string): Promise<Thought[]> {
-    const response = await axios.get(`http://localhost:8080/api/team/${teamId}/thoughts`);
+async function getThoughts(teamId: string, retroId: string): Promise<Thought[]> {
+    const response = await axios.get(`http://localhost:8080/api/team/${teamId}/retros/${retroId}/thoughts`);
     return response.data.map(transformThought);
 }
 

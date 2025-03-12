@@ -18,14 +18,14 @@ interface WebsocketThoughtEvent {
     payload: Thought;
 }
 
-export function createThoughtEventHandler(updateHandler: (updatedThought: Thought) => void): (event: IMessage) => void {
+export function createThoughtEventHandler(createThought: (updatedThought: Thought) => void): (event: IMessage) => void {
     return (event: IMessage) => {
         console.log(event)
         const thoughtEvent = <WebsocketThoughtEvent> JSON.parse(event?.body);
         console.log(thoughtEvent)
         switch (thoughtEvent.type) {
-            case EventType.UPDATE:
-                updateHandler(thoughtEvent.payload);
+            case EventType.CREATE:
+                createThought(thoughtEvent.payload);
                 break;
         }
     }

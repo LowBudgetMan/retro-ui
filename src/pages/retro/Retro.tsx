@@ -4,37 +4,62 @@ import {useState} from "react";
 
 export function RetroComponent() {
     const {retro} = useRetro();
+    console.log('RetroComponent rendering with retro:', retro);
+    
     return (
         <main>
             <h1>Retro</h1>
-            {retro.template.categories.map(category => createColumn(retro.teamId, category, retro.thoughts.filter(thought => thought.category === category.name)))}
+            {retro.template.categories.map(category => (
+                <RetroColumn 
+                    key={category.name}
+                    teamId={retro.teamId}
+                    retroId={retro.id}
+                    category={category}
+                    thoughts={retro.thoughts.filter(thought => thought.category === category.name)}
+                />
+            ))}
         </main>
-    )
+    );
 }
 
-function createColumn(teamId: string, category: Category, thoughts: Thought[]) {
+interface RetroColumnProps {
+    teamId: string;
+    retroId: string;
+    category: Category;
+    thoughts: Thought[];
+}
+
+function RetroColumn({teamId, retroId, category, thoughts}: RetroColumnProps) {
+    console.log(`Column ${category.name} rendering with thoughts:`, thoughts);
+    
     return (
         <div key={`column${category.name}`}>
             <h2>{category.name}</h2>
-            <CreateThought teamId={teamId} columnId={0}/>
+            <CreateThought 
+                teamId={teamId} 
+                retroId={retroId} 
+                columnId={category.position}
+            />
             <ul>
-                {thoughts.map(thought => <li key={`thought${thought.id}`}>{thought.message}</li>)}
+                {thoughts.map(thought => (
+                    <li key={`thought${thought.id}`}>{thought.message}</li>
+                ))}
             </ul>
         </div>
-    )
+    );
 }
 
 interface CreateThoughtProps {
-    teamId: string,
-    columnId: number
+    teamId: string;
+    retroId: string;
+    columnId: number;
 }
 
-function CreateThought(props: CreateThoughtProps) {
-    const {teamId, columnId} = props;
+function CreateThought({teamId, retroId, columnId}: CreateThoughtProps) {
     const [thought, setThought] = useState('');
     return <input
         value={thought}
         onChange={e => setThought(e.target.value)}
-        onBlur={() => RetroService.createThought(teamId, thought, columnId)}
+        onBlur={() => RetroService.createThought(teamId, retroId, thought, columnId)}
     />
 }

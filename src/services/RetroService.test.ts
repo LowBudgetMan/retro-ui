@@ -8,7 +8,7 @@ const mock = new MockAdapter(axios);
 describe('RetroService', () => {
     const baseUrl = 'http://localhost:8080/api';
     const teamId = 'team-123';
-    const retroId = 456;
+    const retroId = 'retro-123';
     const testDate = new Date('2024-01-01T00:00:00.000Z');
 
     beforeEach(() => {
@@ -119,20 +119,20 @@ describe('RetroService', () => {
     describe('createThought', () => {
         it('should create a new thought', async () => {
             const message = 'Test thought';
-            const columnId = 1;
+            const category = 1;
             const mockResponse = { id: 'new-thought-id' };
 
-            mock.onPost(`${baseUrl}/teams/${teamId}/thoughts`, { message, columnId })
+            mock.onPost(`${baseUrl}/teams/${teamId}/retros/${retroId}/thoughts`, { message, category })
                 .reply(201, mockResponse);
 
-            const result = await RetroService.createThought(teamId, message, columnId);
+            const result = await RetroService.createThought(teamId, retroId, message, category);
             expect(result.data).toEqual(mockResponse);
         });
 
         it('should handle errors when creating a thought', async () => {
             mock.onPost(`${baseUrl}/teams/${teamId}/thoughts`).reply(400);
 
-            await expect(RetroService.createThought(teamId, '', 1)).rejects.toThrow();
+            await expect(RetroService.createThought(teamId, retroId, '', 1)).rejects.toThrow();
         });
     });
 
@@ -157,16 +157,16 @@ describe('RetroService', () => {
                 }
             ];
 
-            mock.onGet(`${baseUrl}/team/${teamId}/thoughts`).reply(200, mockThoughtResponse);
+            mock.onGet(`${baseUrl}/team/${teamId}/retros/${retroId}/thoughts`).reply(200, mockThoughtResponse);
 
-            const result = await RetroService.getThoughts(teamId);
+            const result = await RetroService.getThoughts(teamId, retroId);
             expect(result).toEqual(expectedThoughts);
         });
 
         it('should handle errors when fetching thoughts', async () => {
-            mock.onGet(`${baseUrl}/team/${teamId}/thoughts`).reply(500);
+            mock.onGet(`${baseUrl}/team/${teamId}/retros/${retroId}/thoughts`).reply(500);
 
-            await expect(RetroService.getThoughts(teamId)).rejects.toThrow();
+            await expect(RetroService.getThoughts(teamId, retroId.toString())).rejects.toThrow();
         });
     });
 
