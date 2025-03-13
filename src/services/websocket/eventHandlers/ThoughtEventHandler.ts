@@ -14,19 +14,13 @@ enum EventType {
 }
 
 interface WebsocketThoughtEvent {
-    type: EventType;
+    actionType: EventType;
     payload: Thought;
 }
 
-export function createThoughtEventHandler(createThought: (updatedThought: Thought) => void): (event: IMessage) => void {
+export function createThoughtEventHandler(createThought: (thought: Thought) => void): (event: IMessage) => void {
     return (event: IMessage) => {
-        console.log(event)
         const thoughtEvent = <WebsocketThoughtEvent> JSON.parse(event?.body);
-        console.log(thoughtEvent)
-        switch (thoughtEvent.type) {
-            case EventType.CREATE:
-                createThought(thoughtEvent.payload);
-                break;
-        }
+        if(thoughtEvent.actionType === EventType.CREATE) createThought(thoughtEvent.payload);
     }
 }

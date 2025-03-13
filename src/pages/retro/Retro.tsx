@@ -38,7 +38,7 @@ function RetroColumn({teamId, retroId, category, thoughts}: RetroColumnProps) {
             <CreateThought 
                 teamId={teamId} 
                 retroId={retroId} 
-                columnId={category.position}
+                category={category.name}
             />
             <ul>
                 {thoughts.map(thought => (
@@ -52,14 +52,30 @@ function RetroColumn({teamId, retroId, category, thoughts}: RetroColumnProps) {
 interface CreateThoughtProps {
     teamId: string;
     retroId: string;
-    columnId: number;
+    category: string;
 }
 
-function CreateThought({teamId, retroId, columnId}: CreateThoughtProps) {
+function CreateThought({teamId, retroId, category}: CreateThoughtProps) {
     const [thought, setThought] = useState('');
-    return <input
-        value={thought}
-        onChange={e => setThought(e.target.value)}
-        onBlur={() => RetroService.createThought(teamId, retroId, thought, columnId)}
-    />
+
+    const handleBlur = async () => {
+        if (thought.trim()) {
+            try {
+                await RetroService.createThought(teamId, retroId, thought, category);
+                setThought('');
+            } catch (error) {
+                console.error('Error creating thought:', error);
+            }
+        }
+    };
+
+    return (
+        <input
+            value={thought}
+            onChange={e => setThought(e.target.value)}
+            onBlur={handleBlur}
+            onKeyDown={e => {if (e.key === 'Enter') handleBlur().then(() => {})}}
+            placeholder="Add a thought..."
+        />
+    );
 }

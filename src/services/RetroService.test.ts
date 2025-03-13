@@ -1,7 +1,7 @@
 import '@jest/globals';
 import axios from 'axios';
 import MockAdapter from 'axios-mock-adapter';
-import { RetroService, Retro, Thought, Column } from './RetroService';
+import { RetroService, Retro, Thought } from './RetroService';
 
 const mock = new MockAdapter(axios);
 
@@ -119,7 +119,7 @@ describe('RetroService', () => {
     describe('createThought', () => {
         it('should create a new thought', async () => {
             const message = 'Test thought';
-            const category = 1;
+            const category = 'happy';
             const mockResponse = { id: 'new-thought-id' };
 
             mock.onPost(`${baseUrl}/teams/${teamId}/retros/${retroId}/thoughts`, { message, category })
@@ -132,7 +132,7 @@ describe('RetroService', () => {
         it('should handle errors when creating a thought', async () => {
             mock.onPost(`${baseUrl}/teams/${teamId}/thoughts`).reply(400);
 
-            await expect(RetroService.createThought(teamId, retroId, '', 1)).rejects.toThrow();
+            await expect(RetroService.createThought(teamId, retroId, '', 'happy')).rejects.toThrow();
         });
     });
 
@@ -167,30 +167,6 @@ describe('RetroService', () => {
             mock.onGet(`${baseUrl}/team/${teamId}/retros/${retroId}/thoughts`).reply(500);
 
             await expect(RetroService.getThoughts(teamId, retroId.toString())).rejects.toThrow();
-        });
-    });
-
-    describe('getColumns', () => {
-        it('should fetch columns for a team', async () => {
-            const mockColumns: Column[] = [
-                {
-                    id: 1,
-                    topic: 'Sprint Review',
-                    title: 'What went well',
-                    teamId
-                }
-            ];
-
-            mock.onGet(`${baseUrl}/team/${teamId}/columns`).reply(200, mockColumns);
-
-            const result = await RetroService.getColumns(teamId);
-            expect(result).toEqual(mockColumns);
-        });
-
-        it('should handle errors when fetching columns', async () => {
-            mock.onGet(`${baseUrl}/team/${teamId}/columns`).reply(500);
-
-            await expect(RetroService.getColumns(teamId)).rejects.toThrow();
         });
     });
 }); 

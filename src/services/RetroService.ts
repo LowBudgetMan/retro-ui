@@ -35,13 +35,6 @@ export interface Thought {
     createdAt: Date
 }
 
-export interface Column {
-    id: number,
-    topic: string,
-    title: string,
-    teamId: string
-}
-
 //TODO: I think this can be removed
 function transformRetro(retro: Retro): Retro {
     return {
@@ -74,10 +67,10 @@ async function createRetro(teamId: string, retroTemplateId: string) {
     });
 }
 
-async function createThought(teamId: string, retroId: string, message: string, category: number) {
+async function createThought(teamId: string, retroId: string, message: string, categoryName: string) {
     return await axios.post(`http://localhost:8080/api/teams/${teamId}/retros/${retroId}/thoughts`, {
         message,
-        category
+        category: categoryName
     });
 }
 
@@ -86,15 +79,10 @@ async function getThoughts(teamId: string, retroId: string): Promise<Thought[]> 
     return response.data.map(transformThought);
 }
 
-async function getColumns(teamId: string): Promise<Column[]> {
-    return await axios.get(`http://localhost:8080/api/team/${teamId}/columns`).then(response => response.data);
-}
-
 export const RetroService = {
     getRetrosForTeam,
     getRetro,
     createRetro,
     createThought,
-    getThoughts,
-    getColumns
+    getThoughts
 }

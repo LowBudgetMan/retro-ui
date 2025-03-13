@@ -9,7 +9,9 @@ import {
 } from "../../services/websocket/eventHandlers/ThoughtEventHandler.ts";
 
 type RetroContextValue = {
-    retro: Retro
+    retro: Retro;
+    createThought: (thought: Thought) => void;
+    updateThought: (thought: Thought) => void;
 }
 
 const RetroContext = createContext<RetroContextValue>({
@@ -21,50 +23,47 @@ const RetroContext = createContext<RetroContextValue>({
         thoughts: [],
         template: {} as Template
     },
-})
+    createThought: () => {},
+    updateThought: () => {}
+});
 
 export function RetroContextProvider(props: PropsWithChildren) {
     const retro = useLoaderData() as Retro;
     const [retroState, setRetroState] = useState<Retro>(retro);
-    const createThought = useCallback((createdThought: Thought) => {
-        setRetroState((prevState) => {
-            const newState = {...prevState};
-            newState.thoughts.push(createdThought);
-            return newState;
-        });
-    }, [setRetroState]);
+
+    const createThought = useCallback((newThought: Thought) => {
+        console.log('Creating thought:', newThought);
+        setRetroState(prevState => ({
+            ...prevState,
+            thoughts: [...prevState.thoughts, newThought]
+        }));
+    }, []);
+
     const updateThought = useCallback((updatedThought: Thought) => {
-        console.log(updatedThought);
-        setRetroState((prevState) => {
-            const newState = {...prevState};
-            const index = newState.thoughts.findIndex((thought) => thought.id === updatedThought.id);
+        console.log('Updating thought:', updatedThought);
+        setRetroState(prevState => {
+            const index = prevState.thoughts.findIndex(t => t.id === updatedThought.id);
+            if (index === -1) return prevState;
 
-            // if(index == -1) newState.thoughts.push(updatedThought);
-            // else newState.thoughts[index] = updatedThought;
-            if(index === -1) {
-                newState.thoughts = [...newState.thoughts, updatedThought];
-            } else {
-                newState.thoughts = newState.thoughts.map(thought => 
-                    thought.id === updatedThought.id ? updatedThought : thought
-                );
-            }
-
-            return newState;
+            const newThoughts = [...prevState.thoughts];
+            newThoughts[index] = updatedThought;
+            return { ...prevState, thoughts: newThoughts };
         });
-    }, []); // Had setRetroState here before
+    }, []);
 
     useEffect(() => {
+        console.log('Setting up WebSocket subscription for retro:', retro.id);
         WebsocketService.subscribe(
-            getDestination(retro.id), 
-            id, 
+            getDestination(retro.id),
+            id,
             createThoughtEventHandler(createThought)
         );
         // Note: Currently no cleanup needed as WebsocketService doesn't support unsubscribe
         // Cleanup will be handled by WebsocketService.disconnect() when the app unmounts
-    }, [retro.id, updateThought]); // Used to be [updateThought, retro]
+    }, [retro.id, createThought]);
 
     return (
-        <RetroContext.Provider value={{retro: retroState}}>
+        <RetroContext.Provider value={{retro: retroState, createThought, updateThought}}>
             {props.children}
         </RetroContext.Provider>
     );
