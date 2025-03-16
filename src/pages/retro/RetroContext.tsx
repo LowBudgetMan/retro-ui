@@ -32,7 +32,6 @@ export function RetroContextProvider(props: PropsWithChildren) {
     const [retroState, setRetroState] = useState<Retro>(retro);
 
     const createThought = useCallback((newThought: Thought) => {
-        console.log('Creating thought:', newThought);
         setRetroState(prevState => ({
             ...prevState,
             thoughts: [...prevState.thoughts, newThought]
@@ -40,7 +39,6 @@ export function RetroContextProvider(props: PropsWithChildren) {
     }, []);
 
     const updateThought = useCallback((updatedThought: Thought) => {
-        console.log('Updating thought:', updatedThought);
         setRetroState(prevState => {
             const index = prevState.thoughts.findIndex(t => t.id === updatedThought.id);
             if (index === -1) return prevState;
@@ -52,13 +50,12 @@ export function RetroContextProvider(props: PropsWithChildren) {
     }, []);
 
     useEffect(() => {
-        console.log('Setting up WebSocket subscription for retro:', retro.id);
         WebsocketService.subscribe(
             getDestination(retro.id),
             id,
             createThoughtEventHandler(createThought)
         );
-        // Note: Currently no cleanup needed as WebsocketService doesn't support unsubscribe
+        // TODO: Currently no cleanup needed as WebsocketService doesn't support unsubscribe
         // Cleanup will be handled by WebsocketService.disconnect() when the app unmounts
     }, [retro.id, createThought]);
 

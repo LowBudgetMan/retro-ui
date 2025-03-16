@@ -1,16 +1,16 @@
 import {useRetro} from "./RetroContext.tsx";
 import {Category, RetroService, Thought} from "../../services/RetroService.ts";
 import {useState} from "react";
+import style from "./RetroPage.module.css"
 
 export function RetroComponent() {
     const {retro} = useRetro();
-    console.log('RetroComponent rendering with retro:', retro);
-    
     return (
-        <main>
+        <div>
             <h1>Retro</h1>
+            <div className={style.retroColumns}>
             {retro.template.categories.map(category => (
-                <RetroColumn 
+                <RetroColumn
                     key={category.name}
                     teamId={retro.teamId}
                     retroId={retro.id}
@@ -18,7 +18,8 @@ export function RetroComponent() {
                     thoughts={retro.thoughts.filter(thought => thought.category === category.name)}
                 />
             ))}
-        </main>
+            </div>
+        </div>
     );
 }
 
@@ -30,8 +31,6 @@ interface RetroColumnProps {
 }
 
 function RetroColumn({teamId, retroId, category, thoughts}: RetroColumnProps) {
-    console.log(`Column ${category.name} rendering with thoughts:`, thoughts);
-    
     return (
         <div key={`column${category.name}`}>
             <h2>{category.name}</h2>
