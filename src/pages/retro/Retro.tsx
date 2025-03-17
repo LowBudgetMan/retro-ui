@@ -30,7 +30,7 @@ interface RetroColumnProps {
     thoughts: Thought[];
 }
 
-function RetroColumn({teamId, retroId, category, thoughts}: RetroColumnProps) {
+export function RetroColumn({teamId, retroId, category, thoughts}: RetroColumnProps) {
     return (
         <div key={`column${category.name}`}>
             <h2>{category.name}</h2>
@@ -54,7 +54,7 @@ interface CreateThoughtProps {
     category: string;
 }
 
-function CreateThought({teamId, retroId, category}: CreateThoughtProps) {
+export function CreateThought({teamId, retroId, category}: CreateThoughtProps) {
     const [thought, setThought] = useState('');
 
     const handleBlur = async () => {
