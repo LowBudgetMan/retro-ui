@@ -7,17 +7,16 @@ interface Subscription {
     handler: (event: IMessage) => void;
 }
 
+// TODO: Should I move websocket connections into various page contexts, or keep the providers at the root page?
 let client: Client;
 const subscriptions: Subscription[] = [];
-let isConnected: boolean = false; // TODO: Should I move websocket connections into various page contexts, or keep the providers at the root page?
 
 async function connect(): Promise<void> {
-    if (!isConnected) {
+    if (!client?.connected) {
         const config = await getConfig();
         client = new Client(config)
         client.onConnect = () => {
             console.log("Connected to event bus");
-            isConnected = true;
             subscriptions.forEach((subscription) => addSubscription(subscription));
         };
         client.activate();
@@ -28,7 +27,6 @@ function disconnect(): void {
     if (client && client.active) {
         // TODO: Should I clear subscriptions here?
         // subscriptions = [];
-        isConnected = false;
         client.deactivate().catch();
     }
 }
