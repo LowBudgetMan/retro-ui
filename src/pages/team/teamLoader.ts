@@ -1,16 +1,12 @@
-import {TeamService} from "../../services/TeamService.ts";
-import {ActionItem} from "../../services/ActionItemService.ts";
+import {TeamListItem, TeamService} from "../../services/TeamService.ts";
 import {Retro, RetroService} from "../../services/RetroService.ts";
 
-export interface Team {
-    id: string,
-    name: string,
-    createdAt: Date,
-    actionItems: ActionItem[],
+export interface TeamPageData extends TeamListItem {
+    // actionItems: ActionItem[],
     retros: Retro[]
 }
 
-export async function loader({params}: any): Promise<Team> {
+export async function loader({params}: any): Promise<TeamPageData> {
     return {
         ...await TeamService.getTeam(params.teamId),
         // actionItems: await ActionItemService.getActionItemsForTeam(params.teamId),

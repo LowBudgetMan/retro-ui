@@ -1,14 +1,13 @@
-import {UserService} from "../../services/UserService.ts";
-import {Team} from "../../services/Teams.types.ts";
+import {TeamListItem, TeamService} from "../../services/TeamService.ts";
 
-export interface User {
+export interface UserPageData {
     name: string,
-    teams: Team[]
+    teams: TeamListItem[]
 }
 
-export async function loader(): Promise<User> {
+export async function loader(): Promise<UserPageData> {
     return {
         name: "Foo",
-        teams: await UserService.getTeamsForUser()
+        teams: await TeamService.getTeams()
     }
 }

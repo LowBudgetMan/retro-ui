@@ -1,9 +1,9 @@
 import {Link, useLoaderData} from "react-router-dom";
-import {User} from "./userLoader.ts";
+import {UserPageData} from "./userLoader.ts";
 import {TeamService} from "../../services/TeamService.ts";
 
 export function UserPage() {
-    const user = useLoaderData() as User;
+    const user = useLoaderData() as UserPageData;
     return (
         <main>
             <h1>Welcome, {user.name}</h1>

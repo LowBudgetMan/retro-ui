@@ -1,9 +1,9 @@
 import {Link, useLoaderData} from "react-router-dom";
-import {Team} from "./teamLoader.ts";
+import {TeamPageData} from "./teamLoader.ts";
 import {RetroService} from "../../services/RetroService.ts";
 
 export function TeamPage() {
-    const team = useLoaderData() as Team;
+    const team = useLoaderData() as TeamPageData;
     return (
         <main>
             <Link to={'/user'}>Home</Link>
