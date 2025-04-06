@@ -5,9 +5,9 @@ interface Subscription {
     destination: string;
     id: string;
     handler: (event: IMessage) => void;
+    subscription?: any; // TODO: Remove this I think
 }
 
-// TODO: Should I move websocket connections into various page contexts, or keep the providers at the root page?
 let client: Client;
 const subscriptions: Subscription[] = [];
 
@@ -16,8 +16,7 @@ async function connect(): Promise<void> {
         const config = await getConfig();
         client = new Client(config)
         client.onConnect = () => {
-            console.log("Connected to event bus");
-            subscriptions.forEach((subscription) => addSubscription(subscription));
+            subscriptions.forEach((subscription) => subscribeToClient(subscription));
         };
         client.activate();
     }
@@ -25,8 +24,6 @@ async function connect(): Promise<void> {
 
 function disconnect(): void {
     if (client && client.active) {
-        // TODO: Should I clear subscriptions here?
-        // subscriptions = [];
         client.deactivate().catch();
     }
 }
@@ -36,22 +33,36 @@ function subscribe(destination: string, id: string, handler: (event: IMessage) =
         subscriptions.push({destination, id, handler});
         console.log(subscriptions);
         if (client && client.connected) {
-            console.log("added");
-            addSubscription({destination, id, handler});
+            subscribeToClient({destination, id, handler});
         }
     }
 }
 
-function addSubscription({destination, id, handler}: Subscription): void {
-    client.subscribe(
-        destination,
-        handler,
-        {id}
-    );
+function subscribeToClient({destination, id, handler}: Subscription): void {
+    const subscription = client.subscribe(destination, handler, {id});
+    // Store the subscription object for later use
+    const index = subscriptions.findIndex(sub => sub.id === id);
+    if (index !== -1) {
+        // TODO: Can this be combined with the storage call in the above method?
+        subscriptions[index] = { ...subscriptions[index], subscription };
+    }
+}
+
+function unsubscribe(id: string): void {
+    //TODO: This has to be able to be refactored, look how close the two sections are
+    const subscription = subscriptions.find(sub => sub.id === id);
+    if (subscription?.subscription) {
+        subscription.subscription.unsubscribe();
+    }
+    const index = subscriptions.findIndex(sub => sub.id === id);
+    if (index !== -1) {
+        subscriptions.splice(index, 1);
+    }
 }
 
 export const WebsocketService = {
     connect,
     disconnect,
-    subscribe
+    subscribe,
+    unsubscribe
 }

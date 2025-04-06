@@ -1,4 +1,4 @@
-import {UserSerivce} from "../../services/UserService.ts";
+import {UserService} from "../../services/UserService.ts";
 import {Team} from "../../services/Teams.types.ts";
 
 export interface User {
@@ -9,6 +9,6 @@ export interface User {
 export async function loader(): Promise<User> {
     return {
         name: "Foo",
-        teams: await UserSerivce.getTeamsForUser()
+        teams: await UserService.getTeamsForUser()
     }
 }

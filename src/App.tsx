@@ -43,9 +43,9 @@ function AppContent() {
     return (
         <div className="app">
             <Header/>
-            <main className="main-content">
+            {/*<main className="main-view">*/}
                 <RouterProvider router={router}/>
-            </main>
+            {/*</main>*/}
         </div>
     );
 }

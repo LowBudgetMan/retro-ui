@@ -5,6 +5,6 @@ async function getTeamsForUser(): Promise<Team[]> {
     return axios.get('http://localhost:8080/api/teams').then(response => response.data)
 }
 
-export const UserSerivce = {
+export const UserService = {
     getTeamsForUser
 };

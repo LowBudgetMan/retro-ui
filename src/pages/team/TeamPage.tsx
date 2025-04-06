@@ -9,9 +9,6 @@ export function TeamPage() {
             <Link to={'/user'}>Home</Link>
             <h1>{team.name}</h1>
             <button onClick={() => RetroService.createRetro(team.id, 'happy-confused-sad.yml')}>Create retro</button>
-            {/*<ul>*/}
-            {/*    {team.actionItems.map(actionItem => <li key={actionItem.id}>{actionItem.task}</li> )}*/}
-            {/*</ul>*/}
             <ul>
                 {team.retros.map(retro => <li key={retro.id+retro.teamId}><Link to={`/teams/${retro.teamId}/retros/${retro.id}`}>{retro.id}</Link></li>)}
             </ul>

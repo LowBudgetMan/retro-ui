@@ -55,8 +55,9 @@ export function RetroContextProvider(props: PropsWithChildren) {
             id,
             createThoughtEventHandler(createThought)
         );
-        // TODO: Currently no cleanup needed as WebsocketService doesn't support unsubscribe
-        // Cleanup will be handled by WebsocketService.disconnect() when the app unmounts
+        return () => {
+            WebsocketService.unsubscribe(id);
+        };
     }, [retro.id, createThought]);
 
     return (

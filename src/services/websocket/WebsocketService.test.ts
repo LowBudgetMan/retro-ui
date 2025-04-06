@@ -4,6 +4,10 @@ import { WebsocketService } from './WebsocketService';
 import { getConfig } from './WebsocketConfig';
 
 // Mock the Client class from @stomp/stompjs
+interface MockSubscription {
+    unsubscribe: jest.Mock;
+}
+
 interface MockClient {
     connected: boolean;
     active: boolean;
@@ -25,7 +29,9 @@ const mockClient: MockClient = {
         }
     }),
     deactivate: jest.fn().mockImplementation(() => Promise.resolve()),
-    subscribe: jest.fn()
+    subscribe: jest.fn().mockImplementation(() => ({
+        unsubscribe: jest.fn()
+    }))
 };
 
 jest.mock('@stomp/stompjs', () => ({
@@ -107,7 +113,7 @@ describe('WebsocketService', () => {
 
     describe('subscribe', () => {
         const mockHandler = jest.fn();
-        const destination = '/topic/test';
+        const destination = '/test/destination';
         const id = 'test-subscription';
 
         beforeEach(() => {
@@ -164,6 +170,62 @@ describe('WebsocketService', () => {
                 mockHandler,
                 { id }
             );
+        });
+    });
+
+    describe('unsubscribe', () => {
+        const id = 'test-subscription';
+        const destination = '/test/destination';
+        const mockHandler = jest.fn();
+        let mockSubscription: MockSubscription;
+
+        beforeEach(() => {
+            mockSubscription = { unsubscribe: jest.fn() };
+            mockClient.subscribe.mockReturnValue(mockSubscription);
+        });
+
+        it('should unsubscribe when connected and subscription exists', async () => {
+            // Connect first to ensure client is available
+            await WebsocketService.connect();
+            mockClient.connected = true;
+            
+            // Subscribe and verify subscription was created
+            WebsocketService.subscribe(destination, id, mockHandler);
+            expect(mockClient.subscribe).toHaveBeenCalledWith(
+                destination,
+                expect.any(Function),
+                { id }
+            );
+            
+            // Unsubscribe and verify
+            WebsocketService.unsubscribe(id);
+            expect(mockSubscription.unsubscribe).toHaveBeenCalled();
+        });
+
+        it('should not unsubscribe when not connected', () => {
+            mockClient.connected = false;
+            WebsocketService.subscribe(destination, id, mockHandler);
+            WebsocketService.unsubscribe(id);
+            expect(mockSubscription.unsubscribe).not.toHaveBeenCalled();
+        });
+
+        it('should remove subscription from internal array', async () => {
+            // Connect and subscribe
+            await WebsocketService.connect();
+            mockClient.connected = true;
+            WebsocketService.subscribe(destination, id, mockHandler);
+            
+            // Unsubscribe
+            WebsocketService.unsubscribe(id);
+            
+            // Simulate reconnection
+            mockClient.connected = true;
+            if (mockClient.onConnect) {
+                mockClient.onConnect({} as any);
+            }
+            
+            // Verify no resubscription occurred
+            expect(mockClient.subscribe).toHaveBeenCalledTimes(1);
         });
     });
 }); 
