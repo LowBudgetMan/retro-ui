@@ -35,7 +35,6 @@ export interface Thought {
     createdAt: Date
 }
 
-//TODO: I think this can be removed
 function transformRetro(retro: Retro): Retro {
     return {
         ...retro,
@@ -43,7 +42,6 @@ function transformRetro(retro: Retro): Retro {
     };
 }
 
-//TODO: I think this can be removed
 function transformThought(thought: Thought): Thought {
     return {
         ...thought,

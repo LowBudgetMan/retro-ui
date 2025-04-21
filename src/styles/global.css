@@ -16,6 +16,7 @@
     --header-bg: #ffffff;
 
     --theme-gradient: linear-gradient(-45deg, var(--bonfire-violet) 20%, var(--bonfire-lavender) 36%, var(--bonfire-red) 52%, var(--bonfire-orange) 68%, var(--bonfire-yellow) 84%, var(--bonfire-cream) 100%);
+    --card-background: #FEFEF0;
 }
 
 :root[data-theme="dark"] {
@@ -36,6 +37,7 @@
     --header-bg: #2d2d2d;
 
     --theme-gradient: linear-gradient(45deg, var(--bonfire-violet) 20%, var(--bonfire-lavender) 36%, var(--bonfire-red) 52%, var(--bonfire-orange) 68%, var(--bonfire-yellow) 84%, var(--bonfire-cream) 100%);
+    --card-background: var(--bonfire-lavender);
 }
 
 /* Base styles */

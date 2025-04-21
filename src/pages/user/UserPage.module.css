@@ -1,0 +1,28 @@
+.userPage {
+    padding: 2rem;
+}
+
+.teamsTitle {
+    text-align: center;
+}
+
+.teamsList {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 2rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+/* Turn the page into CSS Grid to make it real nice */
+.teamItem {
+    /*width: 20%;*/
+}
+
+.createNewTeamButton {
+    height: 100%;
+    width: 100%;
+    border: 1px dashed;
+}

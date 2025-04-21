@@ -44,10 +44,7 @@ describe('TeamService', () => {
 
       const result = await TeamService.getTeams();
 
-      expect(result).toEqual(mockTeams.map(team => ({
-        ...team,
-        createdAt: team.createdAt.toISOString()
-      })));
+      expect(result).toEqual(mockTeams);
       expect(result.length).toBe(3);
     });
 
@@ -101,7 +98,7 @@ describe('TeamService', () => {
 
       const result = await TeamService.getTeam(TestConfig.teamId);
 
-      expect(result).toEqual({...mockTeamResponse, createdAt: TestConfig.createdAt.toISOString()});
+      expect(result).toEqual({...mockTeamResponse, createdAt: TestConfig.createdAt});
     });
 
     it('should handle errors when fetching a team', async () => {
