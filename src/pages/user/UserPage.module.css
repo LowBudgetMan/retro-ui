@@ -12,16 +12,19 @@
     flex-wrap: wrap;
     gap: 2rem;
     list-style: none;
+    justify-content: center;
     margin: 0;
     padding: 0;
 }
 
 /* Turn the page into CSS Grid to make it real nice */
 .teamItem {
-    /*width: 20%;*/
+    width: 200px;
+    text-overflow-ellipsis: auto;
 }
 
 .createNewTeamButton {
+    display: block;
     height: 100%;
     width: 100%;
     border: 1px dashed;
