@@ -2,6 +2,12 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { CreateTeamModal } from './CreateTeamModal';
 import { TeamService } from '../../../services/TeamService';
 import '@testing-library/jest-dom';
+import { useRevalidator } from 'react-router-dom';
+
+// Mock react-router-dom
+jest.mock('react-router-dom', () => ({
+  useRevalidator: jest.fn(),
+}));
 
 // Mock the TeamService
 jest.mock('../../../services/TeamService.ts', () => ({
@@ -26,8 +32,16 @@ describe('CreateTeamModal', () => {
     setIsOpen: jest.fn(),
   };
 
+  // Mock revalidator
+  const mockRevalidate = jest.fn().mockResolvedValue(undefined);
+  const mockRevalidator = {
+    revalidate: mockRevalidate,
+    state: 'idle'
+  };
+
   beforeEach(() => {
     jest.clearAllMocks();
+    (useRevalidator as jest.Mock).mockReturnValue(mockRevalidator);
   });
 
   describe('Rendering', () => {
@@ -124,7 +138,22 @@ describe('CreateTeamModal', () => {
       });
     });
 
-    it('should close the modal after successful team creation', async () => {
+    it('should call revalidator.revalidate after successful team creation', async () => {
+      render(<CreateTeamModal {...defaultProps} />);
+      
+      const input = screen.getByPlaceholderText('Team name');
+      const form = screen.getByRole('form');
+      
+      fireEvent.change(input, { target: { value: 'New Team Name' } });
+      fireEvent.submit(form);
+      
+      await waitFor(() => {
+        expect(TeamService.createTeam).toHaveBeenCalledWith('New Team Name');
+        expect(mockRevalidate).toHaveBeenCalled();
+      });
+    });
+
+    it('should close the modal after successful team creation and revalidation', async () => {
       render(<CreateTeamModal {...defaultProps} />);
       
       const input = screen.getByPlaceholderText('Team name');
@@ -152,6 +181,28 @@ describe('CreateTeamModal', () => {
       
       await waitFor(() => {
         expect(TeamService.createTeam).toHaveBeenCalledWith('New Team Name');
+        expect(mockRevalidate).not.toHaveBeenCalled();
+        expect(defaultProps.setIsOpen).not.toHaveBeenCalled();
+      });
+      
+      consoleErrorSpy.mockRestore();
+    });
+
+    it('should handle error when revalidation fails', async () => {
+      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+      mockRevalidate.mockRejectedValueOnce(new Error('Revalidation error'));
+      
+      render(<CreateTeamModal {...defaultProps} />);
+      
+      const input = screen.getByPlaceholderText('Team name');
+      const form = screen.getByRole('form');
+      
+      fireEvent.change(input, { target: { value: 'New Team Name' } });
+      fireEvent.submit(form);
+      
+      await waitFor(() => {
+        expect(TeamService.createTeam).toHaveBeenCalledWith('New Team Name');
+        expect(mockRevalidate).toHaveBeenCalled();
         expect(defaultProps.setIsOpen).not.toHaveBeenCalled();
       });
       

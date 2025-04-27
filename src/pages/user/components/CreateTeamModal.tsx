@@ -1,6 +1,7 @@
 import {FormEvent, useEffect} from "react";
 import modalStyle from './CreateTeamModal.module.css';
 import {TeamService} from "../../../services/TeamService.ts";
+import {useRevalidator} from "react-router-dom";
 
 interface CreateTeamModalProps {
     isOpen: boolean;
@@ -8,17 +9,18 @@ interface CreateTeamModalProps {
 }
 
 export function CreateTeamModal({isOpen, setIsOpen}: CreateTeamModalProps) {
+    const revalidator = useRevalidator();
     useEffect(() => {
         const handleEscapeKey = (event: KeyboardEvent) => {
             if (event.key === "Escape") {
                 setIsOpen(false);
             }
         };
-        
+
         if (isOpen) {
             document.addEventListener("keydown", handleEscapeKey);
         }
-        
+
         return () => {
             document.removeEventListener("keydown", handleEscapeKey);
         };
@@ -28,15 +30,21 @@ export function CreateTeamModal({isOpen, setIsOpen}: CreateTeamModalProps) {
         e.preventDefault();
         const form = e.target as HTMLFormElement;
         const nameInput = form.elements.namedItem('name') as HTMLInputElement;
-        //TODO: Refresh list of teams on success
         TeamService.createTeam(nameInput.value)
-            .then(() => setIsOpen(false))
+            .then(() => {
+                revalidator.revalidate()
+                    .then(() => setIsOpen(false))
+                    .catch((error) => console.error('Error refreshing team content:', error));
+            })
             .catch((error) => console.error('Error creating team:', error));
     };
 
     return (
         <>
-            {isOpen && <div><button className={modalStyle.backgroundButton} onClick={() => setIsOpen(false)} aria-label={'Close create team form'}></button></div>}
+            {isOpen && <div>
+                <button className={modalStyle.backgroundButton} onClick={() => setIsOpen(false)}
+                        aria-label={'Close create team form'}></button>
+            </div>}
             <dialog open={isOpen} className={modalStyle.modalContainer}>
                 <form className={modalStyle.form} onSubmit={(e) => handleSubmit(e)} role="form">
                     <p className={modalStyle.explanationText}>What should we call your new team?</p>
