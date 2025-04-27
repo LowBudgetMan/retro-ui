@@ -28,6 +28,7 @@ export function CreateTeamModal({isOpen, setIsOpen}: CreateTeamModalProps) {
         e.preventDefault();
         const form = e.target as HTMLFormElement;
         const nameInput = form.elements.namedItem('name') as HTMLInputElement;
+        //TODO: Refresh list of teams on success
         TeamService.createTeam(nameInput.value)
             .then(() => setIsOpen(false))
             .catch((error) => console.error('Error creating team:', error));
