@@ -51,7 +51,8 @@
       "^.+\\.tsx?$": "ts-jest"
     },
     "setupFilesAfterEnv": [
-      "@testing-library/jest-dom"
+      "@testing-library/jest-dom",
+      "<rootDir>/src/setupTests.ts"
     ]
   }
 }

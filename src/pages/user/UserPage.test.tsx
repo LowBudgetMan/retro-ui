@@ -1,7 +1,6 @@
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import { UserPage } from './UserPage';
 import { useLoaderData } from 'react-router-dom';
-import { CreateTeamModal } from './components/CreateTeamModal';
 import { TeamCard } from '../../components/TeamCard';
 import '@testing-library/jest-dom';
 
@@ -10,15 +9,13 @@ jest.mock('react-router-dom', () => ({
   useLoaderData: jest.fn(),
 }));
 
-// Mock the CreateTeamModal component
-jest.mock('./components/CreateTeamModal', () => ({
-  CreateTeamModal: jest.fn(({ isOpen, setIsOpen }) => (
-    isOpen ? (
-      <div data-testid="mock-create-team-modal">
-        <button onClick={() => setIsOpen(false)}>Close Modal</button>
-      </div>
-    ) : null
-  )),
+// Mock the CreateTeamButton component
+jest.mock('./components/CreateTeamButton', () => ({
+  CreateTeamButton: () => (
+    <div data-testid="mock-create-team-button">
+      <button data-testid="create-button">+</button>
+    </div>
+  ),
 }));
 
 // Mock the TeamCard component
@@ -101,52 +98,14 @@ describe('UserPage', () => {
   });
 
   describe('CreateTeamButton', () => {
-    it('should initially render with modal closed', () => {
+    it('should render the create team button', () => {
       render(<UserPage />);
       
-      expect(screen.queryByTestId('mock-create-team-modal')).not.toBeInTheDocument();
-    });
-
-    it('should open the modal when create team button is clicked', () => {
-      render(<UserPage />);
-      
-      fireEvent.click(screen.getByText('+'));
-      
-      expect(screen.getByTestId('mock-create-team-modal')).toBeInTheDocument();
-    });
-
-    it('should close the modal when close button is clicked', () => {
-      render(<UserPage />);
-      
-      // Open the modal
-      fireEvent.click(screen.getByText('+'));
-      expect(screen.getByTestId('mock-create-team-modal')).toBeInTheDocument();
-      
-      // Close the modal
-      fireEvent.click(screen.getByText('Close Modal'));
-      expect(screen.queryByTestId('mock-create-team-modal')).not.toBeInTheDocument();
+      expect(screen.getByTestId('mock-create-team-button')).toBeInTheDocument();
     });
   });
 
   describe('Integration with components', () => {
-    it('should pass correct props to CreateTeamModal', () => {
-      render(<UserPage />);
-      
-      // Initially not called with isOpen=true
-      expect(CreateTeamModal).toHaveBeenCalledWith(
-        expect.objectContaining({ isOpen: false }),
-        expect.anything()
-      );
-      
-      // Open the modal
-      fireEvent.click(screen.getByText('+'));
-      
-      // Should be called with isOpen=true
-      expect(CreateTeamModal).toHaveBeenCalledWith(
-        expect.objectContaining({ isOpen: true }),
-        expect.anything()
-      );
-    });
 
     it('should pass correct props to TeamCard components', () => {
       render(<UserPage />);

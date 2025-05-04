@@ -31,7 +31,6 @@ function disconnect(): void {
 function subscribe(destination: string, id: string, handler: (event: IMessage) => void): void {
     if (!subscriptions.some(subscription => subscription.id == id)) {
         subscriptions.push({destination, id, handler});
-        console.log(subscriptions);
         if (client && client.connected) {
             subscribeToClient({destination, id, handler});
         }

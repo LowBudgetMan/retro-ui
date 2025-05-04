@@ -1,6 +1,5 @@
-import {FormEvent, useEffect} from "react";
-import modalStyle from './CreateTeamModal.module.css';
-import {TeamService} from "../../../services/TeamService.ts";
+import { Modal } from "../../../components/Modal/Modal";
+import { CreateTeamForm } from "./CreateTeamForm";
 import {useRevalidator} from "react-router-dom";
 
 interface CreateTeamModalProps {
@@ -8,53 +7,29 @@ interface CreateTeamModalProps {
     setIsOpen: (isOpen: boolean) => void;
 }
 
-export function CreateTeamModal({isOpen, setIsOpen}: CreateTeamModalProps) {
+export function CreateTeamModal({ isOpen, setIsOpen }: CreateTeamModalProps) {
     const revalidator = useRevalidator();
-    useEffect(() => {
-        const handleEscapeKey = (event: KeyboardEvent) => {
-            if (event.key === "Escape") {
-                setIsOpen(false);
-            }
-        };
 
-        if (isOpen) {
-            document.addEventListener("keydown", handleEscapeKey);
-        }
+    const onSubmitSuccess = () => {
+        revalidator.revalidate()
+            .then(() => setIsOpen(false))
+            .catch((error) => console.error('Error refreshing team content:', error));
+    };
 
-        return () => {
-            document.removeEventListener("keydown", handleEscapeKey);
-        };
-    }, [isOpen, setIsOpen]);
-
-    const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
-        const form = e.target as HTMLFormElement;
-        const nameInput = form.elements.namedItem('name') as HTMLInputElement;
-        TeamService.createTeam(nameInput.value)
-            .then(() => {
-                revalidator.revalidate()
-                    .then(() => setIsOpen(false))
-                    .catch((error) => console.error('Error refreshing team content:', error));
-            })
-            .catch((error) => console.error('Error creating team:', error));
+    const onCancel = () => {
+        setIsOpen(false);
     };
 
     return (
-        <>
-            {isOpen && <div>
-                <button className={modalStyle.backgroundButton} onClick={() => setIsOpen(false)}
-                        aria-label={'Close create team form'}></button>
-            </div>}
-            <dialog open={isOpen} className={modalStyle.modalContainer}>
-                <form className={modalStyle.form} onSubmit={(e) => handleSubmit(e)} role="form">
-                    <p className={modalStyle.explanationText}>What should we call your new team?</p>
-                    <input id={'name'} name={'name'} type={'text'} placeholder={'Team name'}/>
-                    <div className={modalStyle.modalButtonsContainer}>
-                        <button type={'reset'} onClick={() => setIsOpen(false)}>Close</button>
-                        <button type={'submit'}>Confirm</button>
-                    </div>
-                </form>
-            </dialog>
-        </>
-    )
+        <Modal 
+            isOpen={isOpen} 
+            setIsOpen={setIsOpen}
+            backgroundButtonAriaLabel="Close create team form"
+        >
+            <CreateTeamForm
+                onSubmitSuccess={onSubmitSuccess}
+                onCancel={onCancel}
+            />
+        </Modal>
+    );
 }
