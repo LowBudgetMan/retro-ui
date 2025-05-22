@@ -5,11 +5,29 @@ import {useTheme, Theme} from "../styles/ThemeContext";
 export function Header() {
     const { theme, setTheme } = useTheme();
     const [authAction, setAuthAction] = useState<ReactElement>(loginButton);
-    //TODO: Initial state of login button is wrong after login I think because the header is displayed on the auth-redirect page and is then never updated again.
+    useEffect(() => {
+        userManager.events.addUserLoaded(() => {
+            setAuthAction(logoutButton);
+        });
+        
+        return () => {
+            userManager.events.removeUserLoaded(() => {});
+        };
+    }, [setAuthAction]);
+
+    useEffect(() => {
+        userManager.events.addUserUnloaded(() => {
+            setAuthAction(loginButton);
+        });
+
+        return () => {
+            userManager.events.removeUserUnloaded(() => {});
+        };
+    }, [setAuthAction]);
+
     useEffect(() => {
         userManager.getUser()
             .then((result) => {
-                console.log(result);
                 return result ? setAuthAction(logoutButton) : setAuthAction(loginButton)
             })
     }, [setAuthAction])
