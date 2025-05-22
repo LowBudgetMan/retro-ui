@@ -40,8 +40,10 @@ describe('Header', () => {
   });
 
   describe('Rendering', () => {
-    it('should render the header with title and theme toggle button', () => {
-      render(<Header />);
+    it('should render the header with title and theme toggle button', async () => {
+      await act(async () => {
+        render(<Header />);
+      });
       expect(screen.getByText('Retro UI')).toBeInTheDocument();
       expect(screen.getByTitle('Current theme: dark')).toBeInTheDocument();
     });
@@ -49,7 +51,9 @@ describe('Header', () => {
     it('should render login button by default', async () => {
       (userManager.getUser as jest.Mock).mockResolvedValue(null);
 
-      render(<Header />);
+      await act(async () => {
+        render(<Header />);
+      });
 
       await waitFor(() => {
         expect(screen.getByText('Login')).toBeInTheDocument();
@@ -60,7 +64,9 @@ describe('Header', () => {
     it('should render logout button when user is loaded', async () => {
       (userManager.getUser as jest.Mock).mockResolvedValue({ profile: { name: 'Test User' } });
       
-      render(<Header />);
+      await act(async () => {
+        render(<Header />);
+      });
       
       await waitFor(() => {
         expect(screen.getByText('Logout')).toBeInTheDocument();
@@ -68,35 +74,55 @@ describe('Header', () => {
       expect(userManager.getUser).toHaveBeenCalled();
     });
 
-    it('should display different theme icons based on current theme', () => {
+    it('should display different theme icons based on current theme', async () => {
       (useTheme as jest.Mock).mockReturnValue({
         theme: Theme.LIGHT,
         setTheme: jest.fn(),
       });
       
-      const { rerender } = render(<Header />);
+      let rerender: any;
+      await act(async () => {
+        const result = render(<Header />);
+        rerender = result.rerender;
+      });
+
+      expect(screen.getByText('☀️')).toBeInTheDocument(); // Light theme icon
 
       (useTheme as jest.Mock).mockReturnValue({
         theme: Theme.SYSTEM,
         setTheme: jest.fn(),
       });
-      rerender(<Header />);
+      
+      await act(async () => {
+        rerender(<Header />);
+      });
+      
+      expect(screen.getByText('⚙️')).toBeInTheDocument(); // System theme icon
     });
   });
 
   describe('User Authentication Events', () => {
-    it('should add userLoaded event listener on mount', () => {
-      render(<Header />);
+    it('should add userLoaded event listener on mount', async () => {
+      await act(async () => {
+        render(<Header />);
+      });
       expect(userManager.events.addUserLoaded).toHaveBeenCalled();
     });
 
-    it('should add userUnloaded event listener on mount', () => {
-      render(<Header />);
+    it('should add userUnloaded event listener on mount', async () => {
+      await act(async () => {
+        render(<Header />);
+      });
       expect(userManager.events.addUserUnloaded).toHaveBeenCalled();
     });
 
-    it('should remove event listeners on unmount', () => {
-      const { unmount } = render(<Header />);
+    it('should remove event listeners on unmount', async () => {
+      let unmount: any;
+      await act(async () => {
+        const result = render(<Header />);
+        unmount = result.unmount;
+      });
+      
       unmount();
       
       expect(userManager.events.removeUserLoaded).toHaveBeenCalled();
@@ -104,7 +130,9 @@ describe('Header', () => {
     });
 
     it('should set logout button when user is loaded', async () => {
-      render(<Header />);
+      await act(async () => {
+        render(<Header />);
+      });
       
       const userLoadedCallback = (userManager.events.addUserLoaded as jest.Mock).mock.calls[0][0];
       
@@ -118,7 +146,9 @@ describe('Header', () => {
     });
 
     it('should set login button when user is unloaded', async () => {
-      render(<Header />);
+      await act(async () => {
+        render(<Header />);
+      });
       
       const userUnloadedCallback = (userManager.events.addUserUnloaded as jest.Mock).mock.calls[0][0];
       
@@ -133,7 +163,7 @@ describe('Header', () => {
   });
 
   describe('Interactions', () => {
-    it('should toggle theme when theme button is clicked', () => {
+    it('should toggle theme when theme button is clicked', async () => {
       const setTheme = jest.fn();
       
       (useTheme as jest.Mock).mockReturnValue({
@@ -141,7 +171,9 @@ describe('Header', () => {
         setTheme,
       });
       
-      render(<Header />);
+      await act(async () => {
+        render(<Header />);
+      });
       
       fireEvent.click(screen.getByTitle('Current theme: dark'));
       
@@ -152,7 +184,9 @@ describe('Header', () => {
         setTheme,
       });
       
-      render(<Header />);
+      await act(async () => {
+        render(<Header />);
+      });
       
       fireEvent.click(screen.getByTitle('Current theme: light'));
       
@@ -163,7 +197,9 @@ describe('Header', () => {
         setTheme,
       });
       
-      render(<Header />);
+      await act(async () => {
+        render(<Header />);
+      });
       
       fireEvent.click(screen.getByTitle('Current theme: system'));
       
@@ -173,7 +209,9 @@ describe('Header', () => {
     it('should call signinRedirect when login button is clicked', async () => {
       (userManager.getUser as jest.Mock).mockResolvedValue(null);
       
-      render(<Header />);
+      await act(async () => {
+        render(<Header />);
+      });
       
       await waitFor(() => {
         expect(screen.getByText('Login')).toBeInTheDocument();
@@ -187,7 +225,9 @@ describe('Header', () => {
     it('should call signoutRedirect when logout button is clicked', async () => {
       (userManager.getUser as jest.Mock).mockResolvedValue({ profile: { name: 'Test User' } });
       
-      render(<Header />);
+      await act(async () => {
+        render(<Header />);
+      });
       
       await waitFor(() => {
         expect(screen.getByText('Logout')).toBeInTheDocument();
