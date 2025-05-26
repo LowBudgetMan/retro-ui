@@ -1,0 +1,10 @@
+.retrosList {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 2rem;
+    list-style: none;
+    justify-content: center;
+    margin: 0;
+    padding: 0;
+}

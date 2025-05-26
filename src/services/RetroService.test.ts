@@ -1,7 +1,7 @@
 import '@jest/globals';
 import axios from 'axios';
 import MockAdapter from 'axios-mock-adapter';
-import { RetroService, Retro, Thought } from './RetroService';
+import {RetroService, Retro, Thought, RetroListItem} from './RetroService';
 
 const mock = new MockAdapter(axios);
 
@@ -22,30 +22,15 @@ describe('RetroService', () => {
                     id: '1',
                     teamId,
                     finished: false,
-                    template: {
-                        id: 'template-1',
-                        name: 'Basic Retro',
-                        description: 'A basic retro template',
-                        categories: [
-                            {
-                                name: 'What went well',
-                                position: 0,
-                                lightBackgroundColor: '#e3f2fd',
-                                lightTextColor: '#1976d2',
-                                darkBackgroundColor: '#1976d2',
-                                darkTextColor: '#ffffff'
-                            }
-                        ]
-                    },
-                    thoughts: [],
-                    dateCreated: testDate.toISOString()
+                    templateId: 'template-1',
+                    createdAt: testDate.toISOString()
                 }
             ];
 
-            const expectedRetros: Retro[] = [
+            const expectedRetros: RetroListItem[] = [
                 {
                     ...mockRetroResponse[0],
-                    dateCreated: testDate
+                    createdAt: testDate
                 }
             ];
 

@@ -13,7 +13,7 @@ export function CreateTeamModal({ isOpen, setIsOpen }: CreateTeamModalProps) {
     const onSubmitSuccess = () => {
         revalidator.revalidate()
             .then(() => setIsOpen(false))
-            .catch((error) => console.error('Error refreshing team content:', error));
+            .catch((error) => console.error('Error refreshing user page content:', error));
     };
 
     const onCancel = () => {

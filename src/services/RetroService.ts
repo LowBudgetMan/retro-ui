@@ -9,6 +9,14 @@ export interface Retro {
     dateCreated: Date
 }
 
+export interface RetroListItem {
+    id: string,
+    teamId: string,
+    finished: boolean,
+    templateId: string,
+    createdAt: Date
+}
+
 export interface Template {
     id: string,
     name: string,
@@ -42,6 +50,13 @@ function transformRetro(retro: Retro): Retro {
     };
 }
 
+function transformRetroListItem(retro: RetroListItem): RetroListItem {
+    return {
+        ...retro,
+        createdAt: new Date(retro.createdAt)
+    };
+}
+
 function transformThought(thought: Thought): Thought {
     return {
         ...thought,
@@ -49,9 +64,9 @@ function transformThought(thought: Thought): Thought {
     };
 }
 
-async function getRetrosForTeam(teamId: string): Promise<Retro[]> {
+async function getRetrosForTeam(teamId: string): Promise<RetroListItem[]> {
     const response = await axios.get(`http://localhost:8080/api/teams/${teamId}/retros`);
-    return response.data.map(transformRetro);
+    return response.data.map(transformRetroListItem);
 }
 
 async function getRetro(teamId: string, retroId: string): Promise<Retro> {
