@@ -7,12 +7,12 @@ import {CreateRetroButton} from "./components/CreateRetroButton.tsx";
 export function TeamPage() {
     const team = useLoaderData() as TeamPageData;
     return (
-        <main>
+        <main className={teamStyles.teamPage}>
             <Link to={'/user'}>Home</Link>
             <h1>{team.name}</h1>
             <ul className={teamStyles.retrosList}>
-                <li><CreateRetroButton /></li>
-                {team.retros.map(retro => <li key={retro.id+retro.teamId}><RetroCard retro={retro} /></li>)}
+                <li className={teamStyles.retroListItem}><CreateRetroButton /></li>
+                {team.retros.map(retro => <li key={retro.id+retro.teamId} className={teamStyles.retroListItem}><RetroCard retro={retro} /></li>)}
             </ul>
         </main>
     )

@@ -2,7 +2,7 @@ import { ReactNode, useEffect } from "react";
 import modalStyle from './Modal.module.css';
 
 interface ModalProps {
-    isOpen: boolean;
+    isOpen?: boolean;
     setIsOpen: (isOpen: boolean) => void;
     children: ReactNode;
     backgroundButtonAriaLabel?: string;

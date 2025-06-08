@@ -10,8 +10,12 @@ export function CreateRetroButton() {
         <CreateModal
             buttonContent={<p>+</p>}
             buttonClassName={pageStyles.createNewRetroButton}
-            modalContent={(isOpen, setIsOpen) => (
-                <CreateRetroForm isOpen={isOpen} setIsOpen={setIsOpen} templates={templates}/>
+            modalContent={({setIsOpen}) => (
+                <CreateRetroForm 
+                    onSubmitSuccess={() => setIsOpen(false)} 
+                    onCancel={() => setIsOpen(false)} 
+                    templates={templates}
+                />
             )}
             backgroundButtonAriaLabel="Close create retro form"
         />

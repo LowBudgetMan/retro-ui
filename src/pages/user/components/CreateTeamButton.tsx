@@ -8,7 +8,7 @@ export function CreateTeamButton() {
         <CreateModal 
             buttonContent={<p>+</p>}
             buttonClassName={pageStyles.createNewTeamButton}
-            modalContent={(isOpen, setIsOpen) => (
+            modalContent={({isOpen, setIsOpen}) => (
                 <CreateTeamModal isOpen={isOpen} setIsOpen={setIsOpen}/>
             )}
             backgroundButtonAriaLabel="Close create team form"

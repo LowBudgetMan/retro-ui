@@ -3,7 +3,7 @@ import { CreateTeamForm } from "./CreateTeamForm";
 import {useRevalidator} from "react-router-dom";
 
 interface CreateTeamModalProps {
-    isOpen: boolean;
+    isOpen?: boolean;
     setIsOpen: (isOpen: boolean) => void;
 }
 
