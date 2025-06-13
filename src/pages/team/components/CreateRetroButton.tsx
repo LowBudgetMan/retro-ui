@@ -1,5 +1,5 @@
 import {useLoaderData} from "react-router-dom";
-import {CreateModal} from "../../../components/Modal/CreateModal.tsx";
+import {CreateModal} from "../../../components/modal/CreateModal.tsx";
 import pageStyles from "./CreateRetroButton.module.css";
 import {CreateRetroForm} from "./CreateRetroForm.tsx";
 import {TeamPageData} from "../teamLoader.ts";

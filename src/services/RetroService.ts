@@ -24,6 +24,14 @@ export interface Template {
     categories: Category[]
 }
 
+export const notFoundTemplate: Template = {
+    id: "retro-type-not-found",
+    name: "Retro Type Not Found",
+    categories: [],
+    description: "The retro type this retro is based off of could not be found.",
+
+}
+
 export interface Category {
     name: string,
     position: number,

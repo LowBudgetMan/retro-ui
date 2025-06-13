@@ -2,7 +2,7 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import { CreateModal } from './CreateModal';
 import '@testing-library/jest-dom';
 
-// Mock the Modal component
+// Mock the modal component
 jest.mock('./Modal', () => ({
   Modal: ({ isOpen, setIsOpen, children, backgroundButtonAriaLabel }: any) => (
     <div data-testid="mock-modal" data-is-open={isOpen} data-aria-label={backgroundButtonAriaLabel}>
@@ -34,7 +34,7 @@ describe('CreateModal', () => {
       expect(button).toHaveClass('test-button-class');
     });
 
-    it('should render the Modal component with the correct props', () => {
+    it('should render the modal component with the correct props', () => {
       render(<CreateModal {...defaultProps} />);
       
       const modal = screen.getByTestId('mock-modal');

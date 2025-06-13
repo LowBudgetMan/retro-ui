@@ -1,6 +1,6 @@
 import {ReactElement, useEffect, useState} from "react";
-import {userManager} from "../pages/user/UserContext.ts";
-import {useTheme, Theme} from "../styles/ThemeContext";
+import {userManager} from "../../pages/user/UserContext.ts";
+import {useTheme, Theme} from "../../styles/ThemeContext.tsx";
 
 export function Header() {
     const { theme, setTheme } = useTheme();

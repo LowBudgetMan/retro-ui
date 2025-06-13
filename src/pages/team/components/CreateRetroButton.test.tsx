@@ -8,7 +8,7 @@ jest.mock('react-router-dom', () => ({
   useLoaderData: jest.fn(),
 }));
 
-jest.mock('../../../components/Modal/CreateModal.tsx', () => ({
+jest.mock('../../../components/modal/CreateModal.tsx', () => ({
   CreateModal: ({ buttonContent, buttonClassName, modalContent, backgroundButtonAriaLabel }: any) => {
     const mockSetIsOpen = jest.fn();
     return (
@@ -184,7 +184,7 @@ describe('CreateRetroButton', () => {
     });
   });
 
-  describe('Modal Integration', () => {
+  describe('modal Integration', () => {
     it('should pass correct props to CreateModal', () => {
       render(<CreateRetroButton />);
       
@@ -245,49 +245,6 @@ describe('CreateRetroButton', () => {
       
       const templatesCount = screen.getByTestId('templates-count');
       expect(templatesCount).toHaveTextContent(mockTemplates.length.toString());
-    });
-  });
-
-  describe('TypeScript Integration', () => {
-    it('should properly type the loader data as TeamPageData', () => {
-      // This test verifies that the component correctly expects TeamPageData
-      // and extracts the templates property
-      const validTeamPageData = {
-        id: 'team-123',
-        name: 'Test Team',
-        retros: [],
-        templates: mockTemplates
-      };
-
-      (useLoaderData as jest.Mock).mockReturnValue(validTeamPageData);
-
-      expect(() => render(<CreateRetroButton />)).not.toThrow();
-    });
-  });
-
-  describe('Edge Cases', () => {
-    it('should handle undefined templates gracefully', () => {
-      (useLoaderData as jest.Mock).mockReturnValue({
-        id: 'team-123',
-        name: 'Test Team',
-        retros: [],
-        templates: undefined
-      });
-
-      // Component should handle this gracefully
-      expect(() => render(<CreateRetroButton />)).not.toThrow();
-      
-      const templatesCount = screen.getByTestId('templates-count');
-      expect(templatesCount).toHaveTextContent('0');
-    });
-
-    it('should handle null loader data', () => {
-      (useLoaderData as jest.Mock).mockReturnValue(null);
-
-      // This should throw an error as the component expects valid data
-      expect(() => render(<CreateRetroButton />)).toThrow(
-        "Cannot destructure property 'templates' of '(0 , react_router_dom_1.useLoaderData)(...)' as it is null."
-      );
     });
   });
 

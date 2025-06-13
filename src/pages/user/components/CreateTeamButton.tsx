@@ -1,4 +1,4 @@
-import { CreateModal } from "../../../components/Modal/CreateModal";
+import { CreateModal } from "../../../components/modal/CreateModal";
 import pageStyles from "../UserPage.module.css";
 import {CreateTeamModal} from "./CreateTeamModal.tsx";
 

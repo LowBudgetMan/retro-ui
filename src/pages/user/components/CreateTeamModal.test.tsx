@@ -10,8 +10,8 @@ jest.mock('react-router-dom', () => ({
   })
 }));
 
-// Mock the Modal component
-jest.mock('../../../components/Modal/Modal', () => ({
+// Mock the modal component
+jest.mock('../../../components/modal/Modal', () => ({
   Modal: ({ children, isOpen, setIsOpen, backgroundButtonAriaLabel }: any) => (
     <div data-testid="mock-modal" data-is-open={isOpen} data-aria-label={backgroundButtonAriaLabel}>
       <button data-testid="mock-close-button" onClick={() => setIsOpen(false)}>Close Modal</button>
@@ -44,14 +44,14 @@ describe('CreateTeamModal', () => {
   });
 
   describe('Rendering', () => {
-    it('should render the Modal with the correct props', () => {
+    it('should render the modal with the correct props', () => {
       render(<CreateTeamModal {...defaultProps} />);
       
       const modal = screen.getByTestId('mock-modal');
       expect(modal).toHaveAttribute('data-is-open', 'true');
       expect(modal).toHaveAttribute('data-aria-label', 'Close create team form');
       
-      // Modal content should be the CreateTeamForm
+      // modal content should be the CreateTeamForm
       expect(screen.getByTestId('mock-create-team-form')).toBeInTheDocument();
     });
   });

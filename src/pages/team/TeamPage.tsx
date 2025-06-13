@@ -3,6 +3,7 @@ import {TeamPageData} from "./teamLoader.ts";
 import {RetroCard} from "../../components/retro-card/RetroCard.tsx";
 import teamStyles from "./TeamPage.module.css";
 import {CreateRetroButton} from "./components/CreateRetroButton.tsx";
+import {notFoundTemplate} from "../../services/RetroService.ts";
 
 export function TeamPage() {
     const team = useLoaderData() as TeamPageData;
@@ -10,10 +11,12 @@ export function TeamPage() {
         <main className={teamStyles.teamPage}>
             <Link to={'/user'}>Home</Link>
             <h1>{team.name}</h1>
-            <ul className={teamStyles.retrosList}>
+            <ol className={teamStyles.retrosList}>
                 <li className={teamStyles.retroListItem}><CreateRetroButton /></li>
-                {team.retros.map(retro => <li key={retro.id+retro.teamId} className={teamStyles.retroListItem}><RetroCard retro={retro} /></li>)}
-            </ul>
+                {team.retros.map(retro => <li key={retro.id+retro.teamId} className={teamStyles.retroListItem}>
+                    <RetroCard retro={retro} template={team.templates.find((template) => template.id === retro.templateId) || notFoundTemplate}/>
+                </li>)}
+            </ol>
         </main>
     )
 }

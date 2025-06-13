@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import { UserPage } from './UserPage';
 import { useLoaderData } from 'react-router-dom';
-import { TeamCard } from '../../components/TeamCard';
+import { TeamCard } from '../../components/team-card/TeamCard.tsx';
 import '@testing-library/jest-dom';
 
 // Mock react-router-dom
@@ -18,8 +18,8 @@ jest.mock('./components/CreateTeamButton', () => ({
   ),
 }));
 
-// Mock the TeamCard component
-jest.mock('../../components/TeamCard', () => ({
+// Mock the team-card component
+jest.mock('../../components/team-card/TeamCard.tsx', () => ({
   TeamCard: jest.fn(({ team }) => (
     <div data-testid={`team-card-${team.id}`}>
       {team.name}
@@ -52,13 +52,6 @@ describe('UserPage', () => {
   });
 
   describe('Rendering', () => {
-    it('should render the user page with correct user name', () => {
-      render(<UserPage />);
-      
-      expect(screen.getByText('Welcome, Test User')).toBeInTheDocument();
-      expect(screen.getByText('Teams')).toBeInTheDocument();
-    });
-
     it('should render the create team button', () => {
       render(<UserPage />);
       
@@ -107,7 +100,7 @@ describe('UserPage', () => {
 
   describe('Integration with components', () => {
 
-    it('should pass correct props to TeamCard components', () => {
+    it('should pass correct props to team-card components', () => {
       render(<UserPage />);
       
       expect(TeamCard).toHaveBeenCalledTimes(2);

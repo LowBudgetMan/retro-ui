@@ -2,3 +2,29 @@
     text-decoration: none;
     color: unset;
 }
+
+.retroCard {
+    padding: 1rem 1.5rem;
+    transition: transform 0.2s;
+    background-color: var(--card-background);
+    border-radius: 0.5rem;
+}
+
+.retroCard {
+    transition: box-shadow 0.1s;
+}
+
+.retroCard:hover {
+    box-shadow: 0 10px 14px 8px rgba(0,0,0,0.2);
+    transform: translateY(-3px);
+}
+
+.retroName {
+    margin: 0 0 0.5rem 0;
+    font-size: 1.2rem;
+    font-weight: 600;
+}
+
+.retroCreatedDate {
+    margin: 0;
+}

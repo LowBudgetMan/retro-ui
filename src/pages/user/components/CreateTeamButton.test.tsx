@@ -11,7 +11,7 @@ jest.mock('react-router-dom', () => ({
 }));
 
 // Mock the CreateModal component
-jest.mock('../../../components/Modal/CreateModal', () => ({
+jest.mock('../../../components/modal/CreateModal', () => ({
   CreateModal: ({ buttonContent, buttonClassName, modalContent, backgroundButtonAriaLabel }: any) => (
     <div data-testid="mock-create-modal" data-aria-label={backgroundButtonAriaLabel}>
       <button data-testid="mock-button" className={buttonClassName}>
@@ -57,7 +57,7 @@ describe('CreateTeamButton', () => {
       expect(button).toHaveClass('mock-create-new-team-button-class');
       expect(button).toHaveTextContent('+');
       
-      // Modal content should be the CreateTeamModal
+      // modal content should be the CreateTeamModal
       expect(screen.getByTestId('mock-create-team-modal')).toBeInTheDocument();
     });
   });

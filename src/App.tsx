@@ -8,7 +8,7 @@ import {loader as teamLoader} from "./pages/team/teamLoader.ts";
 import {loader as retroLoader} from "./pages/retro/retroLoader.ts";
 import {AuthRedirectPage} from "./pages/auth-redirect/AuthRedirectPage.tsx";
 import {configureAxios} from "./services/AxiosConfig.ts";
-import {Header} from "./components/Header.tsx";
+import {Header} from "./components/header/Header.tsx";
 import {ThemeProvider} from "./styles/ThemeContext.tsx";
 
 configureAxios();

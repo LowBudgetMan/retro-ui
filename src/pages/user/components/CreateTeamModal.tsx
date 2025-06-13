@@ -1,4 +1,4 @@
-import { Modal } from "../../../components/Modal/Modal";
+import { Modal } from "../../../components/modal/Modal";
 import { CreateTeamForm } from "./CreateTeamForm";
 import {useRevalidator} from "react-router-dom";
 
