@@ -8,7 +8,7 @@ export function RetroComponent() {
     const {retro} = useRetro();
     return (
         <div>
-            <h1><Link to={`/teams/${retro.teamId}`} className={'breadcrumb'}>&lt;</Link>Retro</h1>
+            <h1><Link to={`/teams/${retro.teamId}`} className={'breadcrumb'}>&lt;</Link>{retro.template.name}</h1>
             <div className={style.retroColumns}>
             {retro.template.categories.map(category => (
                 <RetroColumn

@@ -12,7 +12,7 @@ export function TeamPage() {
         <main className={teamStyles.teamPage}>
 
             {/* This probably needs to not be directly in the h1 tag for accessibility reasons */}
-            <h1><Link to={'/user'} className={'breadcrumb'}>&lt;</Link> {team.name}</h1>
+            <h1><Link to={'/user'} className={'breadcrumb'} aria-label={"Back to user home"}>&lt;</Link> {team.name}</h1>
             <ol className={teamStyles.retrosList}>
                 <li className={teamStyles.retroListItem}><CreateRetroButton /></li>
                 {team.retros.map(retro => <li key={retro.id+retro.teamId} className={teamStyles.retroListItem}>

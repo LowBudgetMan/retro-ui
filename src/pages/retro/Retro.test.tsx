@@ -4,6 +4,15 @@ import { useRetro } from './RetroContext.tsx';
 import { RetroService } from '../../services/RetroService.ts';
 import '@testing-library/jest-dom';
 
+jest.mock('react-router-dom', () => ({
+  useLoaderData: jest.fn(),
+  Link: ({ to, children, ...props }: any) => (
+      <a href={to} {...props}>
+        {children}
+      </a>
+  ),
+}));
+
 jest.mock('./RetroPage.module.css', () => ({
   retroColumns: 'mock-retro-columns-class',
 }));
@@ -77,7 +86,7 @@ describe('RetroComponent', () => {
   test('renders retro component with correct categories', () => {
     render(<RetroComponent />);
     
-    expect(screen.getByText('Retro')).toBeInTheDocument();
+    expect(screen.getByText(/Basic Retro/)).toBeInTheDocument();
     expect(screen.getByText('Went Well')).toBeInTheDocument();
     expect(screen.getByText('Needs Improvement')).toBeInTheDocument();
     expect(screen.getByText('Test thought 1')).toBeInTheDocument();

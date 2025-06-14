@@ -105,7 +105,7 @@ describe('TeamPage', () => {
     it('should render the home link', () => {
       render(<TeamPage />);
       
-      const homeLink = screen.getByRole('link', { name: 'Home' });
+      const homeLink = screen.getByRole('link', { name: 'Back to user home' });
       expect(homeLink).toBeInTheDocument();
       expect(homeLink).toHaveAttribute('href', '/user');
     });
@@ -182,7 +182,7 @@ describe('TeamPage', () => {
     it('should render home link with correct href', () => {
       render(<TeamPage />);
       
-      const homeLink = screen.getByRole('link', { name: 'Home' });
+      const homeLink = screen.getByRole('link', { name: 'Back to user home' });
       expect(homeLink).toHaveAttribute('href', '/user');
     });
   });

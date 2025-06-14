@@ -27,7 +27,8 @@
 
 @media (min-width: 768px) {
     .modalContainer {
-        width: 300px;
+        width: fit-content;
+        min-width: 300px;
         height: fit-content;
     }
 }
