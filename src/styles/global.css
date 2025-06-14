@@ -1,3 +1,11 @@
+:root {
+    --darkblue: #314F53;
+    --lightblue: #4F97A0;
+    --beige: #EAD0BF;
+    --mud: #B86738;
+    --chocolate: #392119;
+}
+
 :root[data-theme="light"] {
     --bonfire-violet: #776E99;
     --bonfire-lavender: #B5728E;
@@ -17,6 +25,7 @@
 
     --theme-gradient: linear-gradient(-45deg, var(--bonfire-violet) 20%, var(--bonfire-lavender) 36%, var(--bonfire-red) 52%, var(--bonfire-orange) 68%, var(--bonfire-yellow) 84%, var(--bonfire-cream) 100%);
     --card-background: #FEFEF0;
+    --breadcrumb-color: var(--bonfire-lavender);
 }
 
 :root[data-theme="dark"] {
@@ -38,6 +47,7 @@
 
     --theme-gradient: linear-gradient(45deg, var(--bonfire-violet) 20%, var(--bonfire-lavender) 36%, var(--bonfire-red) 52%, var(--bonfire-orange) 68%, var(--bonfire-yellow) 84%, var(--bonfire-cream) 100%);
     --card-background: var(--bonfire-lavender);
+    --breadcrumb-color: var(--bonfire-orange);
 }
 
 /* Base styles */
@@ -134,4 +144,13 @@ button {
 
 button:hover {
     background-color: var(--background-secondary);
-} 
+}
+
+.breadcrumb {
+    text-decoration: none;
+    color: var(--breadcrumb-color);
+    border: 2px solid var(--breadcrumb-color);
+    padding: .5rem 1rem;
+    border-radius: 20rem;
+    margin-right: 1rem;
+}

@@ -2,12 +2,13 @@ import {useRetro} from "./RetroContext.tsx";
 import {Category, RetroService, Thought} from "../../services/RetroService.ts";
 import {useState} from "react";
 import style from "./RetroPage.module.css"
+import {Link} from "react-router-dom";
 
 export function RetroComponent() {
     const {retro} = useRetro();
     return (
         <div>
-            <h1>Retro</h1>
+            <h1><Link to={`/teams/${retro.teamId}`} className={'breadcrumb'}>&lt;</Link>Retro</h1>
             <div className={style.retroColumns}>
             {retro.template.categories.map(category => (
                 <RetroColumn
