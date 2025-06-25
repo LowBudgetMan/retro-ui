@@ -1,11 +1,12 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { CreateRetroForm } from './CreateRetroForm';
 import { RetroService, Template } from '../../../services/RetroService';
-import { useTheme, Theme } from '../../../styles/ThemeContext';
 import { useLoaderData, useRevalidator } from 'react-router-dom';
+import { BrowserRouter } from 'react-router-dom';
 import '@testing-library/jest-dom';
 
 jest.mock('react-router-dom', () => ({
+  ...jest.requireActual('react-router-dom'),
   useLoaderData: jest.fn(),
   useRevalidator: jest.fn(),
 }));
@@ -16,27 +17,25 @@ jest.mock('../../../services/RetroService.ts', () => ({
   },
 }));
 
-jest.mock('../../../styles/ThemeContext.tsx', () => ({
-  useTheme: jest.fn(),
-  Theme: {
-    LIGHT: 'light',
-    DARK: 'dark',
-    SYSTEM: 'system',
-  },
+jest.mock('./CreateRetroForm.module.css', () => ({
+  createRetroContainer: 'mock-create-retro-container-class',
+  closeButton: 'mock-close-button-class',
+  optionsList: 'mock-options-list-class',
 }));
 
-jest.mock('./CreateRetroForm.module.css', () => ({
-  form: 'mock-form-class',
-  explanationText: 'mock-explanation-text-class',
-  templateGrid: 'mock-template-grid-class',
-  templateOption: 'mock-template-option-class',
-  hiddenRadio: 'mock-hidden-radio-class',
-  templateLabel: 'mock-template-label-class',
-  templateContent: 'mock-template-content-class',
-  templateName: 'mock-template-name-class',
-  categoriesPreview: 'mock-categories-preview-class',
-  categoryTag: 'mock-category-tag-class',
-  modalButtonsContainer: 'mock-modal-buttons-container-class',
+jest.mock('./CreateRetroFormOption.tsx', () => ({
+  CreateRetroFormOption: ({ template, selectionCallback }: any) => (
+    <div data-testid={`option-${template.id}`}>
+      <h3>{template.name}</h3>
+      <p>{template.description}</p>
+      <button 
+        data-testid={`select-${template.id}`}
+        onClick={() => selectionCallback(template.id)}
+      >
+        Use this template
+      </button>
+    </div>
+  ),
 }));
 
 describe('CreateRetroForm', () => {
@@ -100,221 +99,88 @@ describe('CreateRetroForm', () => {
     templates: mockTemplates
   };
 
+  const renderWithRouter = (component: React.ReactElement) => {
+    return render(
+      <BrowserRouter>
+        {component}
+      </BrowserRouter>
+    );
+  };
+
   beforeEach(() => {
     jest.clearAllMocks();
     (useRevalidator as jest.Mock).mockReturnValue(mockRevalidator);
     (useLoaderData as jest.Mock).mockReturnValue(mockTeamData);
-    (useTheme as jest.Mock).mockReturnValue({ theme: Theme.LIGHT });
-    
-    // Mock window.matchMedia
-    Object.defineProperty(window, 'matchMedia', {
-      writable: true,
-      value: jest.fn().mockImplementation(query => ({
-        matches: false,
-        media: query,
-        onchange: null,
-        addListener: jest.fn(),
-        removeListener: jest.fn(),
-        addEventListener: jest.fn(),
-        removeEventListener: jest.fn(),
-        dispatchEvent: jest.fn(),
-      })),
-    });
   });
 
   describe('Rendering', () => {
-    it('should render the form with explanation text', () => {
-      render(<CreateRetroForm {...defaultProps} />);
+    it('should render the container with close button', () => {
+      renderWithRouter(<CreateRetroForm {...defaultProps} />);
       
-      expect(screen.getByText('Choose a Retro Style')).toBeInTheDocument();
-      expect(screen.getByRole('form')).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'X' })).toBeInTheDocument();
     });
 
-    it('should render all template options', () => {
-      render(<CreateRetroForm {...defaultProps} />);
+    it('should render a list of template options', () => {
+      renderWithRouter(<CreateRetroForm {...defaultProps} />);
+      
+      const optionsList = screen.getByRole('list');
+      expect(optionsList).toBeInTheDocument();
+      
+      // Check that all templates are rendered as options
+      expect(screen.getByTestId('option-template-1')).toBeInTheDocument();
+      expect(screen.getByTestId('option-template-2')).toBeInTheDocument();
+    });
+
+    it('should render all template options with correct content', () => {
+      renderWithRouter(<CreateRetroForm {...defaultProps} />);
       
       expect(screen.getByText('Start Stop Continue')).toBeInTheDocument();
       expect(screen.getByText('Mad Sad Glad')).toBeInTheDocument();
+      expect(screen.getByText('Classic retrospective format')).toBeInTheDocument();
+      expect(screen.getByText('Emotional retrospective format')).toBeInTheDocument();
     });
 
-    it('should render template categories with correct styling in light mode', () => {
-      render(<CreateRetroForm {...defaultProps} />);
+    it('should render selection buttons for each template', () => {
+      renderWithRouter(<CreateRetroForm {...defaultProps} />);
       
-      const startCategory = screen.getByText('Start');
-      expect(startCategory).toBeInTheDocument();
-      expect(startCategory).toHaveStyle({
-        backgroundColor: '#e8f5e8',
-        color: '#2d5a2d'
-      });
+      expect(screen.getByTestId('select-template-1')).toBeInTheDocument();
+      expect(screen.getByTestId('select-template-2')).toBeInTheDocument();
+      
+      const selectButtons = screen.getAllByText('Use this template');
+      expect(selectButtons).toHaveLength(2);
     });
 
-    it('should render template categories with correct styling in dark mode', () => {
-      (useTheme as jest.Mock).mockReturnValue({ theme: Theme.DARK });
+    it('should render list items for each template', () => {
+      renderWithRouter(<CreateRetroForm {...defaultProps} />);
       
-      render(<CreateRetroForm {...defaultProps} />);
-      
-      const startCategory = screen.getByText('Start');
-      expect(startCategory).toHaveStyle({
-        backgroundColor: '#1a3d1a',
-        color: '#90ee90'
-      });
-    });
-
-    it('should render template categories with correct styling in system mode with dark preference', () => {
-      (useTheme as jest.Mock).mockReturnValue({ theme: Theme.SYSTEM });
-      Object.defineProperty(window, 'matchMedia', {
-        writable: true,
-        value: jest.fn().mockImplementation(query => ({
-          matches: true, // Dark mode preference
-          media: query,
-          onchange: null,
-          addListener: jest.fn(),
-          removeListener: jest.fn(),
-          addEventListener: jest.fn(),
-          removeEventListener: jest.fn(),
-          dispatchEvent: jest.fn(),
-        })),
-      });
-      
-      render(<CreateRetroForm {...defaultProps} />);
-      
-      const startCategory = screen.getByText('Start');
-      expect(startCategory).toHaveStyle({
-        backgroundColor: '#1a3d1a',
-        color: '#90ee90'
-      });
-    });
-
-    it('should render radio inputs for each template', () => {
-      render(<CreateRetroForm {...defaultProps} />);
-      
-      const template1Radio = screen.getByRole('radio', { name: /start stop continue/i });
-      const template2Radio = screen.getByRole('radio', { name: /mad sad glad/i });
-      
-      expect(template1Radio).toBeInTheDocument();
-      expect(template2Radio).toBeInTheDocument();
-      expect(template1Radio).toHaveAttribute('value', 'template-1');
-      expect(template2Radio).toHaveAttribute('value', 'template-2');
-    });
-
-    it('should render Close and Confirm buttons', () => {
-      render(<CreateRetroForm {...defaultProps} />);
-      
-      expect(screen.getByRole('button', { name: 'Close' })).toBeInTheDocument();
-      expect(screen.getByRole('button', { name: 'Confirm' })).toBeInTheDocument();
-    });
-  });
-
-  describe('Theme handling', () => {
-    it('should listen for system theme changes when theme is SYSTEM', () => {
-      const mockAddEventListener = jest.fn();
-      const mockRemoveEventListener = jest.fn();
-      
-      Object.defineProperty(window, 'matchMedia', {
-        writable: true,
-        value: jest.fn().mockImplementation(query => ({
-          matches: false,
-          media: query,
-          onchange: null,
-          addListener: jest.fn(),
-          removeListener: jest.fn(),
-          addEventListener: mockAddEventListener,
-          removeEventListener: mockRemoveEventListener,
-          dispatchEvent: jest.fn(),
-        })),
-      });
-
-      (useTheme as jest.Mock).mockReturnValue({ theme: Theme.SYSTEM });
-      
-      const { unmount } = render(<CreateRetroForm {...defaultProps} />);
-      
-      expect(mockAddEventListener).toHaveBeenCalledWith('change', expect.any(Function));
-      
-      unmount();
-      
-      expect(mockRemoveEventListener).toHaveBeenCalledWith('change', expect.any(Function));
-    });
-
-    it('should not listen for system theme changes when theme is not SYSTEM', () => {
-      const mockAddEventListener = jest.fn();
-      
-      Object.defineProperty(window, 'matchMedia', {
-        writable: true,
-        value: jest.fn().mockImplementation(query => ({
-          matches: false,
-          media: query,
-          onchange: null,
-          addListener: jest.fn(),
-          removeListener: jest.fn(),
-          addEventListener: mockAddEventListener,
-          removeEventListener: jest.fn(),
-          dispatchEvent: jest.fn(),
-        })),
-      });
-
-      (useTheme as jest.Mock).mockReturnValue({ theme: Theme.LIGHT });
-      
-      render(<CreateRetroForm {...defaultProps} />);
-      
-      expect(mockAddEventListener).not.toHaveBeenCalled();
+      const listItems = screen.getAllByRole('listitem');
+      expect(listItems).toHaveLength(2);
     });
   });
 
   describe('Interactions', () => {
-    it('should call onCancel when Close button is clicked', () => {
-      render(<CreateRetroForm {...defaultProps} />);
+    it('should call onCancel when close button is clicked', () => {
+      renderWithRouter(<CreateRetroForm {...defaultProps} />);
       
-      fireEvent.click(screen.getByRole('button', { name: 'Close' }));
+      fireEvent.click(screen.getByRole('button', { name: 'X' }));
       
       expect(defaultProps.onCancel).toHaveBeenCalled();
     });
 
-    it('should allow selecting a template', () => {
-      render(<CreateRetroForm {...defaultProps} />);
+    it('should pass handleSelection to each option component', () => {
+      renderWithRouter(<CreateRetroForm {...defaultProps} />);
       
-      const template1Radio = screen.getByRole('radio', { name: /start stop continue/i });
-      
-      fireEvent.click(template1Radio);
-      
-      expect(template1Radio).toBeChecked();
-    });
-
-    it('should allow switching between templates', () => {
-      render(<CreateRetroForm {...defaultProps} />);
-      
-      const template1Radio = screen.getByRole('radio', { name: /start stop continue/i });
-      const template2Radio = screen.getByRole('radio', { name: /mad sad glad/i });
-      
-      fireEvent.click(template1Radio);
-      expect(template1Radio).toBeChecked();
-      expect(template2Radio).not.toBeChecked();
-      
-      fireEvent.click(template2Radio);
-      expect(template2Radio).toBeChecked();
-      expect(template1Radio).not.toBeChecked();
+      // Verify that the selection buttons are present, indicating handleSelection was passed
+      expect(screen.getByTestId('select-template-1')).toBeInTheDocument();
+      expect(screen.getByTestId('select-template-2')).toBeInTheDocument();
     });
   });
 
-  describe('Form Submission', () => {
-    it('should show alert when no template is selected', () => {
-      const alertSpy = jest.spyOn(window, 'alert').mockImplementation(() => {});
+  describe('Selection Handling', () => {
+    it('should call RetroService.createRetro when handleSelection is called', async () => {
+      renderWithRouter(<CreateRetroForm {...defaultProps} />);
       
-      render(<CreateRetroForm {...defaultProps} />);
-      
-      fireEvent.submit(screen.getByRole('form'));
-      
-      expect(alertSpy).toHaveBeenCalledWith('Please select a template');
-      expect(RetroService.createRetro).not.toHaveBeenCalled();
-      
-      alertSpy.mockRestore();
-    });
-
-    it('should call RetroService.createRetro with correct parameters when template is selected', async () => {
-      render(<CreateRetroForm {...defaultProps} />);
-      
-      const template1Radio = screen.getByRole('radio', { name: /start stop continue/i });
-      fireEvent.click(template1Radio);
-      fireEvent.submit(screen.getByRole('form'));
+      fireEvent.click(screen.getByTestId('select-template-1'));
       
       await waitFor(() => {
         expect(RetroService.createRetro).toHaveBeenCalledWith('team-123', 'template-1');
@@ -322,11 +188,9 @@ describe('CreateRetroForm', () => {
     });
 
     it('should call revalidator.revalidate after successful retro creation', async () => {
-      render(<CreateRetroForm {...defaultProps} />);
+      renderWithRouter(<CreateRetroForm {...defaultProps} />);
       
-      const template1Radio = screen.getByRole('radio', { name: /start stop continue/i });
-      fireEvent.click(template1Radio);
-      fireEvent.submit(screen.getByRole('form'));
+      fireEvent.click(screen.getByTestId('select-template-1'));
       
       await waitFor(() => {
         expect(RetroService.createRetro).toHaveBeenCalledWith('team-123', 'template-1');
@@ -335,11 +199,9 @@ describe('CreateRetroForm', () => {
     });
 
     it('should call onSubmitSuccess after successful retro creation and revalidation', async () => {
-      render(<CreateRetroForm {...defaultProps} />);
+      renderWithRouter(<CreateRetroForm {...defaultProps} />);
       
-      const template1Radio = screen.getByRole('radio', { name: /start stop continue/i });
-      fireEvent.click(template1Radio);
-      fireEvent.submit(screen.getByRole('form'));
+      fireEvent.click(screen.getByTestId('select-template-1'));
       
       await waitFor(() => {
         expect(RetroService.createRetro).toHaveBeenCalledWith('team-123', 'template-1');
@@ -348,15 +210,33 @@ describe('CreateRetroForm', () => {
       });
     });
 
+    it('should handle different template selections correctly', async () => {
+      renderWithRouter(<CreateRetroForm {...defaultProps} />);
+      
+      // Test first template
+      fireEvent.click(screen.getByTestId('select-template-1'));
+      
+      await waitFor(() => {
+        expect(RetroService.createRetro).toHaveBeenCalledWith('team-123', 'template-1');
+      });
+      
+      jest.clearAllMocks();
+      
+      // Test second template
+      fireEvent.click(screen.getByTestId('select-template-2'));
+      
+      await waitFor(() => {
+        expect(RetroService.createRetro).toHaveBeenCalledWith('team-123', 'template-2');
+      });
+    });
+
     it('should handle error when retro creation fails', async () => {
       const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
       (RetroService.createRetro as jest.Mock).mockRejectedValueOnce(new Error('API error'));
       
-      render(<CreateRetroForm {...defaultProps} />);
+      renderWithRouter(<CreateRetroForm {...defaultProps} />);
       
-      const template1Radio = screen.getByRole('radio', { name: /start stop continue/i });
-      fireEvent.click(template1Radio);
-      fireEvent.submit(screen.getByRole('form'));
+      fireEvent.click(screen.getByTestId('select-template-1'));
       
       await waitFor(() => {
         expect(RetroService.createRetro).toHaveBeenCalledWith('team-123', 'template-1');
@@ -371,11 +251,9 @@ describe('CreateRetroForm', () => {
       const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
       mockRevalidate.mockRejectedValueOnce(new Error('Revalidation error'));
       
-      render(<CreateRetroForm {...defaultProps} />);
+      renderWithRouter(<CreateRetroForm {...defaultProps} />);
       
-      const template1Radio = screen.getByRole('radio', { name: /start stop continue/i });
-      fireEvent.click(template1Radio);
-      fireEvent.submit(screen.getByRole('form'));
+      fireEvent.click(screen.getByTestId('select-template-1'));
       
       await waitFor(() => {
         expect(RetroService.createRetro).toHaveBeenCalledWith('team-123', 'template-1');
@@ -388,41 +266,13 @@ describe('CreateRetroForm', () => {
     });
   });
 
-  describe('Accessibility', () => {
-    it('should have proper form role', () => {
-      render(<CreateRetroForm {...defaultProps} />);
-      
-      expect(screen.getByRole('form')).toBeInTheDocument();
-    });
-
-    it('should have proper radio group structure', () => {
-      render(<CreateRetroForm {...defaultProps} />);
-      
-      const radioButtons = screen.getAllByRole('radio');
-      expect(radioButtons).toHaveLength(2);
-      
-      radioButtons.forEach(radio => {
-        expect(radio).toHaveAttribute('name', 'template');
-      });
-    });
-
-    it('should have proper labels for radio buttons', () => {
-      render(<CreateRetroForm {...defaultProps} />);
-      
-      const template1Radio = screen.getByRole('radio', { name: /start stop continue/i });
-      const template2Radio = screen.getByRole('radio', { name: /mad sad glad/i });
-      
-      expect(template1Radio).toHaveAttribute('id', 'template-template-1');
-      expect(template2Radio).toHaveAttribute('id', 'template-template-2');
-    });
-  });
-
   describe('Edge Cases', () => {
     it('should handle empty templates array', () => {
-      render(<CreateRetroForm {...defaultProps} templates={[]} />);
+      renderWithRouter(<CreateRetroForm {...defaultProps} templates={[]} />);
       
-      expect(screen.getByText('Choose a Retro Style')).toBeInTheDocument();
-      expect(screen.queryByRole('radio')).not.toBeInTheDocument();
+      const optionsList = screen.getByRole('list');
+      expect(optionsList).toBeInTheDocument();
+      expect(screen.queryByRole('listitem')).not.toBeInTheDocument();
     });
 
     it('should handle template with no categories', () => {
@@ -435,10 +285,43 @@ describe('CreateRetroForm', () => {
         }
       ];
       
-      render(<CreateRetroForm {...defaultProps} templates={templateWithNoCategories} />);
+      renderWithRouter(<CreateRetroForm {...defaultProps} templates={templateWithNoCategories} />);
       
       expect(screen.getByText('Empty Template')).toBeInTheDocument();
-      expect(screen.getByRole('radio', { name: /empty template/i })).toBeInTheDocument();
+      expect(screen.getByTestId('option-template-empty')).toBeInTheDocument();
+      expect(screen.getByTestId('select-template-empty')).toBeInTheDocument();
+    });
+
+    it('should render correct number of list items for any number of templates', () => {
+      const singleTemplate = [mockTemplates[0]];
+      
+      renderWithRouter(<CreateRetroForm {...defaultProps} templates={singleTemplate} />);
+      
+      const listItems = screen.getAllByRole('listitem');
+      expect(listItems).toHaveLength(1);
+    });
+  });
+
+  describe('Component Integration', () => {
+    it('should pass template data correctly to CreateRetroFormOption components', () => {
+      renderWithRouter(<CreateRetroForm {...defaultProps} />);
+      
+      // Verify that template data is passed correctly by checking rendered content
+      expect(screen.getByText('Start Stop Continue')).toBeInTheDocument();
+      expect(screen.getByText('Mad Sad Glad')).toBeInTheDocument();
+      expect(screen.getByText('Classic retrospective format')).toBeInTheDocument();
+      expect(screen.getByText('Emotional retrospective format')).toBeInTheDocument();
+    });
+
+    it('should pass selectionCallback correctly to CreateRetroFormOption components', async () => {
+      renderWithRouter(<CreateRetroForm {...defaultProps} />);
+      
+      // Test that clicking the button triggers the callback
+      fireEvent.click(screen.getByTestId('select-template-1'));
+      
+      await waitFor(() => {
+        expect(RetroService.createRetro).toHaveBeenCalledWith('team-123', 'template-1');
+      });
     });
   });
 });

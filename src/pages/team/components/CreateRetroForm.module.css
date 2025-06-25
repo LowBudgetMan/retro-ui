@@ -1,141 +1,35 @@
-.form {
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
+.createRetroContainer {
+    padding: 2rem;
 }
 
-.explanationText {
-    margin: 0;
-    font-size: 1.1rem;
-    font-weight: 500;
-    text-align: center;
-}
-
-.templateGrid {
+.optionsList {
+    list-style-type: none;
+    padding: 0;
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     gap: 1rem;
-    margin: 1rem 0;
 }
 
-.templateOption {
-    position: relative;
-}
-
-.hiddenRadio {
+.closeButton {
+    color: darkgray;
     position: absolute;
-    opacity: 0;
-    pointer-events: none;
-}
-
-.hiddenRadio:checked + .templateLabel {
-    border-color: var(--primary-color, #007bff);
-    background-color: var(--primary-light, #f8f9ff);
-    box-shadow: 0 4px 12px rgba(0, 123, 255, 0.2);
-}
-
-.templateLabel {
-    display: block;
-    padding: 1.5rem;
-    border: 2px solid var(--border-color, #e0e0e0);
-    border-radius: 8px;
-    background-color: var(--background-color, #ffffff);
-    cursor: pointer;
-    transition: all 0.2s ease;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.templateLabel:hover {
-    border-color: var(--primary-color, #007bff);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-    transform: translateY(-2px);
-}
-
-.templateContent {
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-}
-
-.templateName {
-    margin: 0;
-    font-size: 1.25rem;
-    font-weight: 600;
-    color: var(--text-color, #333);
-}
-
-.categoriesPreview {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-    margin-top: 0.5rem;
-}
-
-.categoryTag {
-    padding: 0.25rem 0.5rem;
-    border-radius: 4px;
-    font-size: 0.75rem;
-    font-weight: 500;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-
-.modalButtonsContainer {
-    display: flex;
-    justify-content: flex-end;
-    gap: 1rem;
-    margin-top: 1rem;
-}
-
-.modalButtonsContainer button {
-    padding: 0.75rem 1.5rem;
+    background-color: unset;
+    top: 0;
+    right: 0;
     border: none;
-    border-radius: 6px;
-    font-size: 1rem;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s ease;
+    padding: 0;
+    margin: 1rem 1.25rem;
 }
 
-.modalButtonsContainer button[type="reset"] {
-    background-color: var(--secondary-background, #f8f9fa);
-    color: var(--secondary-text, #6c757d);
-    border: 1px solid var(--secondary-border, #dee2e6);
+.closeButton:hover {
+    background-color: unset;
+    color: gray;
 }
 
-.modalButtonsContainer button[type="reset"]:hover {
-    background-color: var(--secondary-background-hover, #e9ecef);
-    color: var(--secondary-text-hover, #495057);
-}
-
-.modalButtonsContainer button[type="submit"] {
-    background-color: var(--primary-color, #007bff);
-    color: white;
-}
-
-.modalButtonsContainer button[type="submit"]:hover {
-    background-color: var(--primary-color-hover, #0056b3);
-}
-
-/* Dark theme support */
-[data-theme="dark"] .templateLabel {
-    --background-color: #2d3748;
-    --border-color: #4a5568;
-    --text-color: #e2e8f0;
-    --primary-light: #2a4365;
-}
-
-[data-theme="dark"] .templateLabel:hover {
-    --primary-color: #63b3ed;
-}
-
-[data-theme="dark"] .templateName {
-    color: #e2e8f0;
-}
-
-[data-theme="dark"] .modalButtonsContainer button[type="reset"] {
-    --secondary-background: #4a5568;
-    --secondary-text: #e2e8f0;
-    --secondary-border: #718096;
-    --secondary-background-hover: #2d3748;
+@media (min-width: 768px) {
+    .createRetroContainer {
+        width: 40rem;
+        max-height: 60vh;
+        overflow-y: auto;
+    }
 }

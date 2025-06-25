@@ -47,7 +47,6 @@
 
     --theme-gradient: linear-gradient(45deg, var(--bonfire-violet) 20%, var(--bonfire-lavender) 36%, var(--bonfire-red) 52%, var(--bonfire-orange) 68%, var(--bonfire-yellow) 84%, var(--bonfire-cream) 100%);
     --card-background: var(--bonfire-lavender);
-    --breadcrumb-color: var(--bonfire-orange);
 }
 
 /* Base styles */
@@ -148,9 +147,15 @@ button:hover {
 
 .breadcrumb {
     text-decoration: none;
-    color: var(--breadcrumb-color);
-    border: 2px solid var(--breadcrumb-color);
+    color: var(--bonfire-lavender);
+    border: 2px solid var(--bonfire-lavender);
     padding: .5rem 1rem;
     border-radius: 20rem;
     margin-right: 1rem;
+}
+
+
+[data-theme="dark"] .breadcrumb {
+    color: var(--bonfire-orange);
+    border: 2px solid var(--bonfire-orange);
 }

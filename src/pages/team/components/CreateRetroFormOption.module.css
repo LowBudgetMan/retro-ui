@@ -1,0 +1,29 @@
+.option {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100%;
+}
+
+.displayContent {
+    padding-bottom: 1rem;
+}
+
+.title {
+    text-align: center;
+}
+
+.moreInfo {
+    display: block;
+    text-align: center;
+    padding: 0.5rem;
+    margin-bottom: 0.5rem;
+    text-decoration: none;
+    border: 1px solid var(--bonfire-orange);
+    border-radius: 0.25rem;
+    color: var(--bonfire-orange);
+}
+
+.selectButton {
+    width: 100%;
+}
