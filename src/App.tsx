@@ -12,6 +12,7 @@ import {configureAxios} from "./services/AxiosConfig.ts";
 import {Header} from "./components/header/Header.tsx";
 import {ThemeProvider} from "./styles/ThemeContext.tsx";
 import {TemplatesPage} from "./pages/templates/TemplatesPage.tsx";
+import {SilentRedirectPage} from "./pages/auth-redirect/SilentRedirectPage.tsx";
 
 configureAxios();
 
@@ -23,6 +24,10 @@ const router = createBrowserRouter([
     {
         path: '/auth-redirect',
         element: <AuthRedirectPage/>
+    },
+    {
+        path: '/silent-redirect',
+        element: <SilentRedirectPage/>
     },
     {
         path: '/user',

@@ -1,6 +1,7 @@
 import {TeamListItem, TeamService} from "../../services/TeamService.ts";
 import {RetroListItem, RetroService, Template} from "../../services/RetroService.ts";
 import {RetroTemplateService} from "../../services/RetroTemplateService.ts";
+import {waitForAuthInitialization} from "../user/UserContext.ts";
 
 export interface TeamPageData extends TeamListItem {
     retros: RetroListItem[],
@@ -8,6 +9,8 @@ export interface TeamPageData extends TeamListItem {
 }
 
 export async function loader({params}: any): Promise<TeamPageData> {
+    await waitForAuthInitialization();
+    
     return {
         ...await TeamService.getTeam(params.teamId),
         templates: await RetroTemplateService.getTemplates(),
