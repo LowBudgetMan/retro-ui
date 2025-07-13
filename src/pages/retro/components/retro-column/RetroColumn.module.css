@@ -1,0 +1,15 @@
+.retroCategory {
+    display: flex;
+    flex-direction: column;
+}
+
+.categoryName {
+    padding: 0.5rem 2rem;
+    text-align: center;
+    border-radius: 5px;
+}
+
+.thoughtsList {
+    list-style: none;
+    padding: 0;
+}

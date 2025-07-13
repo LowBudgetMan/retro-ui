@@ -1,0 +1,38 @@
+.separatorContainer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 1rem 0;
+}
+
+.separator {
+    width: 50%;
+    height: 2px;
+
+    border-radius: 3px;
+}
+
+.leftLine {
+    background: linear-gradient(
+            to right,
+            transparent,
+            /* TODO: Update to use light and dark mode */
+            rgba(255, 255, 255, 0.1) 15%,
+            rgba(255, 255, 255, 0.15)
+    );
+}
+
+.rightLine {
+    background: linear-gradient(
+            to right,
+            /* TODO: Update to use light and dark mode */
+            rgba(255, 255, 255, 0.15) 0%,
+            rgba(255, 255, 255, 0.1) 85%,
+            transparent
+    );
+}
+
+.count {
+    padding: 0 1rem;
+    font-weight: bold;
+}
