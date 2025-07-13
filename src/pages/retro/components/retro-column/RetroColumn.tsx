@@ -1,5 +1,6 @@
 import {Category, Thought} from "../../../../services/RetroService.ts";
 import {CreateThought} from "../create-thought/CreateThought.tsx";
+import {ThoughtCard} from "../thought-card/ThoughtCard.tsx";
 
 interface RetroColumnProps {
     teamId: string;
@@ -19,7 +20,7 @@ export function RetroColumn({teamId, retroId, category, thoughts}: RetroColumnPr
             />
             <ul>
                 {thoughts.map(thought => (
-                    <li key={`thought${thought.id}`}>{thought.message}</li>
+                    <li key={`thought${thought.id}`}><ThoughtCard thought={thought} /></li>
                 ))}
             </ul>
         </div>
