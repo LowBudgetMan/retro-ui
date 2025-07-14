@@ -28,4 +28,11 @@
     height: 100%;
     width: 100%;
     border: 1px dashed;
+    border-radius: 4px;
+    background-color: var(--background-primary);
+    color: var(--text-primary);
+}
+
+.createNewTeamButton:hover {
+    background-color: var(--background-secondary);
 }
