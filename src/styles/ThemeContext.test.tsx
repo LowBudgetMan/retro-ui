@@ -3,7 +3,6 @@ import { render, act } from '@testing-library/react';
 import { ThemeProvider, useTheme } from './ThemeContext';
 import { Theme } from './ThemeContext';
 
-// Mock localStorage
 const localStorageMock = (() => {
     let store: { [key: string]: string } = {};
     return {
@@ -28,7 +27,6 @@ describe('ThemeContext', () => {
         localStorageMock.clear();
         mediaQueryListeners = [];
         
-        // Setup matchMedia mock
         window.matchMedia = jest.fn().mockImplementation(() => ({
             matches: false,
             media: 'query',
@@ -40,11 +38,9 @@ describe('ThemeContext', () => {
             }
         }));
         
-        // Reset document attributes
         document.documentElement.removeAttribute('data-theme');
     });
 
-    // Helper component to test the useTheme hook
     function TestComponent({ onThemeChange }: { onThemeChange?: (theme: Theme) => void }) {
         const { theme, setTheme } = useTheme();
         
@@ -60,6 +56,15 @@ describe('ThemeContext', () => {
                 <button onClick={() => setTheme(Theme.SYSTEM)}>Set System</button>
             </div>
         );
+    }
+
+    function EffectiveThemeTestComponent({ onEffectiveTheme }: { onEffectiveTheme: (effectiveTheme: Theme) => void }) {
+        const { getEffectiveTheme } = useTheme();
+        
+        const effectiveTheme = getEffectiveTheme();
+        onEffectiveTheme(effectiveTheme);
+        
+        return <div data-testid="effective-theme">{effectiveTheme}</div>;
     }
 
     it('should use system theme by default', () => {
@@ -116,7 +121,6 @@ describe('ThemeContext', () => {
             </ThemeProvider>
         );
 
-        // Simulate system theme change to dark
         act(() => {
             mediaQueryListeners.forEach(listener => 
                 listener({ matches: true })
@@ -125,7 +129,6 @@ describe('ThemeContext', () => {
 
         expect(document.documentElement.getAttribute('data-theme')).toBe('dark');
 
-        // Simulate system theme change to light
         act(() => {
             mediaQueryListeners.forEach(listener => 
                 listener({ matches: false })
@@ -144,12 +147,10 @@ describe('ThemeContext', () => {
             </ThemeProvider>
         );
 
-        // Set to manual dark mode
         act(() => {
             getByText('Set Dark').click();
         });
 
-        // Simulate system theme change
         act(() => {
             mediaQueryListeners.forEach(listener => 
                 listener({ matches: false })
@@ -176,4 +177,65 @@ describe('ThemeContext', () => {
         unmount();
         expect(removeEventListener).toHaveBeenCalled();
     });
-}); 
+
+    describe('getEffectiveTheme', () => {
+        it('should return DARK when theme is SYSTEM and system prefers dark mode', () => {
+            window.matchMedia = jest.fn().mockImplementation(() => ({
+                matches: true,
+                media: 'query',
+                addEventListener: jest.fn(),
+                removeEventListener: jest.fn()
+            }));
+
+            const onEffectiveTheme = jest.fn();
+            
+            render(
+                <ThemeProvider>
+                    <EffectiveThemeTestComponent onEffectiveTheme={onEffectiveTheme} />
+                </ThemeProvider>
+            );
+
+            expect(onEffectiveTheme).toHaveBeenCalledWith(Theme.DARK);
+        });
+
+        it('should return LIGHT when theme is SYSTEM and system prefers light mode', () => {
+            window.matchMedia = jest.fn().mockImplementation(() => ({
+                matches: false,
+                media: 'query',
+                addEventListener: jest.fn(),
+                removeEventListener: jest.fn()
+            }));
+
+            const onEffectiveTheme = jest.fn();
+            
+            render(
+                <ThemeProvider>
+                    <EffectiveThemeTestComponent onEffectiveTheme={onEffectiveTheme} />
+                </ThemeProvider>
+            );
+
+            expect(onEffectiveTheme).toHaveBeenCalledWith(Theme.LIGHT);
+        });
+
+        it('should return the actual theme when theme is not SYSTEM', () => {
+            localStorageMock.setItem('theme', Theme.DARK);
+            
+            window.matchMedia = jest.fn().mockImplementation(() => ({
+                matches: false,
+                media: 'query',
+                addEventListener: jest.fn(),
+                removeEventListener: jest.fn()
+            }));
+
+            const onEffectiveTheme = jest.fn();
+            
+            render(
+                <ThemeProvider>
+                    <EffectiveThemeTestComponent onEffectiveTheme={onEffectiveTheme} />
+                </ThemeProvider>
+            );
+
+            expect(onEffectiveTheme).toHaveBeenCalledWith(Theme.DARK);
+        });
+    });
+});

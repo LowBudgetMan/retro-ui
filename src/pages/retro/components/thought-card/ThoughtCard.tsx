@@ -7,7 +7,7 @@ interface Props {
 export function ThoughtCard({thought}: Props) {
     return (
         <div>
-            <p>{thought.message}</p>
+            <p style={{textOverflow: 'ellipsis', overflowX: 'hidden'}}>{thought.message}</p>
             <div>
                 <button name='vote' aria-label={'vote'}>{thought.votes}</button>
                 <button name='edit' aria-label={'edit'}>E</button>

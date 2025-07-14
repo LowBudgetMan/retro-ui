@@ -1,6 +1,7 @@
 .retroCategory {
-    display: flex;
-    flex-direction: column;
+    display: inline-block;
+    width: 324px;
+    min-width: 324px;
 }
 
 .categoryName {

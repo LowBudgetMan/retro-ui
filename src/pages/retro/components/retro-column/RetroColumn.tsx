@@ -3,6 +3,8 @@ import {CreateThought} from "../create-thought/CreateThought.tsx";
 import {ThoughtCard} from "../thought-card/ThoughtCard.tsx";
 import styles from "./RetroColumn.module.css";
 import {CountSeparator} from "../count-separator/CountSeparator.tsx";
+import {Theme, useTheme} from "../../../../styles/ThemeContext.tsx";
+import {useMemo} from "react";
 
 interface RetroColumnProps {
     teamId: string;
@@ -11,15 +13,33 @@ interface RetroColumnProps {
     thoughts: Thought[];
 }
 
+interface CategoryStyling {
+    backgroundColor: string;
+    textColor: string
+}
+
 export function RetroColumn({teamId, retroId, category, thoughts}: RetroColumnProps) {
+    const {getEffectiveTheme} = useTheme();
+    const categoryStyling: CategoryStyling = useMemo(() => {
+        const theme = getEffectiveTheme();
+        const backgroundColor = theme === Theme.DARK ? category.darkBackgroundColor : category.lightBackgroundColor;
+        const textColor = theme === Theme.DARK ? category.darkTextColor : category.lightTextColor;
+        return {
+            backgroundColor,
+            textColor
+        }
+    }, [getEffectiveTheme, category])
     return (
         <div key={`column${category.name}`} className={styles.retroCategory}>
-            {/* TODO: Update color based on light / dark mode (preferably use a hook) */}
-            <h2 className={styles.categoryName} style={{'backgroundColor': category.darkBackgroundColor}}>{category.name}</h2>
+            <h2 className={styles.categoryName} style={{
+                'backgroundColor': categoryStyling.backgroundColor,
+                'color': categoryStyling.textColor
+            }}>{category.name}</h2>
             <CreateThought 
                 teamId={teamId} 
                 retroId={retroId} 
                 category={category.name}
+                borderColor={categoryStyling.backgroundColor}
             />
             <span style={{marginBottom: '0.5rem'}}/>
             <CountSeparator count={thoughts.length} />

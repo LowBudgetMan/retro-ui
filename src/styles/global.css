@@ -154,8 +154,11 @@ button:hover {
     margin-right: 1rem;
 }
 
-
 [data-theme="dark"] .breadcrumb {
     color: var(--bonfire-orange);
     border: 2px solid var(--bonfire-orange);
+}
+
+:root {
+    background: var(--background-primary);
 }

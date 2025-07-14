@@ -13,23 +13,19 @@
 }
 
 .leftLine {
-    background: linear-gradient(
-            to right,
-            transparent,
-            /* TODO: Update to use light and dark mode */
-            rgba(255, 255, 255, 0.1) 15%,
-            rgba(255, 255, 255, 0.15)
-    );
+    background: linear-gradient(to right, transparent, rgba(0, 0, 0, 0.1) 15%, rgba(0, 0, 0, 0.15));
+}
+
+[data-theme="dark"] .leftLine {
+    background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.1) 15%, rgba(255, 255, 255, 0.15));
 }
 
 .rightLine {
-    background: linear-gradient(
-            to right,
-            /* TODO: Update to use light and dark mode */
-            rgba(255, 255, 255, 0.15) 0%,
-            rgba(255, 255, 255, 0.1) 85%,
-            transparent
-    );
+    background: linear-gradient(to right, rgba(0, 0, 0, 0.15) 0%, rgba(0, 0, 0, 0.1) 85%, transparent);
+}
+
+[data-theme="dark"] .rightLine {
+    background: linear-gradient(to right, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0.1) 85%, transparent);
 }
 
 .count {

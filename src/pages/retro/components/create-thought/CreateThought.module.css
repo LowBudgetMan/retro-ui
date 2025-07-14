@@ -1,0 +1,8 @@
+.createThoughtTextbox {
+    display: block;
+    box-sizing: border-box;
+    padding: 0.5rem 0.75rem;
+    width: 100%;
+    border: 4px solid #000;
+    border-radius: 6px;
+}

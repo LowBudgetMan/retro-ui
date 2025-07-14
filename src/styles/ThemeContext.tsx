@@ -11,11 +11,13 @@ export enum Theme {
 type ThemeContextValue = {
     theme: Theme;
     setTheme: (theme: Theme) => void;
+    getEffectiveTheme: () => Theme;
 }
 
 const ThemeContext = createContext<ThemeContextValue>({
     theme: Theme.SYSTEM,
-    setTheme: () => {}
+    setTheme: () => {},
+    getEffectiveTheme: () => Theme.SYSTEM
 });
 
 export function ThemeProvider(props: PropsWithChildren) {
@@ -29,6 +31,13 @@ export function ThemeProvider(props: PropsWithChildren) {
         localStorage.setItem(THEME_KEY, newTheme);
     };
 
+    const getEffectiveTheme = (): Theme => {
+        const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+        return theme === Theme.SYSTEM
+            ? (mediaQuery.matches ? Theme.DARK : Theme.LIGHT)
+            : theme
+    }
+
     useEffect(() => {
         const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
         
@@ -41,11 +50,7 @@ export function ThemeProvider(props: PropsWithChildren) {
         mediaQuery.addEventListener('change', handleSystemThemeChange);
 
         // Set initial theme
-        const effectiveTheme = theme === Theme.SYSTEM
-            ? (mediaQuery.matches ? Theme.DARK : Theme.LIGHT)
-            : theme;
-            
-        document.documentElement.setAttribute('data-theme', effectiveTheme);
+        document.documentElement.setAttribute('data-theme', getEffectiveTheme());
 
         return () => {
             mediaQuery.removeEventListener('change', handleSystemThemeChange);
@@ -53,7 +58,7 @@ export function ThemeProvider(props: PropsWithChildren) {
     }, [theme]);
 
     return (
-        <ThemeContext.Provider value={{theme, setTheme: handleThemeChange}}>
+        <ThemeContext.Provider value={{theme, setTheme: handleThemeChange, getEffectiveTheme}}>
             {props.children}
         </ThemeContext.Provider>
     );

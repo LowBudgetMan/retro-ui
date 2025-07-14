@@ -21,6 +21,7 @@ describe('CreateThought', () => {
         teamId="team-456"
         retroId="retro-123"
         category="Went Well"
+        borderColor="#FFF"
       />
     );
     
@@ -45,6 +46,7 @@ describe('CreateThought', () => {
         teamId="team-456"
         retroId="retro-123"
         category="Went Well"
+        borderColor="#FFF"
       />
     );
     
@@ -69,6 +71,7 @@ describe('CreateThought', () => {
         teamId="team-456"
         retroId="retro-123"
         category="Went Well"
+        borderColor="#FFF"
       />
     );
     
@@ -85,6 +88,7 @@ describe('CreateThought', () => {
         teamId="team-456"
         retroId="retro-123"
         category="Went Well"
+        borderColor="#FFF"
       />
     );
     
@@ -106,6 +110,7 @@ describe('CreateThought', () => {
         teamId="team-456"
         retroId="retro-123"
         category="Went Well"
+        borderColor="#FFF"
       />
     );
     

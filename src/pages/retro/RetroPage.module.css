@@ -1,5 +1,13 @@
+.retroColumnsContainer {
+    display: flex;
+    justify-content: space-around;
+}
+
 .retroColumns {
     display: flex;
     flex-direction: row;
-    justify-content: space-evenly;
+    overflow-y: auto;
+    overflow-x: auto;
+    gap: 3rem;
+    padding: 0 4rem;
 }
