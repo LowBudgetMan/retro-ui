@@ -5,7 +5,7 @@ import {WebsocketService} from "../../services/websocket/WebsocketService.ts";
 import {
     createThoughtEventHandler,
     getDestination,
-    id
+    createThoughtSubscriptionId, updateThoughtEventHandler, updateThoughtSubscriptionId
 } from "../../services/websocket/eventHandlers/ThoughtEventHandler.ts";
 
 type RetroContextValue = {
@@ -52,13 +52,24 @@ export function RetroContextProvider(props: PropsWithChildren) {
     useEffect(() => {
         WebsocketService.subscribe(
             getDestination(retro.id),
-            id,
+            createThoughtSubscriptionId,
             createThoughtEventHandler(createThought)
         );
         return () => {
-            WebsocketService.unsubscribe(id);
+            WebsocketService.unsubscribe(createThoughtSubscriptionId);
         };
     }, [retro.id, createThought]);
+
+    useEffect(() => {
+        WebsocketService.subscribe(
+            getDestination(retro.id),
+            updateThoughtSubscriptionId,
+            updateThoughtEventHandler(updateThought)
+        );
+        return () => {
+            WebsocketService.unsubscribe(updateThoughtSubscriptionId);
+        };
+    }, [retro.id, updateThought]);
 
     return (
         <RetroContext.Provider value={{retro: retroState, createThought, updateThought}}>

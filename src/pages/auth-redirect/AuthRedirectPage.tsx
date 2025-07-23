@@ -6,6 +6,6 @@ export function AuthRedirectPage() {
     const navigate = useNavigate();
     useEffect(() => {
         userManager?.signinRedirectCallback().then(() => navigate('/user'));
-    }, [userManager])
+    }, [navigate])
     return <h1>Logging in...</h1>
 }

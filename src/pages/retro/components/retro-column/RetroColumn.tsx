@@ -45,7 +45,7 @@ export function RetroColumn({teamId, retroId, category, thoughts}: RetroColumnPr
             <CountSeparator count={thoughts.length} />
             <ul className={styles.thoughtsList}>
                 {thoughts.map(thought => (
-                    <li key={`thought${thought.id}`}><ThoughtCard thought={thought} /></li>
+                    <li key={`thought${thought.id}`}><ThoughtCard teamId={teamId} thought={thought} /></li>
                 ))}
             </ul>
         </div>

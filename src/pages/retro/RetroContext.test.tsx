@@ -1,7 +1,7 @@
 import { render } from '@testing-library/react';
 import { RetroContextProvider } from './RetroContext';
 import { WebsocketService } from '../../services/websocket/WebsocketService';
-import { id } from '../../services/websocket/eventHandlers/ThoughtEventHandler';
+import { createThoughtSubscriptionId, updateThoughtSubscriptionId } from '../../services/websocket/eventHandlers/ThoughtEventHandler';
 import { useLoaderData } from 'react-router-dom';
 
 // Mock react-router-dom
@@ -19,9 +19,11 @@ jest.mock('../../services/websocket/WebsocketService', () => ({
 
 // Mock the ThoughtEventHandler
 jest.mock('../../services/websocket/eventHandlers/ThoughtEventHandler', () => ({
-    id: 'test-thought-subscription-id',
+    createThoughtSubscriptionId: 'create-thought-subscription-id',
+    updateThoughtSubscriptionId: 'update-thought-subscription-id',
     getDestination: jest.fn().mockReturnValue('/test/destination'),
-    createThoughtEventHandler: jest.fn().mockReturnValue(jest.fn())
+    createThoughtEventHandler: jest.fn().mockReturnValue(jest.fn()),
+    updateThoughtEventHandler: jest.fn().mockReturnValue(jest.fn())
 }));
 
 describe('RetroContextProvider', () => {
@@ -53,9 +55,15 @@ describe('RetroContextProvider', () => {
 
         expect(WebsocketService.subscribe).toHaveBeenCalledWith(
             '/test/destination',
-            id,
+            createThoughtSubscriptionId,
             expect.any(Function)
         );
+        expect(WebsocketService.subscribe).toHaveBeenCalledWith(
+            '/test/destination',
+            updateThoughtSubscriptionId,
+            expect.any(Function)
+        );
+        expect(WebsocketService.subscribe).toHaveBeenCalledTimes(2);
     });
 
     it('should unsubscribe from WebSocket events on unmount', () => {
@@ -67,7 +75,9 @@ describe('RetroContextProvider', () => {
 
         unmount();
 
-        expect(WebsocketService.unsubscribe).toHaveBeenCalledWith(id);
+        expect(WebsocketService.unsubscribe).toHaveBeenCalledWith(createThoughtSubscriptionId);
+        expect(WebsocketService.unsubscribe).toHaveBeenCalledWith(updateThoughtSubscriptionId);
+        expect(WebsocketService.unsubscribe).toHaveBeenCalledTimes(2);
     });
 
     it('should resubscribe when retro ID changes', () => {
@@ -77,7 +87,7 @@ describe('RetroContextProvider', () => {
             </RetroContextProvider>
         );
 
-        // Change the retro ID by rerendering with a different loader data
+        // Change the retro ID by rerendering with different loader data
         const newRetro = { ...mockRetro, id: 'new-retro-id' };
         (useLoaderData as jest.Mock).mockReturnValue(newRetro);
         rerender(
@@ -86,8 +96,8 @@ describe('RetroContextProvider', () => {
             </RetroContextProvider>
         );
 
-        // Should have unsubscribed from old subscription and subscribed to new one
-        expect(WebsocketService.unsubscribe).toHaveBeenCalledWith(id);
-        expect(WebsocketService.subscribe).toHaveBeenCalledTimes(2);
+        expect(WebsocketService.unsubscribe).toHaveBeenCalledWith(createThoughtSubscriptionId);
+        expect(WebsocketService.unsubscribe).toHaveBeenCalledWith(updateThoughtSubscriptionId);
+        expect(WebsocketService.subscribe).toHaveBeenCalledTimes(4);
     });
-}); 
+});

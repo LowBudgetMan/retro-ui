@@ -1,7 +1,8 @@
 import {Thought} from "../../RetroService.ts";
 import {IMessage} from "@stomp/stompjs";
 
-export const id: string = 'this-is-a-thought-subscription-id';
+export const createThoughtSubscriptionId: string = 'create-thought-subscription-id';
+export const updateThoughtSubscriptionId: string = 'update-thought-subscription-id';
 
 export function getDestination(retroId: string) {
     return `/topic/${retroId}.thoughts`;
@@ -22,5 +23,12 @@ export function createThoughtEventHandler(createThought: (thought: Thought) => v
     return (event: IMessage) => {
         const thoughtEvent = <WebsocketThoughtEvent> JSON.parse(event?.body);
         if(thoughtEvent.actionType === EventType.CREATE) createThought(thoughtEvent.payload);
+    }
+}
+
+export function updateThoughtEventHandler(updateThought: (thought: Thought) => void): (event: IMessage) => void {
+    return (event: IMessage) => {
+        const thoughtEvent = <WebsocketThoughtEvent> JSON.parse(event?.body);
+        if(thoughtEvent.actionType === EventType.UPDATE) updateThought(thoughtEvent.payload);
     }
 }

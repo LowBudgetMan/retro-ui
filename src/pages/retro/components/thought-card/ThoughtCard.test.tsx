@@ -5,6 +5,8 @@ import {Thought} from "../../../../services/RetroService.ts";
 const currentTime = new Date();
 
 describe('ThoughtCard', () => {
+    const teamId = 'teamId';
+
     it('should display the message of the thought', () => {
         const thought: Thought = {
             id: 'thoughtId',
@@ -15,7 +17,7 @@ describe('ThoughtCard', () => {
             retroId: 'retroId',
             createdAt: currentTime
         }
-        render(<ThoughtCard thought={thought}/>);
+        render(<ThoughtCard teamId={teamId} thought={thought}/>);
 
         expect(screen.getByText('This is a test thought')).toBeInTheDocument();
     });
@@ -30,7 +32,7 @@ describe('ThoughtCard', () => {
             retroId: 'retroId',
             createdAt: currentTime
         }
-        render(<ThoughtCard thought={thought}/>);
+        render(<ThoughtCard teamId={teamId} thought={thought}/>);
 
         const voteButton = within(screen.getByLabelText('vote'));
         expect(voteButton.getByText('10')).toBeInTheDocument();

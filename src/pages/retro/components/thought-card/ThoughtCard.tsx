@@ -1,11 +1,19 @@
 import {Thought} from "../../../../services/RetroService.ts";
 import styles from './ThoughtCard.module.css';
+import {useCallback} from "react";
+import {ThoughtService} from "../../../../services/thought-service/ThoughtService.ts";
 
 interface Props {
+    teamId: string;
     thought: Thought;
 }
 
-export function ThoughtCard({thought}: Props) {
+export function ThoughtCard({teamId, thought}: Props) {
+
+    const handleCompleteClicked = useCallback(async () => {
+        await ThoughtService.setCompleted(teamId, thought.retroId, thought.id, !thought.completed);
+    }, [teamId, thought])
+
     return (
         <div className={styles.card}>
             <p className={styles.message}>{thought.message}</p>
@@ -13,7 +21,7 @@ export function ThoughtCard({thought}: Props) {
                 <button className={styles.action} name='vote' aria-label={'vote'}>{thought.votes}</button>
                 <button className={styles.action} name='edit' aria-label={'edit'}>E</button>
                 <button className={styles.action} name='delete' aria-label={'delete'}>D</button>
-                <button className={styles.action} name='mark complete' aria-label={'mark complete'}>C</button>
+                <button className={styles.action} name='mark complete' aria-label={'mark complete'} onClick={handleCompleteClicked}>{thought.completed ? 'C' : 'N'}</button>
             </div>
         </div>
     )
