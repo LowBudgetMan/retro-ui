@@ -1,4 +1,4 @@
-import {render, screen, within, fireEvent} from "@testing-library/react";
+import {fireEvent, render, screen, within} from "@testing-library/react";
 import {ThoughtCard} from "./ThoughtCard.tsx";
 import {Thought} from "../../../../services/RetroService.ts";
 import {ThoughtService} from "../../../../services/thought-service/ThoughtService.ts";
@@ -37,8 +37,18 @@ describe('ThoughtCard', () => {
         }
         render(<ThoughtCard teamId={teamId} thought={thoughtWithVotes}/>);
 
-        const voteButton = within(screen.getByLabelText('vote'));
-        expect(voteButton.getByText('10')).toBeInTheDocument();
+        expect(within(screen.getByLabelText('vote')).getByText('10')).toBeInTheDocument();
+    });
+
+    it('should call the ThoughtService when vote is pressed', () => {
+        render(<ThoughtCard teamId={teamId} thought={thought} />);
+
+        fireEvent.click(screen.getByLabelText('vote'));
+        expect(mockedThoughtService.vote).toHaveBeenCalledWith(
+            teamId,
+            thought.retroId,
+            thought.id
+        );
     });
 
     it('should display "N" when thought is not completed', () => {
@@ -48,8 +58,7 @@ describe('ThoughtCard', () => {
         }
         render(<ThoughtCard teamId={teamId} thought={incompleteThought}/>);
 
-        const markCompleteButton = screen.getByLabelText('mark complete');
-        expect(markCompleteButton).toHaveTextContent('N');
+        expect(screen.getByLabelText('mark complete')).toHaveTextContent('N');
     });
 
     it('should display "C" when thought is completed', () => {
@@ -59,16 +68,14 @@ describe('ThoughtCard', () => {
         }
         render(<ThoughtCard teamId={teamId} thought={completeThought}/>);
 
-        const markCompleteButton = screen.getByLabelText('mark complete');
-        expect(markCompleteButton).toHaveTextContent('C');
+        expect(screen.getByLabelText('mark complete')).toHaveTextContent('C');
     });
 
     it('should call ThoughtService.setCompleted with inverse of completed when mark complete button is clicked', () => {
         mockedThoughtService.setCompleted = jest.fn().mockResolvedValue(undefined);
         render(<ThoughtCard teamId={teamId} thought={thought}/>);
 
-        const markCompleteButton = screen.getByLabelText('mark complete');
-        fireEvent.click(markCompleteButton);
+        fireEvent.click(screen.getByLabelText('mark complete'));
 
         expect(mockedThoughtService.setCompleted).toHaveBeenCalledWith(
             teamId,

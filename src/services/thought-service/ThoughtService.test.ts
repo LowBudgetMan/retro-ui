@@ -36,4 +36,15 @@ describe('ThoughtService', () => {
             await expect(ThoughtService.setCompleted(teamId, retroId, thoughtId, completed)).rejects.toThrow();
         });
     });
+    describe('vote', () => {
+        it('should call vote endpoint', async () => {
+            const mockResponse = { success: true };
+
+            mock.onPut(`${baseUrl}/teams/${teamId}/retros/${retroId}/thoughts/${thoughtId}/votes`).reply(200, mockResponse);
+
+            const result = await ThoughtService.vote(teamId, retroId, thoughtId);
+            expect(result.data).toEqual(mockResponse);
+            expect(result.status).toBe(200);
+        });
+    });
 });

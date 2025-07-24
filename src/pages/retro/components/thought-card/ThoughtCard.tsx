@@ -14,11 +14,15 @@ export function ThoughtCard({teamId, thought}: Props) {
         await ThoughtService.setCompleted(teamId, thought.retroId, thought.id, !thought.completed);
     }, [teamId, thought])
 
+    const handleVote = useCallback(async () => {
+        await ThoughtService.vote(teamId, thought.retroId, thought.id);
+    }, [teamId, thought])
+
     return (
         <div className={styles.card}>
             <p className={styles.message}>{thought.message}</p>
             <div className={styles.actionsContainer}>
-                <button className={styles.action} name='vote' aria-label={'vote'}>{thought.votes}</button>
+                <button className={styles.action} name='vote' aria-label={'vote'} onClick={handleVote}>{thought.votes}</button>
                 <button className={styles.action} name='edit' aria-label={'edit'}>E</button>
                 <button className={styles.action} name='delete' aria-label={'delete'}>D</button>
                 <button className={styles.action} name='mark complete' aria-label={'mark complete'} onClick={handleCompleteClicked}>{thought.completed ? 'C' : 'N'}</button>
