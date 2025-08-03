@@ -1,7 +1,8 @@
 import {Thought} from "../../../../services/RetroService.ts";
 import styles from './ThoughtCard.module.css';
-import {useCallback} from "react";
+import {useCallback, useState, KeyboardEvent, useEffect} from "react";
 import {ThoughtService} from "../../../../services/thought-service/ThoughtService.ts";
+import {onKeys} from "../../../../services/key-event-handler/KeyEventHandler.ts";
 
 interface Props {
     teamId: string;
@@ -18,12 +19,31 @@ export function ThoughtCard({teamId, thought}: Props) {
         await ThoughtService.vote(teamId, thought.retroId, thought.id);
     }, [teamId, thought])
 
+    const [editing, setEditing] = useState<boolean>(false);
+
+    const [editValue, setEditValue] = useState(thought.message ?? '');
+
+    function handleKeyPress(event: KeyboardEvent<HTMLTextAreaElement>) {
+        if (!event.shiftKey) ThoughtService.setMessage(teamId, thought.retroId, thought.id, editValue).then(() => setEditing(false));
+    }
+
+    useEffect(() => {
+        setEditValue(thought.message ?? '');
+    }, [thought, editing])
+
     return (
         <div className={styles.card}>
-            <p className={styles.message}>{thought.message}</p>
+            {editing
+                ? <textarea
+                    value={editValue}
+                    onChange={(event) => {setEditValue(event.target.value);}}
+                    onKeyDown={onKeys(['Enter'], handleKeyPress)}
+                >{thought.message}</textarea>
+                : <p className={styles.message}>{thought.message}</p>
+            }
             <div className={styles.actionsContainer}>
                 <button className={styles.action} name='vote' aria-label={'vote'} onClick={handleVote}>{thought.votes}</button>
-                <button className={styles.action} name='edit' aria-label={'edit'}>E</button>
+                <button className={styles.action} name='edit' aria-label={'edit'} onClick={() => setEditing(!editing)}>E</button>
                 <button className={styles.action} name='delete' aria-label={'delete'}>D</button>
                 <button className={styles.action} name='mark complete' aria-label={'mark complete'} onClick={handleCompleteClicked}>{thought.completed ? 'C' : 'N'}</button>
             </div>

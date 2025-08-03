@@ -1,7 +1,7 @@
 import '@jest/globals';
 import axios from 'axios';
 import MockAdapter from 'axios-mock-adapter';
-import { ThoughtService } from './ThoughtService';
+import {ThoughtService} from './ThoughtService';
 
 const mock = new MockAdapter(axios);
 
@@ -30,21 +30,39 @@ describe('ThoughtService', () => {
         });
 
         it('should throw when status is not 204', async () => {
-            const completed = true;
             mock.onPut(`${baseUrl}/teams/${teamId}/retros/${retroId}/thoughts/${thoughtId}/completed`).reply(500);
-
-            await expect(ThoughtService.setCompleted(teamId, retroId, thoughtId, completed)).rejects.toThrow();
+            await expect(ThoughtService.setCompleted(teamId, retroId, thoughtId, true)).rejects.toThrow();
         });
     });
     describe('vote', () => {
         it('should call vote endpoint', async () => {
-            const mockResponse = { success: true };
-
-            mock.onPut(`${baseUrl}/teams/${teamId}/retros/${retroId}/thoughts/${thoughtId}/votes`).reply(200, mockResponse);
-
+            mock.onPut(`${baseUrl}/teams/${teamId}/retros/${retroId}/thoughts/${thoughtId}/votes`).reply(204);
             const result = await ThoughtService.vote(teamId, retroId, thoughtId);
-            expect(result.data).toEqual(mockResponse);
-            expect(result.status).toBe(200);
+            expect(result.status).toBe(204);
+        });
+
+        it('should throw when status is not 204', async () => {
+            mock.onPut(`${baseUrl}/teams/${teamId}/retros/${retroId}/thoughts/${thoughtId}/votes`).reply(500);
+            await expect(ThoughtService.vote(teamId, retroId, thoughtId)).rejects.toThrow();
+        });
+    });
+
+    describe('setMessage', () => {
+        it('should set message with correct endpoint and payload', async () => {
+            const message = 'Updated thought message';
+
+            mock.onPut(`${baseUrl}/teams/${teamId}/retros/${retroId}/thoughts/${thoughtId}/message`, {
+                message
+            }).reply(204);
+
+            const result = await ThoughtService.setMessage(teamId, retroId, thoughtId, message);
+            expect(result.status).toBe(204);
+        });
+
+        it('should throw when status is not 204', async () => {
+            const message = 'Test message';
+            mock.onPut(`${baseUrl}/teams/${teamId}/retros/${retroId}/thoughts/${thoughtId}/message`).reply(500);
+            await expect(ThoughtService.setMessage(teamId, retroId, thoughtId, message)).rejects.toThrow();
         });
     });
 });
