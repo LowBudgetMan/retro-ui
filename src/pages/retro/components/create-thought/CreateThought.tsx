@@ -1,5 +1,6 @@
 import { useState } from "react";
 import {RetroService} from "../../../../services/RetroService.ts";
+import {onKeys} from "../../../../services/key-event-handler/KeyEventHandler.ts";
 import styles from "./CreateThought.module.css";
 
 interface CreateThoughtProps {
@@ -28,7 +29,7 @@ export function CreateThought({teamId, retroId, category, borderColor}: CreateTh
             value={thought}
             onChange={e => setThought(e.target.value)}
             onBlur={handleBlur}
-            onKeyDown={e => {if (e.key === 'Enter') handleBlur().then(() => {})}}
+            onKeyDown={onKeys(['Enter'], () => handleBlur().then(() => {}))}
             placeholder="Add a thought..."
             className={styles.createThoughtTextbox}
             style={{borderColor}}

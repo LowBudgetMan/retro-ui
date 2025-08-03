@@ -1,4 +1,5 @@
 import { ReactNode, useEffect } from "react";
+import { onKeys } from "../../services/key-event-handler/KeyEventHandler.ts";
 import modalStyle from './Modal.module.css';
 
 interface ModalProps {
@@ -10,11 +11,7 @@ interface ModalProps {
 
 export function Modal({ isOpen, setIsOpen, children, backgroundButtonAriaLabel = 'Close modal' }: ModalProps) {
     useEffect(() => {
-        const handleEscapeKey = (event: KeyboardEvent) => {
-            if (event.key === "Escape") {
-                setIsOpen(false);
-            }
-        };
+        const handleEscapeKey = onKeys(['Escape'], () => setIsOpen(false));
 
         if (isOpen) {
             document.addEventListener("keydown", handleEscapeKey);
