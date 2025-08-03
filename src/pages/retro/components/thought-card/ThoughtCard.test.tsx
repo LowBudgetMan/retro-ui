@@ -205,4 +205,77 @@ describe('ThoughtCard', () => {
             expect(screen.getByText('Updated message from server')).toBeInTheDocument();
         });
     });
+
+    describe('Delete thought', () => {
+        beforeEach(() => {
+            mockedThoughtService.deleteThought = jest.fn().mockResolvedValue(undefined);
+        });
+
+        it('should show confirmation UI when delete button is clicked', () => {
+            render(<ThoughtCard teamId={teamId} thought={thought}/>);
+
+            fireEvent.click(screen.getByLabelText('delete'));
+
+            expect(screen.getByText('Are you sure you want to delete this thought?')).toBeInTheDocument();
+            expect(screen.getByText('Confirm')).toBeInTheDocument();
+            expect(screen.getByText('Cancel')).toBeInTheDocument();
+            
+            // Verify original message and action buttons are hidden
+            expect(screen.queryByText('This is a test thought')).not.toBeInTheDocument();
+            expect(screen.queryByLabelText('vote')).not.toBeInTheDocument();
+            expect(screen.queryByLabelText('edit')).not.toBeInTheDocument();
+            expect(screen.queryByLabelText('mark complete')).not.toBeInTheDocument();
+        });
+
+        it('should return to normal view when cancel is clicked', () => {
+            render(<ThoughtCard teamId={teamId} thought={thought}/>);
+
+            fireEvent.click(screen.getByLabelText('delete'));
+            fireEvent.click(screen.getByText('Cancel'));
+
+            // Verify normal view is restored
+            expect(screen.getByText('This is a test thought')).toBeInTheDocument();
+            expect(screen.getByLabelText('vote')).toBeInTheDocument();
+            expect(screen.getByLabelText('edit')).toBeInTheDocument();
+            expect(screen.getByLabelText('delete')).toBeInTheDocument();
+            expect(screen.getByLabelText('mark complete')).toBeInTheDocument();
+            
+            // Verify confirmation UI is gone
+            expect(screen.queryByText('Are you sure you want to delete this thought?')).not.toBeInTheDocument();
+            expect(screen.queryByText('Confirm')).not.toBeInTheDocument();
+            expect(screen.queryByText('Cancel')).not.toBeInTheDocument();
+        });
+
+        it('should call ThoughtService.deleteThought when confirm is clicked', () => {
+            render(<ThoughtCard teamId={teamId} thought={thought}/>);
+
+            fireEvent.click(screen.getByLabelText('delete'));
+            fireEvent.click(screen.getByText('Confirm'));
+
+            expect(mockedThoughtService.deleteThought).toHaveBeenCalledWith(
+                teamId,
+                thought.retroId,
+                thought.id
+            );
+        });
+
+        it('should exit edit mode when delete is clicked and return to normal view when canceled', () => {
+            render(<ThoughtCard teamId={teamId} thought={thought}/>);
+
+            // Enter edit mode
+            fireEvent.click(screen.getByLabelText('edit'));
+            expect(screen.getByRole('textbox')).toBeInTheDocument();
+
+            // Click delete - should show confirmation and exit edit mode
+            fireEvent.click(screen.getByLabelText('delete'));
+            expect(screen.getByText('Are you sure you want to delete this thought?')).toBeInTheDocument();
+            expect(screen.queryByRole('textbox')).not.toBeInTheDocument();
+
+            // Click cancel - should return to normal view (not edit mode)
+            fireEvent.click(screen.getByText('Cancel'));
+            expect(screen.getByText('This is a test thought')).toBeInTheDocument();
+            expect(screen.getByText('This is a test thought').tagName).toBe('P');
+            expect(screen.queryByRole('textbox')).not.toBeInTheDocument();
+        });
+    });
 });
