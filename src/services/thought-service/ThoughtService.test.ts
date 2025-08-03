@@ -65,4 +65,17 @@ describe('ThoughtService', () => {
             await expect(ThoughtService.setMessage(teamId, retroId, thoughtId, message)).rejects.toThrow();
         });
     });
+
+    describe('deleteThought', () => {
+        it('should call vote endpoint', async () => {
+            mock.onDelete(`${baseUrl}/teams/${teamId}/retros/${retroId}/thoughts/${thoughtId}`).reply(204);
+            const result = await ThoughtService.deleteThought(teamId, retroId, thoughtId);
+            expect(result.status).toBe(204);
+        });
+
+        it('should throw when status is not 204', async () => {
+            mock.onDelete(`${baseUrl}/teams/${teamId}/retros/${retroId}/thoughts/${thoughtId}`).reply(403);
+            await expect(ThoughtService.deleteThought(teamId, retroId, thoughtId)).rejects.toThrow();
+        });
+    });
 });
