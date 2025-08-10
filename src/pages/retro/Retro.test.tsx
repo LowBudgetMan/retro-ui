@@ -4,9 +4,11 @@ import {useRetro} from './RetroContext.tsx';
 import '@testing-library/jest-dom';
 import {RetroColumn} from "./components/retro-column/RetroColumn.tsx";
 
+import {PropsWithChildren} from "react";
+
 jest.mock('react-router-dom', () => ({
   useLoaderData: jest.fn(),
-  Link: ({ to, children, ...props }: any) => (
+  Link: ({ to, children, ...props }: PropsWithChildren<{to: string}>) => (
       <a href={to} {...props}>
         {children}
       </a>

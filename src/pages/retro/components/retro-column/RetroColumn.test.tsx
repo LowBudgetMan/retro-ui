@@ -38,4 +38,24 @@ describe('RetroColumn', () => {
     expect(screen.getByText('Test thought 1')).toBeInTheDocument();
     expect(screen.getByPlaceholderText('Add a thought...')).toBeInTheDocument();
   });
+
+  test('sorts thoughts with incomplete first', () => {
+    const mixedThoughts = [
+      { ...mockThoughts[0], id: 'thought-1', completed: true, message: 'Completed Thought' },
+      { ...mockThoughts[0], id: 'thought-2', completed: false, message: 'Incomplete Thought' },
+    ];
+
+    render(
+        <RetroColumn
+            teamId="team-456"
+            retroId="retro-123"
+            category={mockCategory}
+            thoughts={mixedThoughts}
+        />
+    );
+
+    const thoughtElements = screen.getAllByRole('listitem');
+    expect(thoughtElements[0]).toHaveTextContent('Incomplete Thought');
+    expect(thoughtElements[1]).toHaveTextContent('Completed Thought');
+  });
 });

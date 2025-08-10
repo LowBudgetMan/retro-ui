@@ -29,22 +29,31 @@ export function RetroColumn({teamId, retroId, category, thoughts}: RetroColumnPr
             textColor
         }
     }, [getEffectiveTheme, category])
+
+    const sortedThoughts = useMemo(() => {
+        return [...thoughts].sort((a, b) => {
+            if (a.completed === b.completed) return 0;
+            return a.completed ? 1 : -1;
+        });
+    }, [thoughts]);
+
     return (
         <div key={`column${category.name}`} className={styles.retroCategory}>
             <h2 className={styles.categoryName} style={{
                 'backgroundColor': categoryStyling.backgroundColor,
                 'color': categoryStyling.textColor
             }}>{category.name}</h2>
-            <CreateThought 
-                teamId={teamId} 
-                retroId={retroId} 
+            <CreateThought
+                teamId={teamId}
+                retroId={retroId}
                 category={category.name}
                 borderColor={categoryStyling.backgroundColor}
             />
             <span style={{marginBottom: '0.5rem'}}/>
             <CountSeparator count={thoughts.length} />
             <ul className={styles.thoughtsList}>
-                {thoughts.map(thought => (
+                {sortedThoughts
+                    .map(thought => (
                     <li key={`thought${thought.id}`}><ThoughtCard teamId={teamId} thought={thought} /></li>
                 ))}
             </ul>
