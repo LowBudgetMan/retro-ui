@@ -2,6 +2,7 @@ import {useRetro} from "./RetroContext.tsx";
 import style from "./RetroPage.module.css"
 import {Link} from "react-router-dom";
 import {RetroColumn} from "./components/retro-column/RetroColumn.tsx";
+import {ActionItemsTab} from "./components/action-items/ActionItemsTab.tsx";
 
 export function RetroComponent() {
     const {retro} = useRetro();
@@ -17,11 +18,14 @@ export function RetroComponent() {
                             teamId={retro.teamId}
                             retroId={retro.id}
                             category={category}
-                            thoughts={retro.thoughts.filter(thought => thought.category === category.name)}
+                            thoughts={retro.thoughts
+                                .filter(thought => thought.category === category.name)
+                                .sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime())}
                         />
                     ))}
                 </div>
             </div>
+            <ActionItemsTab />
         </div>
     );
 }

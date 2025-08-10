@@ -1,7 +1,8 @@
-import { render, screen } from '@testing-library/react';
-import { RetroComponent } from './Retro.tsx';
-import { useRetro } from './RetroContext.tsx';
+import {render, screen} from '@testing-library/react';
+import {RetroComponent} from './Retro.tsx';
+import {useRetro} from './RetroContext.tsx';
 import '@testing-library/jest-dom';
+import {RetroColumn} from "./components/retro-column/RetroColumn.tsx";
 
 jest.mock('react-router-dom', () => ({
   useLoaderData: jest.fn(),
@@ -18,6 +19,10 @@ jest.mock('./RetroPage.module.css', () => ({
 
 jest.mock('./RetroContext.tsx', () => ({
   useRetro: jest.fn(),
+}));
+
+jest.mock('./components/retro-column/RetroColumn.tsx', () => ({
+    RetroColumn: jest.fn(() => null),
 }));
 
 
@@ -78,13 +83,47 @@ describe('RetroComponent', () => {
     (useRetro as jest.Mock).mockReturnValue({ retro: mockRetro });
   });
 
-  test('renders retro component with correct categories', () => {
+  it('renders retro component with correct categories', () => {
     render(<RetroComponent />);
-    
+
     expect(screen.getByText(/Basic Retro/)).toBeInTheDocument();
-    expect(screen.getByText('Went Well')).toBeInTheDocument();
-    expect(screen.getByText('Needs Improvement')).toBeInTheDocument();
-    expect(screen.getByText('Test thought 1')).toBeInTheDocument();
-    expect(screen.getByText('Test thought 2')).toBeInTheDocument();
+    expect(RetroColumn).toHaveBeenCalledWith(expect.objectContaining({ category: mockRetro.template.categories[0] }), {});
+    expect(RetroColumn).toHaveBeenCalledWith(expect.objectContaining({ category: mockRetro.template.categories[1] }), {});
+  });
+
+  it('sorts thoughts by createdAt before passing to RetroColumn', () => {
+    const thought1 = {
+      id: 'thought-1',
+      message: 'Test thought 1',
+      votes: 0,
+      completed: false,
+      category: 'Went Well',
+      retroId: 'retro-123',
+      createdAt: new Date('2025-01-02'),
+    };
+    const thought2 = {
+      id: 'thought-2',
+      message: 'Test thought 2',
+      votes: 0,
+      completed: false,
+      category: 'Went Well',
+      retroId: 'retro-123',
+      createdAt: new Date('2025-01-01'),
+    };
+    (useRetro as jest.Mock).mockReturnValue({
+      retro: {
+        ...mockRetro,
+        thoughts: [thought1, thought2],
+      },
+    });
+
+    render(<RetroComponent />);
+
+    expect(RetroColumn).toHaveBeenCalledWith(
+        expect.objectContaining({
+          thoughts: [thought2, thought1],
+        }),
+        {}
+    );
   });
 });
