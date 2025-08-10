@@ -3,6 +3,7 @@ import {IMessage} from "@stomp/stompjs";
 
 export const createThoughtSubscriptionId: string = 'create-thought-subscription-id';
 export const updateThoughtSubscriptionId: string = 'update-thought-subscription-id';
+export const deleteThoughtSubscriptionId: string = 'delete-thought-subscription-id';
 
 export function getDestination(retroId: string) {
     return `/topic/${retroId}.thoughts`;
@@ -19,6 +20,8 @@ interface WebsocketThoughtEvent {
     payload: Thought;
 }
 
+// TODO: Parameterize the event type to reduce these three methods into one
+
 export function createThoughtEventHandler(createThought: (thought: Thought) => void): (event: IMessage) => void {
     return (event: IMessage) => {
         const thoughtEvent = <WebsocketThoughtEvent> JSON.parse(event?.body);
@@ -30,5 +33,12 @@ export function updateThoughtEventHandler(updateThought: (thought: Thought) => v
     return (event: IMessage) => {
         const thoughtEvent = <WebsocketThoughtEvent> JSON.parse(event?.body);
         if(thoughtEvent.actionType === EventType.UPDATE) updateThought(thoughtEvent.payload);
+    }
+}
+
+export function deleteThoughtEventHandler(deleteThought: (thought: Thought) => void): (event: IMessage) => void {
+    return (event: IMessage) => {
+        const thoughtEvent = <WebsocketThoughtEvent> JSON.parse(event?.body);
+        if(thoughtEvent.actionType === EventType.DELETE) deleteThought(thoughtEvent.payload);
     }
 }

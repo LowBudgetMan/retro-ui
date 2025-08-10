@@ -5,13 +5,20 @@ import {WebsocketService} from "../../services/websocket/WebsocketService.ts";
 import {
     createThoughtEventHandler,
     getDestination,
-    createThoughtSubscriptionId, updateThoughtEventHandler, updateThoughtSubscriptionId
+    createThoughtSubscriptionId,
+    updateThoughtEventHandler,
+    updateThoughtSubscriptionId,
+    deleteThoughtSubscriptionId,
+    deleteThoughtEventHandler
 } from "../../services/websocket/eventHandlers/ThoughtEventHandler.ts";
 
 type RetroContextValue = {
     retro: Retro;
+    // TODO: Do I need these exposed as part of the context or should they just be internal to the provider? 
+    // TODO: So far they only seem neccessary for tests.
     createThought: (thought: Thought) => void;
     updateThought: (thought: Thought) => void;
+    deleteThought: (thought: Thought) => void;
 }
 
 const RetroContext = createContext<RetroContextValue>({
@@ -24,7 +31,8 @@ const RetroContext = createContext<RetroContextValue>({
         template: {} as Template
     },
     createThought: () => {},
-    updateThought: () => {}
+    updateThought: () => {},
+    deleteThought: () => {}
 });
 
 export function RetroContextProvider(props: PropsWithChildren) {
@@ -46,6 +54,13 @@ export function RetroContextProvider(props: PropsWithChildren) {
             const newThoughts = [...prevState.thoughts];
             newThoughts[index] = updatedThought;
             return { ...prevState, thoughts: newThoughts };
+        });
+    }, []);
+
+    const deleteThought = useCallback((deletedThought: Thought) => {
+        setRetroState(prevState => {
+            const thoughts = prevState.thoughts.filter(t => t.id !== deletedThought.id);
+            return { ...prevState, thoughts };
         });
     }, []);
 
@@ -71,8 +86,19 @@ export function RetroContextProvider(props: PropsWithChildren) {
         };
     }, [retro.id, updateThought]);
 
+    useEffect(() => {
+        WebsocketService.subscribe(
+            getDestination(retro.id),
+            deleteThoughtSubscriptionId,
+            deleteThoughtEventHandler(deleteThought)
+        );
+        return () => {
+            WebsocketService.unsubscribe(deleteThoughtSubscriptionId);
+        };
+    }, [retro.id, deleteThought]);
+
     return (
-        <RetroContext.Provider value={{retro: retroState, createThought, updateThought}}>
+        <RetroContext.Provider value={{retro: retroState, createThought, updateThought, deleteThought}}>
             {props.children}
         </RetroContext.Provider>
     );

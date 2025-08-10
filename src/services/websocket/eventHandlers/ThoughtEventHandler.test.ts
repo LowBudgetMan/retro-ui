@@ -1,4 +1,9 @@
-import {createThoughtEventHandler, updateThoughtEventHandler, getDestination} from './ThoughtEventHandler';
+import {
+    createThoughtEventHandler,
+    deleteThoughtEventHandler,
+    updateThoughtEventHandler,
+    getDestination
+} from './ThoughtEventHandler';
 import {IMessage} from "@stomp/stompjs";
 import {Thought} from "../../RetroService";
 
@@ -121,6 +126,52 @@ describe('ThoughtEventHandler', () => {
 
             expect(() => handler(invalidMessage)).toThrow();
             expect(updateThought).not.toHaveBeenCalled();
+        });
+    });
+
+    describe('deleteThoughtEventHandler', () => {
+        const deletedThought: Thought = {
+            ...baseMockThought,
+            message: 'Deleted thought',
+            votes: 5,
+            completed: true
+        };
+
+        it('should call deleteThought when receiving an DELETE event', () => {
+            const deleteThought = jest.fn();
+            const handler = deleteThoughtEventHandler(deleteThought);
+            const message = createMockMessage('DELETE', deletedThought);
+
+            handler(message);
+
+            expect(deleteThought).toHaveBeenCalledWith({
+                ...deletedThought,
+                createdAt: deletedThought.createdAt.toISOString()
+            });
+        });
+
+        it('should not call deleteThought for non-DELETE events', () => {
+            const deleteThought = jest.fn();
+            const handler = deleteThoughtEventHandler(deleteThought);
+
+            handler(createMockMessage('CREATE'));
+            expect(deleteThought).not.toHaveBeenCalled();
+
+            handler(createMockMessage('UPDATE'));
+            expect(deleteThought).not.toHaveBeenCalled();
+        });
+
+        it('should handle malformed messages gracefully', () => {
+            const deleteThought = jest.fn();
+            const handler = deleteThoughtEventHandler(deleteThought);
+
+            const invalidMessage: IMessage = {
+                ...createMockMessage('DELETE'),
+                body: 'invalid json'
+            };
+
+            expect(() => handler(invalidMessage)).toThrow();
+            expect(deleteThought).not.toHaveBeenCalled();
         });
     });
 });
