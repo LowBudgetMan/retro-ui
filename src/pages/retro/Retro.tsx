@@ -2,6 +2,7 @@ import {useRetro} from "./RetroContext.tsx";
 import style from "./RetroPage.module.css"
 import {Link} from "react-router-dom";
 import {RetroColumn} from "./components/retro-column/RetroColumn.tsx";
+import {ActionItemsTab} from "./components/action-items/ActionItemsTab.tsx";
 
 export function RetroComponent() {
     const {retro} = useRetro();
@@ -23,6 +24,7 @@ export function RetroComponent() {
                     ))}
                 </div>
             </div>
+            <ActionItemsTab />
         </div>
     );
 }

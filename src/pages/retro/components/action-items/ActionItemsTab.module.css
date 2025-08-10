@@ -1,0 +1,37 @@
+.container {
+    position: fixed;
+    top: 50%;
+    width: 324px;
+    transform: translateY(-50%);
+    background-color: #4F97A0;
+    transition: right 0.5s ease-in-out;
+}
+
+.containerOpen {
+    right: 0;
+}
+
+.containerClosed {
+    right: -324px;
+}
+
+.tab {
+    position: absolute;
+    left: 0;
+    top: 1rem;
+    transform-origin: top left;
+    transform: rotate(-90deg) translateY(-100%) translateX(-100%);
+
+    padding: 1rem 1rem;
+    background-color: #4F97A0;
+    clip-path: polygon(15% 0%, 85% 0%, 100% 25%, 100% 100%, 0 100%, 0% 25%);
+
+    cursor: pointer;
+
+    border: none;
+}
+
+.content {
+    height: 100%;
+    overflow-y: auto;
+}
