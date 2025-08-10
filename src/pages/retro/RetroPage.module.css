@@ -1,6 +1,7 @@
 .retroColumnsContainer {
     display: flex;
     justify-content: space-around;
+    min-height: calc(100vh - 72px - 2.375rem - 3rem);
 }
 
 .retroColumns {
