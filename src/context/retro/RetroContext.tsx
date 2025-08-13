@@ -1,6 +1,5 @@
 import {Retro, Template, Thought} from "../../services/RetroService.ts";
-import {createContext, PropsWithChildren, useCallback, useContext, useEffect, useState} from "react";
-import {useLoaderData} from "react-router-dom";
+import {createContext, PropsWithChildren, useCallback, useEffect, useState} from "react";
 import {WebsocketService} from "../../services/websocket/WebsocketService.ts";
 import {
     createThoughtEventHandler,
@@ -12,7 +11,11 @@ import {
     deleteThoughtEventHandler
 } from "../../services/websocket/eventHandlers/ThoughtEventHandler.ts";
 
-type RetroContextValue = {
+export type RetroContextProviderProps = {
+    retro: Retro;
+}
+
+export type RetroContextValue = {
     retro: Retro;
     // TODO: Do I need these exposed as part of the context or should they just be internal to the provider? 
     // TODO: So far they only seem neccessary for tests.
@@ -21,7 +24,7 @@ type RetroContextValue = {
     deleteThought: (thought: Thought) => void;
 }
 
-const RetroContext = createContext<RetroContextValue>({
+export const RetroContext = createContext<RetroContextValue>({
     retro: {
         id: '',
         teamId: '',
@@ -35,8 +38,7 @@ const RetroContext = createContext<RetroContextValue>({
     deleteThought: () => {}
 });
 
-export function RetroContextProvider(props: PropsWithChildren) {
-    const retro = useLoaderData() as Retro;
+export function RetroContextProvider({children, retro}: PropsWithChildren<RetroContextProviderProps>) {
     const [retroState, setRetroState] = useState<Retro>(retro);
 
     const createThought = useCallback((newThought: Thought) => {
@@ -99,11 +101,7 @@ export function RetroContextProvider(props: PropsWithChildren) {
 
     return (
         <RetroContext.Provider value={{retro: retroState, createThought, updateThought, deleteThought}}>
-            {props.children}
+            {children}
         </RetroContext.Provider>
     );
-}
-
-export function useRetro(): RetroContextValue {
-    return useContext(RetroContext);
 }

@@ -1,5 +1,14 @@
-import {RetroService} from "../../services/RetroService.ts";
+import {Retro, RetroService} from "../../services/RetroService.ts";
+import {ActionItem, ActionItemsService} from "../../services/action-items-service/ActionItemsService.ts";
 
-export async function loader({params}: any) {
-    return await RetroService.getRetro(params.teamId, params.retroId);
+export type RetroPageLoaderData = {
+    retro: Retro;
+    actionItems: ActionItem[];
+}
+
+export async function loader({params}: {params: {teamId: string, retroId: string}}) {
+    return {
+        retro: await RetroService.getRetro(params.teamId, params.retroId),
+        actionItems: await ActionItemsService.getActionItems(params.teamId)
+    };
 }

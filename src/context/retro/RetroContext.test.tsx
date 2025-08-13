@@ -1,21 +1,16 @@
-import {render, act} from '@testing-library/react';
-import {RetroContextProvider, useRetro} from './RetroContext';
-import { WebsocketService } from '../../services/websocket/WebsocketService';
+import {act, render} from '@testing-library/react';
+import {RetroContextProvider} from './RetroContext.tsx';
+import {WebsocketService} from '../../services/websocket/WebsocketService.ts';
 import {Thought} from "../../services/RetroService.ts";
 import {
     createThoughtSubscriptionId,
     deleteThoughtSubscriptionId,
     updateThoughtSubscriptionId
-} from '../../services/websocket/eventHandlers/ThoughtEventHandler';
-import { useLoaderData } from 'react-router-dom';
-
-// Mock react-router-dom
-jest.mock('react-router-dom', () => ({
-    useLoaderData: jest.fn()
-}));
+} from '../../services/websocket/eventHandlers/ThoughtEventHandler.ts';
+import {useRetro} from "../hooks.tsx";
 
 // Mock the WebSocket service
-jest.mock('../../services/websocket/WebsocketService', () => ({
+jest.mock('../../services/websocket/WebsocketService.ts', () => ({
     WebsocketService: {
         subscribe: jest.fn(),
         unsubscribe: jest.fn()
@@ -23,7 +18,7 @@ jest.mock('../../services/websocket/WebsocketService', () => ({
 }));
 
 // Mock the ThoughtEventHandler
-jest.mock('../../services/websocket/eventHandlers/ThoughtEventHandler', () => ({
+jest.mock('../../services/websocket/eventHandlers/ThoughtEventHandler.ts', () => ({
     createThoughtSubscriptionId: 'create-thought-subscription-id',
     updateThoughtSubscriptionId: 'update-thought-subscription-id',
     deleteThoughtSubscriptionId: 'delete-thought-subscription-id',
@@ -50,12 +45,11 @@ describe('RetroContextProvider', () => {
 
     beforeEach(() => {
         jest.clearAllMocks();
-        (useLoaderData as jest.Mock).mockReturnValue(mockRetro);
     });
 
     it('should subscribe to WebSocket events on mount', () => {
         render(
-            <RetroContextProvider>
+            <RetroContextProvider retro={mockRetro}>
                 <div>Test Child</div>
             </RetroContextProvider>
         );
@@ -80,7 +74,7 @@ describe('RetroContextProvider', () => {
 
     it('should unsubscribe from WebSocket events on unmount', () => {
         const { unmount } = render(
-            <RetroContextProvider>
+            <RetroContextProvider retro={mockRetro}>
                 <div>Test Child</div>
             </RetroContextProvider>
         );
@@ -95,16 +89,14 @@ describe('RetroContextProvider', () => {
 
     it('should resubscribe when retro ID changes', () => {
         const { rerender } = render(
-            <RetroContextProvider>
+            <RetroContextProvider retro={mockRetro}>
                 <div>Test Child</div>
             </RetroContextProvider>
         );
 
         // Change the retro ID by rerendering with different loader data
-        const newRetro = { ...mockRetro, id: 'new-retro-id' };
-        (useLoaderData as jest.Mock).mockReturnValue(newRetro);
         rerender(
-            <RetroContextProvider>
+            <RetroContextProvider retro={{...mockRetro, id: 'new-retro-id'}}>
                 <div>Test Child</div>
             </RetroContextProvider>
         );
@@ -131,10 +123,6 @@ describe('useRetro state updates', () => {
         }
     };
 
-    beforeEach(() => {
-        (useLoaderData as jest.Mock).mockReturnValue(mockRetro);
-    });
-
     const TestComponent = ({ onUpdate }: { onUpdate: (value: ReturnType<typeof useRetro>) => void }) => {
         const retroContext = useRetro();
         onUpdate(retroContext);
@@ -144,7 +132,7 @@ describe('useRetro state updates', () => {
     it('should create a thought', () => {
         let contextValue: ReturnType<typeof useRetro> = null!;
         render(
-            <RetroContextProvider>
+            <RetroContextProvider retro={mockRetro}>
                 <TestComponent onUpdate={(value) => (contextValue = value)} />
             </RetroContextProvider>
         );
@@ -161,7 +149,7 @@ describe('useRetro state updates', () => {
     it('should update a thought', () => {
         let contextValue: ReturnType<typeof useRetro> = null!;
         render(
-            <RetroContextProvider>
+            <RetroContextProvider retro={mockRetro}>
                 <TestComponent onUpdate={(value) => (contextValue = value)} />
             </RetroContextProvider>
         );
@@ -178,7 +166,7 @@ describe('useRetro state updates', () => {
     it('should not update a thought if not found', () => {
         let contextValue: ReturnType<typeof useRetro> = null!;
         render(
-            <RetroContextProvider>
+            <RetroContextProvider retro={mockRetro}>
                 <TestComponent onUpdate={(value) => (contextValue = value)} />
             </RetroContextProvider>
         );
@@ -195,7 +183,7 @@ describe('useRetro state updates', () => {
     it('should delete a thought', () => {
         let contextValue: ReturnType<typeof useRetro> = null!;
         render(
-            <RetroContextProvider>
+            <RetroContextProvider retro={mockRetro}>
                 <TestComponent onUpdate={(value) => (contextValue = value)} />
             </RetroContextProvider>
         );

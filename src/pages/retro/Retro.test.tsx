@@ -1,10 +1,10 @@
 import {render, screen} from '@testing-library/react';
 import {RetroComponent} from './Retro.tsx';
-import {useRetro} from './RetroContext.tsx';
 import '@testing-library/jest-dom';
 import {RetroColumn} from "./components/retro-column/RetroColumn.tsx";
 
 import {PropsWithChildren} from "react";
+import {useRetro} from "../../context/hooks.tsx";
 
 jest.mock('react-router-dom', () => ({
   useLoaderData: jest.fn(),
@@ -19,7 +19,7 @@ jest.mock('./RetroPage.module.css', () => ({
   retroColumns: 'mock-retro-columns-class',
 }));
 
-jest.mock('./RetroContext.tsx', () => ({
+jest.mock('../../context/hooks.tsx', () => ({
   useRetro: jest.fn(),
 }));
 

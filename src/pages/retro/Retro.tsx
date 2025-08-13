@@ -1,8 +1,8 @@
-import {useRetro} from "./RetroContext.tsx";
 import style from "./RetroPage.module.css"
 import {Link} from "react-router-dom";
 import {RetroColumn} from "./components/retro-column/RetroColumn.tsx";
 import {ActionItemsTab} from "./components/action-items/ActionItemsTab.tsx";
+import {useRetro} from "../../context/hooks.tsx";
 
 export function RetroComponent() {
     const {retro} = useRetro();
