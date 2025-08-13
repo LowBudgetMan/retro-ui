@@ -2,14 +2,12 @@ import {Retro, Template, Thought} from "../../services/RetroService.ts";
 import {createContext, PropsWithChildren, useCallback, useEffect, useState} from "react";
 import {WebsocketService} from "../../services/websocket/WebsocketService.ts";
 import {
-    createThoughtEventHandler,
-    getDestination,
     createThoughtSubscriptionId,
-    updateThoughtEventHandler,
-    updateThoughtSubscriptionId,
     deleteThoughtSubscriptionId,
-    deleteThoughtEventHandler
-} from "../../services/websocket/eventHandlers/ThoughtEventHandler.ts";
+    getDestination,
+    updateThoughtSubscriptionId
+} from "../../services/websocket/constants/thoughts.ts";
+import {eventHandler, EventType} from "../../services/websocket/WebsocketEventHandler.ts";
 
 export type RetroContextProviderProps = {
     retro: Retro;
@@ -70,7 +68,7 @@ export function RetroContextProvider({children, retro}: PropsWithChildren<RetroC
         WebsocketService.subscribe(
             getDestination(retro.id),
             createThoughtSubscriptionId,
-            createThoughtEventHandler(createThought)
+            eventHandler(EventType.CREATE, createThought)
         );
         return () => {
             WebsocketService.unsubscribe(createThoughtSubscriptionId);
@@ -81,7 +79,7 @@ export function RetroContextProvider({children, retro}: PropsWithChildren<RetroC
         WebsocketService.subscribe(
             getDestination(retro.id),
             updateThoughtSubscriptionId,
-            updateThoughtEventHandler(updateThought)
+            eventHandler(EventType.UPDATE, updateThought)
         );
         return () => {
             WebsocketService.unsubscribe(updateThoughtSubscriptionId);
@@ -92,7 +90,7 @@ export function RetroContextProvider({children, retro}: PropsWithChildren<RetroC
         WebsocketService.subscribe(
             getDestination(retro.id),
             deleteThoughtSubscriptionId,
-            deleteThoughtEventHandler(deleteThought)
+            eventHandler(EventType.DELETE, deleteThought)
         );
         return () => {
             WebsocketService.unsubscribe(deleteThoughtSubscriptionId);

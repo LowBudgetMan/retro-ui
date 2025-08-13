@@ -6,26 +6,14 @@ import {
     createThoughtSubscriptionId,
     deleteThoughtSubscriptionId,
     updateThoughtSubscriptionId
-} from '../../services/websocket/eventHandlers/ThoughtEventHandler.ts';
+} from '../../services/websocket/constants/thoughts.ts';
 import {useRetro} from "../hooks.tsx";
 
-// Mock the WebSocket service
 jest.mock('../../services/websocket/WebsocketService.ts', () => ({
     WebsocketService: {
         subscribe: jest.fn(),
         unsubscribe: jest.fn()
     }
-}));
-
-// Mock the ThoughtEventHandler
-jest.mock('../../services/websocket/eventHandlers/ThoughtEventHandler.ts', () => ({
-    createThoughtSubscriptionId: 'create-thought-subscription-id',
-    updateThoughtSubscriptionId: 'update-thought-subscription-id',
-    deleteThoughtSubscriptionId: 'delete-thought-subscription-id',
-    getDestination: jest.fn().mockReturnValue('/test/destination'),
-    createThoughtEventHandler: jest.fn().mockReturnValue(jest.fn()),
-    updateThoughtEventHandler: jest.fn().mockReturnValue(jest.fn()),
-    deleteThoughtEventHandler: jest.fn().mockReturnValue(jest.fn())
 }));
 
 describe('RetroContextProvider', () => {
@@ -54,18 +42,19 @@ describe('RetroContextProvider', () => {
             </RetroContextProvider>
         );
 
+        // TODO: These should probably check to make sure that the callbacks are set up to track the right events
         expect(WebsocketService.subscribe).toHaveBeenCalledWith(
-            '/test/destination',
+            '/topic/test-retro-id.thoughts',
             createThoughtSubscriptionId,
             expect.any(Function)
         );
         expect(WebsocketService.subscribe).toHaveBeenCalledWith(
-            '/test/destination',
+            '/topic/test-retro-id.thoughts',
             updateThoughtSubscriptionId,
             expect.any(Function)
         );
         expect(WebsocketService.subscribe).toHaveBeenCalledWith(
-            '/test/destination',
+            '/topic/test-retro-id.thoughts',
             deleteThoughtSubscriptionId,
             expect.any(Function)
         );
