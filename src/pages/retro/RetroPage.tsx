@@ -16,7 +16,7 @@ export function RetroPage() {
 
     return (
         <RetroContextProvider retro={retro}>
-            <ActionItemsContextProvider actionItems={actionItems}>
+            <ActionItemsContextProvider teamId={retro.teamId} actionItems={actionItems}>
                 <RetroComponent />
             </ActionItemsContextProvider>
         </RetroContextProvider>

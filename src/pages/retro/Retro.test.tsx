@@ -4,7 +4,7 @@ import '@testing-library/jest-dom';
 import {RetroColumn} from "./components/retro-column/RetroColumn.tsx";
 
 import {PropsWithChildren} from "react";
-import {useRetro} from "../../context/hooks.tsx";
+import {useActionItems, useRetro} from "../../context/hooks.tsx";
 
 jest.mock('react-router-dom', () => ({
   useLoaderData: jest.fn(),
@@ -21,6 +21,7 @@ jest.mock('./RetroPage.module.css', () => ({
 
 jest.mock('../../context/hooks.tsx', () => ({
   useRetro: jest.fn(),
+  useActionItems: jest.fn(),
 }));
 
 jest.mock('./components/retro-column/RetroColumn.tsx', () => ({
@@ -83,6 +84,7 @@ describe('RetroComponent', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     (useRetro as jest.Mock).mockReturnValue({ retro: mockRetro });
+    (useActionItems as jest.Mock).mockReturnValue({ actionItems: [] });
   });
 
   it('renders retro component with correct categories', () => {

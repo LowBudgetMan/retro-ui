@@ -1,8 +1,10 @@
 import styles from './ActionItemsTab.module.css';
 import {useEffect, useState} from "react";
 import {onKeys} from "../../../../services/key-event-handler/KeyEventHandler.ts";
+import {useActionItems} from "../../../../context/hooks.tsx";
 
 export function ActionItemsTab() {
+    const {actionItems} = useActionItems();
     const [isOpen, setIsOpen] = useState<boolean>(false);
 
     const toggleActionItemsPane = () => setIsOpen(!isOpen);
@@ -22,21 +24,7 @@ export function ActionItemsTab() {
             <button className={styles.tab} onClick={toggleActionItemsPane}>Action Items</button>
             <div className={styles.content}>
                 <ol>
-                    <li>thing1</li>
-                    <li>thing1</li>
-                    <li>thing1</li>
-                    <li>thing1</li>
-                    <li>thing1</li>
-                    <li>thing1</li>
-                    <li>thing1</li>
-                    <li>thing1</li>
-                    <li>thing1</li>
-                    <li>thing1</li>
-                    <li>thing1</li>
-                    <li>thing1</li>
-                    <li>thing1</li>
-                    <li>thing1</li>
-                    <li>thing1</li>
+                    {actionItems.map(item => (<li key={item.id}>{item.action}</li>))}
                 </ol>
             </div>
         </div>

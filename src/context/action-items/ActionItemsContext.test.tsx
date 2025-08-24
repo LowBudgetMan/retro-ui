@@ -4,9 +4,11 @@ import { useActionItems } from '../hooks.tsx';
 import { ActionItem } from '../../services/action-items-service/ActionItemsService.ts';
 
 describe('ActionItemsContextProvider', () => {
+const teamId = 'team-1'
+
     const mockActionItems: ActionItem[] = [
-        { id: '1', action: 'Test Action Item 1', completed: false, teamId: 'team-1', assignee: 'user-1', createdAt: new Date() },
-        { id: '2', action: 'Test Action Item 2', completed: true, teamId: 'team-1', assignee: 'user-2', createdAt: new Date() },
+        { id: '1', action: 'Test Action Item 1', completed: false, teamId: teamId, assignee: 'user-1', createdAt: new Date() },
+        { id: '2', action: 'Test Action Item 2', completed: true, teamId: teamId, assignee: 'user-2', createdAt: new Date() },
     ];
 
     const TestComponent = () => {
@@ -22,7 +24,7 @@ describe('ActionItemsContextProvider', () => {
 
     it('should render initial action items passed from the properties', () => {
         const { getByText } = render(
-            <ActionItemsContextProvider actionItems={mockActionItems}>
+            <ActionItemsContextProvider teamId={teamId} actionItems={mockActionItems}>
                 <TestComponent />
             </ActionItemsContextProvider>
         );
