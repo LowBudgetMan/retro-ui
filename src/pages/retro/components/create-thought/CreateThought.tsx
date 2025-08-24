@@ -1,5 +1,5 @@
 import { useState } from "react";
-import {RetroService} from "../../../../services/RetroService.ts";
+import {RetroService} from "../../../../services/retro-service/RetroService.ts";
 import {onKeys} from "../../../../services/key-event-handler/KeyEventHandler.ts";
 import styles from "./CreateThought.module.css";
 

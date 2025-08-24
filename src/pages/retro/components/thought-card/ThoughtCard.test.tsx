@@ -1,6 +1,6 @@
 import {fireEvent, render, screen, within, act} from "@testing-library/react";
 import {ThoughtCard} from "./ThoughtCard.tsx";
-import {Thought} from "../../../../services/RetroService.ts";
+import {Thought} from "../../../../services/retro-service/RetroService.ts";
 import {ThoughtService} from "../../../../services/thought-service/ThoughtService.ts";
 
 jest.mock("../../../../services/thought-service/ThoughtService.ts");

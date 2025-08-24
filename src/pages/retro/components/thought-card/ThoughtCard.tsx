@@ -1,4 +1,4 @@
-import {Thought} from "../../../../services/RetroService.ts";
+import {Thought} from "../../../../services/retro-service/RetroService.ts";
 import styles from './ThoughtCard.module.css';
 import {useCallback, useState, KeyboardEvent, useEffect} from "react";
 import {ThoughtService} from "../../../../services/thought-service/ThoughtService.ts";

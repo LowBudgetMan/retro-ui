@@ -1,7 +1,7 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import { CreateRetroButton } from './CreateRetroButton';
 import { useLoaderData } from 'react-router-dom';
-import { Template } from '../../../services/RetroService';
+import { Template } from '../../../services/retro-service/RetroService.ts';
 import '@testing-library/jest-dom';
 
 jest.mock('react-router-dom', () => ({

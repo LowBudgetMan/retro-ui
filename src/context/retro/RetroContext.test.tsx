@@ -1,7 +1,7 @@
 import {act, render} from '@testing-library/react';
 import {RetroContextProvider} from './RetroContext.tsx';
 import {WebsocketService} from '../../services/websocket/WebsocketService.ts';
-import {Thought} from "../../services/RetroService.ts";
+import {Thought} from "../../services/retro-service/RetroService.ts";
 import {
     createThoughtSubscriptionId,
     deleteThoughtSubscriptionId,

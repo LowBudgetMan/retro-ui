@@ -1,7 +1,7 @@
 import '@jest/globals';
 import axios from 'axios';
 import MockAdapter from 'axios-mock-adapter';
-import {RetroService, Retro, Thought, RetroListItem} from './RetroService';
+import {RetroService, Retro, Thought, RetroListItem} from './RetroService.ts';
 
 const mock = new MockAdapter(axios);
 

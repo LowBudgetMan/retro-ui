@@ -1,6 +1,6 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { CreateRetroForm } from './CreateRetroForm';
-import { RetroService, Template } from '../../../services/RetroService';
+import { RetroService, Template } from '../../../services/retro-service/RetroService.ts';
 import { useLoaderData, useRevalidator } from 'react-router-dom';
 import { BrowserRouter } from 'react-router-dom';
 import '@testing-library/jest-dom';
@@ -11,7 +11,7 @@ jest.mock('react-router-dom', () => ({
   useRevalidator: jest.fn(),
 }));
 
-jest.mock('../../../services/RetroService.ts', () => ({
+jest.mock('../../../services/retro-service/RetroService.ts', () => ({
   RetroService: {
     createRetro: jest.fn().mockResolvedValue(undefined),
   },

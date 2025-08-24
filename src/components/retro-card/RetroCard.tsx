@@ -1,4 +1,4 @@
-import {RetroListItem, Template} from "../../services/RetroService.ts";
+import {RetroListItem, Template} from "../../services/retro-service/RetroService.ts";
 import {Link} from "react-router-dom";
 import cardStyles from "./RetroCard.module.css";
 

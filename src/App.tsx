@@ -8,9 +8,9 @@ import {loader as teamLoader} from "./pages/team/teamLoader.ts";
 import {loader as retroLoader} from "./pages/retro/retroLoader.ts";
 import {loader as templatesLoader} from "./pages/templates/templatesLoader.ts";
 import {AuthRedirectPage} from "./pages/auth-redirect/AuthRedirectPage.tsx";
-import {configureAxios} from "./services/AxiosConfig.ts";
+import {configureAxios} from "./config/AxiosConfig.ts";
 import {Header} from "./components/header/Header.tsx";
-import {ThemeProvider} from "./styles/ThemeContext.tsx";
+import {ThemeProvider} from "./context/theme/ThemeContext.tsx";
 import {TemplatesPage} from "./pages/templates/TemplatesPage.tsx";
 import {SilentRedirectPage} from "./pages/auth-redirect/SilentRedirectPage.tsx";
 

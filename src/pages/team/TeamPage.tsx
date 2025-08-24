@@ -4,7 +4,7 @@ import {RetroCard} from "../../components/retro-card/RetroCard.tsx";
 import teamStyles from "./TeamPage.module.css";
 import "../../styles/global.css";
 import {CreateRetroButton} from "./components/CreateRetroButton.tsx";
-import {notFoundTemplate} from "../../services/RetroService.ts";
+import {notFoundTemplate} from "../../services/retro-service/RetroService.ts";
 
 export function TeamPage() {
     const team = useLoaderData() as TeamPageData;

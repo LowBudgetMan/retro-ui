@@ -1,4 +1,4 @@
-import {Template} from "../../../services/RetroService.ts";
+import {Template} from "../../../services/retro-service/RetroService.ts";
 import {useCallback} from "react";
 import {Link} from "react-router-dom";
 import optionStyles from "./CreateRetroFormOption.module.css";

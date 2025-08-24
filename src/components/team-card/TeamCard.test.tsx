@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import { TeamCard } from './TeamCard';
-import { TeamListItem } from '../../services/TeamService';
+import { TeamListItem } from '../../services/team-service/TeamService.ts';
 import '@testing-library/jest-dom';
 
 jest.mock('react-router-dom', () => ({

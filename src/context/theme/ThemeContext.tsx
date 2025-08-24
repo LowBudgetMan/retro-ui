@@ -1,4 +1,4 @@
-import {createContext, PropsWithChildren, useContext, useEffect, useState} from "react";
+import {createContext, PropsWithChildren, useEffect, useState} from "react";
 
 const THEME_KEY = "theme";
 
@@ -14,7 +14,7 @@ type ThemeContextValue = {
     getEffectiveTheme: () => Theme;
 }
 
-const ThemeContext = createContext<ThemeContextValue>({
+export const ThemeContext = createContext<ThemeContextValue>({
     theme: Theme.SYSTEM,
     setTheme: () => {},
     getEffectiveTheme: () => Theme.SYSTEM
@@ -62,8 +62,4 @@ export function ThemeProvider(props: PropsWithChildren) {
             {props.children}
         </ThemeContext.Provider>
     );
-}
-
-export function useTheme() {
-    return useContext(ThemeContext);
 }

@@ -1,5 +1,5 @@
-import {RetroTemplateService} from "../../services/RetroTemplateService.ts";
-import {Template} from "../../services/RetroService.ts";
+import {RetroTemplateService} from "../../services/retro-template-service/RetroTemplateService.ts";
+import {Template} from "../../services/retro-service/RetroService.ts";
 import {waitForAuthInitialization} from "../user/UserContext.ts";
 
 export interface TemplatesPageData {

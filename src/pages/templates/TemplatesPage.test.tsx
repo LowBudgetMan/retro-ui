@@ -2,14 +2,14 @@ import { render, screen } from '@testing-library/react';
 import { TemplatesPage } from './TemplatesPage';
 import { useLoaderData } from 'react-router-dom';
 import { TemplatesPageData } from './templatesLoader';
-import { Template } from '../../services/RetroService';
+import { Template } from '../../services/retro-service/RetroService.ts';
 import '@testing-library/jest-dom';
 
 jest.mock('react-router-dom', () => ({
   useLoaderData: jest.fn(),
 }));
 
-jest.mock('../../styles/ThemeContext.tsx', () => ({
+jest.mock('../../context/hooks.tsx', () => ({
   useTheme: () => ({
     theme: 'light'
   }),

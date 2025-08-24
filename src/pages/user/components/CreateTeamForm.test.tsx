@@ -1,6 +1,6 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { CreateTeamForm } from './CreateTeamForm';
-import { TeamService } from '../../../services/TeamService';
+import { TeamService } from '../../../services/team-service/TeamService.ts';
 import '@testing-library/jest-dom';
 import { useRevalidator } from 'react-router-dom';
 
@@ -8,7 +8,7 @@ jest.mock('react-router-dom', () => ({
   useRevalidator: jest.fn(),
 }));
 
-jest.mock('../../../services/TeamService.ts', () => ({
+jest.mock('../../../services/team-service/TeamService.ts', () => ({
   TeamService: {
     createTeam: jest.fn().mockResolvedValue(undefined),
   },

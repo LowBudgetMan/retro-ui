@@ -1,6 +1,6 @@
 import '@jest/globals';
 import { User } from 'oidc-client-ts';
-import { configureAxios } from './AxiosConfig';
+import { configureAxios } from './AxiosConfig.ts';
 
 // Mock userManager
 jest.mock('../pages/user/UserContext.ts', () => ({
@@ -24,7 +24,7 @@ jest.mock('axios', () => ({
 
 // Import after mocking
 import axios from 'axios';
-import { userManager } from '../pages/user/UserContext';
+import { userManager } from '../pages/user/UserContext.ts';
 
 describe('AxiosConfig', () => {
   let requestInterceptor: any;

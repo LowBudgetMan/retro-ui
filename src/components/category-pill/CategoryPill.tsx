@@ -1,7 +1,8 @@
-import {Category} from "../../services/RetroService.ts";
-import {Theme, useTheme} from "../../styles/ThemeContext.tsx";
+import {Category} from "../../services/retro-service/RetroService.ts";
+import {Theme} from "../../context/theme/ThemeContext.tsx";
 import {useEffect, useState} from "react";
 import styles from "./CategoryPill.module.css";
+import {useTheme} from "../../context/hooks.tsx";
 
 interface Props {
     category: Category

@@ -1,6 +1,6 @@
-import {TeamListItem, TeamService} from "../../services/TeamService.ts";
-import {RetroListItem, RetroService, Template} from "../../services/RetroService.ts";
-import {RetroTemplateService} from "../../services/RetroTemplateService.ts";
+import {TeamListItem, TeamService} from "../../services/team-service/TeamService.ts";
+import {RetroListItem, RetroService, Template} from "../../services/retro-service/RetroService.ts";
+import {RetroTemplateService} from "../../services/retro-template-service/RetroTemplateService.ts";
 import {waitForAuthInitialization} from "../user/UserContext.ts";
 
 export interface TeamPageData extends TeamListItem {

@@ -1,4 +1,4 @@
-import {Retro, RetroService} from "../../services/RetroService.ts";
+import {Retro, RetroService} from "../../services/retro-service/RetroService.ts";
 import {ActionItem, ActionItemsService} from "../../services/action-items-service/ActionItemsService.ts";
 
 export type RetroPageLoaderData = {

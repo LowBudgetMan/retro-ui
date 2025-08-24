@@ -1,6 +1,6 @@
 import { FormEvent } from "react";
 import formStyle from './CreateTeamForm.module.css';
-import { TeamService } from "../../../services/TeamService.ts";
+import { TeamService } from "../../../services/team-service/TeamService.ts";
 
 interface CreateTeamFormProps {
     onSubmitSuccess: () => void;

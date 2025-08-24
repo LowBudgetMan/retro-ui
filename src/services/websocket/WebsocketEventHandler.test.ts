@@ -1,4 +1,4 @@
-import {Thought} from "../RetroService.ts";
+import {Thought} from "../retro-service/RetroService.ts";
 import {IMessage} from "@stomp/stompjs";
 import {eventHandler, EventType} from "./WebsocketEventHandler.ts";
 

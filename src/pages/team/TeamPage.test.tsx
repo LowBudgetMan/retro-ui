@@ -2,7 +2,7 @@ import { render, screen } from '@testing-library/react';
 import { TeamPage } from './TeamPage';
 import { useLoaderData } from 'react-router-dom';
 import { TeamPageData } from './teamLoader';
-import { RetroListItem, Template } from '../../services/RetroService';
+import { RetroListItem, Template } from '../../services/retro-service/RetroService.ts';
 import '@testing-library/jest-dom';
 
 jest.mock('react-router-dom', () => ({

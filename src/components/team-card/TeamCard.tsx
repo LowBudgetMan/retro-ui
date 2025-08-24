@@ -1,4 +1,4 @@
-import {TeamListItem} from "../../services/TeamService.ts";
+import {TeamListItem} from "../../services/team-service/TeamService.ts";
 import {Link} from "react-router-dom";
 import cardStyle from "./TeamCard.module.css";
 

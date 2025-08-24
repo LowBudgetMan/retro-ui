@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import { CategoryPill } from './CategoryPill';
-import { Category } from '../../services/RetroService';
-import { ThemeProvider } from '../../styles/ThemeContext';
+import { Category } from '../../services/retro-service/RetroService.ts';
+import { ThemeProvider } from '../../context/theme/ThemeContext.tsx';
 import '@testing-library/jest-dom';
 import { ReactNode } from 'react';
 

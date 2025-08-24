@@ -1,10 +1,11 @@
-import {Category, Thought} from "../../../../services/RetroService.ts";
+import {Category, Thought} from "../../../../services/retro-service/RetroService.ts";
 import {CreateThought} from "../create-thought/CreateThought.tsx";
 import {ThoughtCard} from "../thought-card/ThoughtCard.tsx";
 import styles from "./RetroColumn.module.css";
 import {CountSeparator} from "../count-separator/CountSeparator.tsx";
-import {Theme, useTheme} from "../../../../styles/ThemeContext.tsx";
+import {Theme} from "../../../../context/theme/ThemeContext.tsx";
 import {useMemo} from "react";
+import {useTheme} from "../../../../context/hooks.tsx";
 
 interface RetroColumnProps {
     teamId: string;

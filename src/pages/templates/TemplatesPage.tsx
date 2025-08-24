@@ -1,6 +1,6 @@
 import {useLoaderData} from "react-router-dom";
 import {TemplatesPageData} from "./templatesLoader.ts";
-import {Template} from "../../services/RetroService.ts";
+import {Template} from "../../services/retro-service/RetroService.ts";
 import {useCallback} from "react";
 import {CategoryList} from "../../components/category-list/CategoryList.tsx";
 

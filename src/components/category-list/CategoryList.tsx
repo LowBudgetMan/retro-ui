@@ -1,4 +1,4 @@
-import {Category} from "../../services/RetroService.ts";
+import {Category} from "../../services/retro-service/RetroService.ts";
 import styles from "./CategoryList.module.css";
 import {CategoryPill} from "../category-pill/CategoryPill.tsx";
 

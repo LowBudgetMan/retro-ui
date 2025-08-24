@@ -1,9 +1,9 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { CreateThought } from './CreateThought.tsx';
-import { RetroService } from '../../../../services/RetroService.ts';
+import { RetroService } from '../../../../services/retro-service/RetroService.ts';
 import '@testing-library/jest-dom';
 
-jest.mock('../../../../services/RetroService.ts', () => ({
+jest.mock('../../../../services/retro-service/RetroService.ts', () => ({
   RetroService: {
     createThought: jest.fn(),
   },

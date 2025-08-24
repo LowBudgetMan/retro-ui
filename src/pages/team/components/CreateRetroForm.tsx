@@ -1,5 +1,5 @@
 import {useLoaderData, useRevalidator} from "react-router-dom";
-import {RetroService, Template} from "../../../services/RetroService.ts";
+import {RetroService, Template} from "../../../services/retro-service/RetroService.ts";
 import {TeamPageData} from "../teamLoader.ts";
 import {CreateRetroFormOption} from "./CreateRetroFormOption.tsx";
 import styles from "./CreateRetroForm.module.css";

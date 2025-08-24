@@ -1,8 +1,9 @@
 import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
 import { Header } from './Header.tsx';
 import { userManager } from '../../pages/user/UserContext.ts';
-import { Theme, useTheme } from '../../styles/ThemeContext.tsx';
+import { Theme } from '../../context/theme/ThemeContext.tsx';
 import '@testing-library/jest-dom';
+import {useTheme} from "../../context/hooks.tsx";
 
 jest.mock('../../pages/user/UserContext.ts', () => ({
   userManager: {
@@ -18,7 +19,7 @@ jest.mock('../../pages/user/UserContext.ts', () => ({
   }
 }));
 
-jest.mock('../../styles/ThemeContext.tsx', () => {
+jest.mock('../../context/hooks.tsx', () => {
   const mockUseTheme = jest.fn().mockReturnValue({
     theme: 'dark',
     setTheme: jest.fn(),

@@ -1,6 +1,6 @@
 import {render, screen} from "@testing-library/react";
 import {CategoryList} from "./CategoryList.tsx";
-import {Category} from "../../services/RetroService.ts";
+import {Category} from "../../services/retro-service/RetroService.ts";
 
 jest.mock('../category-pill/CategoryPill.tsx', () => ({
     CategoryPill: ({category}: {category: Category}) => (

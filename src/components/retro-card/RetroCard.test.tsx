@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import { RetroCard } from './RetroCard';
-import { RetroListItem, Template } from '../../services/RetroService';
+import { RetroListItem, Template } from '../../services/retro-service/RetroService.ts';
 import '@testing-library/jest-dom';
 
 jest.mock('react-router-dom', () => ({

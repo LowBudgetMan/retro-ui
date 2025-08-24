@@ -1,7 +1,7 @@
 import '@jest/globals';
 import axios from 'axios';
 import MockAdapter from 'axios-mock-adapter';
-import {TeamListItem, TeamService} from './TeamService';
+import {TeamListItem, TeamService} from './TeamService.ts';
 
 const mock = new MockAdapter(axios);
 

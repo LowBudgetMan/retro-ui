@@ -1,4 +1,4 @@
-import {Retro, Template, Thought} from "../../services/RetroService.ts";
+import {Retro, Template, Thought} from "../../services/retro-service/RetroService.ts";
 import {createContext, PropsWithChildren, useCallback, useEffect, useState} from "react";
 import {WebsocketService} from "../../services/websocket/WebsocketService.ts";
 import {

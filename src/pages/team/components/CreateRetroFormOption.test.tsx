@@ -1,6 +1,6 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import { CreateRetroFormOption } from './CreateRetroFormOption';
-import { Template } from '../../../services/RetroService';
+import { Template } from '../../../services/retro-service/RetroService.ts';
 import { BrowserRouter } from 'react-router-dom';
 import '@testing-library/jest-dom';
 
