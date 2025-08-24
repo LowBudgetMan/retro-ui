@@ -37,7 +37,10 @@ describe('ActionItemsTab', () => {
     });
 
     it('should display action items', () => {
-        const actionItems = [{id: '1', action: 'Do a thing'}, {id: '2', action: 'Do another thing'}];
+        const actionItems = [
+            {id: '1', action: 'Do a thing', createdAt: new Date()},
+            {id: '2', action: 'Do another thing', createdAt: new Date()}
+        ];
         useActionItemsMock.mockReturnValue({actionItems});
         render(<ActionItemsTab />);
 
