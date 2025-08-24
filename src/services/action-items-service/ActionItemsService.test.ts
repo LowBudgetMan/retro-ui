@@ -37,4 +37,45 @@ describe('ActionItemsService', () => {
             await expect(ActionItemsService.getActionItems(teamId)).rejects.toThrow();
         });
     });
+
+    describe('setCompleted', () => {
+        const actionItemId = 'action-item-123';
+
+        it('should set completed as passed value', async () => {
+            const completed = true;
+
+            mock.onPut(`${baseUrl}/teams/${teamId}/action-items/${actionItemId}/completed`, {
+                completed
+            }).reply(204);
+
+            const actual = await ActionItemsService.setCompleted(teamId, actionItemId, completed);
+            expect(actual.status).toBe(204);
+        });
+
+        it('should throw when status is not 204', async () => {
+            mock.onPut(`${baseUrl}/teams/${teamId}/action-items/${actionItemId}/completed`).reply(500);
+            await expect(ActionItemsService.setCompleted(teamId, actionItemId, true)).rejects.toThrow();
+        });
+    });
+
+    describe('createActionItem', () => {
+        const action = 'New Action Item';
+        const assignee = 'User 3';
+
+        it('should post to the correct endpoint with the correct payload', async () => {
+            mock.onPost(`${baseUrl}/teams/${teamId}/action-items`, {
+                action,
+                assignee
+            }).reply(201);
+
+            const result = await ActionItemsService.createActionItem(teamId, action, assignee);
+            expect(result.status).toBe(201);
+        });
+
+        it('should throw an error if the API call fails', async () => {
+            mock.onPost(`${baseUrl}/teams/${teamId}/action-items`).reply(500);
+
+            await expect(ActionItemsService.createActionItem(teamId, action, assignee)).rejects.toThrow();
+        });
+    });
 });

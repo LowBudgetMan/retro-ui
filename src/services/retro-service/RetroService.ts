@@ -88,6 +88,7 @@ async function createRetro(teamId: string, retroTemplateId: string) {
     });
 }
 
+// TODO: Move thought stuff into ThoughtService
 async function createThought(teamId: string, retroId: string, message: string, categoryName: string) {
     return await axios.post(`http://localhost:8080/api/teams/${teamId}/retros/${retroId}/thoughts`, {
         message,
@@ -95,6 +96,7 @@ async function createThought(teamId: string, retroId: string, message: string, c
     });
 }
 
+// TODO: Move thought stuff into ThoughtService
 async function getThoughts(teamId: string, retroId: string): Promise<Thought[]> {
     const response = await axios.get(`http://localhost:8080/api/team/${teamId}/retros/${retroId}/thoughts`);
     return response.data.map(transformThought);
