@@ -4,6 +4,7 @@ import {onKeys} from "../../../../services/key-event-handler/KeyEventHandler.ts"
 import {useActionItems} from "../../../../context/hooks.tsx";
 import {ActionItemCard} from "./action-item-card/ActionItemCard.tsx";
 import {ActionItemsService} from "../../../../services/action-items-service/ActionItemsService.ts";
+import {CountSeparator} from "../count-separator/CountSeparator.tsx";
 
 export function ActionItemsTab() {
     const {teamId, actionItems} = useActionItems();
@@ -44,6 +45,7 @@ export function ActionItemsTab() {
                     <input type={'text'} name={'assignee'} placeholder={'Enter Assignee'} required={true}/>
                     <button type={'submit'}>Add</button>
                 </form>
+                <CountSeparator count={actionItems.length} />
                 <ol className={styles.list}>
                     {actionItems.map(item => (<li className={styles.listItem} key={item.id} ><ActionItemCard actionItem={item}/></li>))}
                 </ol>
