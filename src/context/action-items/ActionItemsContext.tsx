@@ -9,12 +9,14 @@ import {
 } from "../../services/websocket/constants/action-items.ts";
 
 export type ActionItemsContextValue = {
+    teamId: string;
     actionItems: ActionItem[];
     createActionItem: (newActionItem: ActionItem) => void;
     updateActionItem: (updatedActionItem: ActionItem) => void;
 }
 
 export const ActionItemsContext = createContext<ActionItemsContextValue>({
+    teamId: "",
     actionItems: [],
     createActionItem: () => {},
     updateActionItem: () => {},
@@ -52,7 +54,7 @@ export function ActionItemsContextProvider({teamId, actionItems, children}: Prop
     }, [teamId, updateActionItem]);
 
     return (
-        <ActionItemsContext.Provider value={{actionItems: actionItemsState, createActionItem, updateActionItem}}>
+        <ActionItemsContext.Provider value={{teamId, actionItems: actionItemsState, createActionItem, updateActionItem}}>
             {children}
         </ActionItemsContext.Provider>
     )
