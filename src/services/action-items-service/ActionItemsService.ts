@@ -1,4 +1,5 @@
 import axios from "axios";
+import { DateTime } from "luxon";
 
 export interface ActionItem {
     id: string;
@@ -6,7 +7,7 @@ export interface ActionItem {
     action: string;
     assignee: string;
     completed: boolean;
-    createdAt: Date;
+    createdAt: DateTime;
 }
 
 async function getActionItems(teamId: string): Promise<ActionItem[]> {
@@ -27,10 +28,10 @@ async function setCompleted(teamId: string, actionItemId: string, completed: boo
 }
 
 // TODO: Replace JavaScript Dates with Luxon or equivalent
-function transformActionItem(actionItem: ActionItem): ActionItem {
+export function transformActionItem(actionItem: ActionItem): ActionItem {
     return {
         ...actionItem,
-        createdAt: new Date(actionItem.createdAt)
+        createdAt: DateTime.fromISO(actionItem.createdAt as unknown as string)
     }
 }
 

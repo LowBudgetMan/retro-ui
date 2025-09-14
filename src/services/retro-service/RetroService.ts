@@ -1,4 +1,5 @@
 import axios from "axios";
+import { DateTime } from "luxon";
 
 export interface Retro {
     id: string,
@@ -6,7 +7,7 @@ export interface Retro {
     finished: boolean,
     template: Template,
     thoughts: Thought[],
-    dateCreated: Date
+    createdAt: DateTime
 }
 
 export interface RetroListItem {
@@ -14,7 +15,7 @@ export interface RetroListItem {
     teamId: string,
     finished: boolean,
     templateId: string,
-    createdAt: Date
+    createdAt: DateTime
 }
 
 export interface Template {
@@ -48,27 +49,28 @@ export interface Thought {
     completed: boolean,
     category: string,
     retroId: string,
-    createdAt: Date
+    createdAt: DateTime
 }
 
 function transformRetro(retro: Retro): Retro {
     return {
         ...retro,
-        dateCreated: new Date(retro.dateCreated)
+        createdAt: DateTime.fromISO(retro.createdAt as unknown as string),
+        thoughts: retro.thoughts.map((thought) => transformThought(thought))
     };
 }
 
 function transformRetroListItem(retro: RetroListItem): RetroListItem {
     return {
         ...retro,
-        createdAt: new Date(retro.createdAt)
+        createdAt: DateTime.fromISO(retro.createdAt as unknown as string)
     };
 }
 
-function transformThought(thought: Thought): Thought {
+export function transformThought(thought: Thought): Thought {
     return {
         ...thought,
-        createdAt: new Date(thought.createdAt)
+        createdAt: DateTime.fromISO(thought.createdAt as unknown as string)
     };
 }
 
@@ -79,6 +81,7 @@ async function getRetrosForTeam(teamId: string): Promise<RetroListItem[]> {
 
 async function getRetro(teamId: string, retroId: string): Promise<Retro> {
     const response = await axios.get(`http://localhost:8080/api/teams/${teamId}/retros/${retroId}`);
+    console.log(response);
     return transformRetro(response.data);
 }
 
@@ -99,6 +102,7 @@ async function createThought(teamId: string, retroId: string, message: string, c
 // TODO: Move thought stuff into ThoughtService
 async function getThoughts(teamId: string, retroId: string): Promise<Thought[]> {
     const response = await axios.get(`http://localhost:8080/api/team/${teamId}/retros/${retroId}/thoughts`);
+    console.log(response);
     return response.data.map(transformThought);
 }
 

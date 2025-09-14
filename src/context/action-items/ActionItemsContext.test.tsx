@@ -2,7 +2,8 @@ import {act, render} from '@testing-library/react';
 import { ActionItemsContextProvider } from './ActionItemsContext.tsx';
 import { useActionItems } from '../hooks.tsx';
 import { ActionItem } from '../../services/action-items-service/ActionItemsService.ts';
-import {WebsocketService} from "../../services/websocket/WebsocketService.ts";
+import { WebsocketService } from '../../services/websocket/WebsocketService.ts';
+import { DateTime } from 'luxon';
 import {
     createActionItemSubscriptionId,
     updateActionItemSubscriptionId
@@ -22,8 +23,8 @@ describe('ActionItemsContextProvider', () => {
 
     const teamId = 'team-1'
     const mockActionItems: ActionItem[] = [
-        { id: '1', action: 'Test Action Item 1', completed: false, teamId: teamId, assignee: 'user-1', createdAt: new Date() },
-        { id: '2', action: 'Test Action Item 2', completed: true, teamId: teamId, assignee: 'user-2', createdAt: new Date() },
+        { id: '1', action: 'Test Action Item 1', completed: false, teamId: teamId, assignee: 'user-1', createdAt: DateTime.now() },
+        { id: '2', action: 'Test Action Item 2', completed: true, teamId: teamId, assignee: 'user-2', createdAt: DateTime.now() },
     ];
 
     const TestComponent = () => {
@@ -103,7 +104,7 @@ describe('ActionItemsContextProvider', () => {
                 action: "Try new task",
                 assignee: "me",
                 completed: false,
-                createdAt: new Date(),
+                createdAt: DateTime.now(),
                 teamId: "teamId"
             }
             act(() => {

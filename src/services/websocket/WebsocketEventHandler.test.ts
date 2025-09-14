@@ -1,9 +1,10 @@
 import {Thought} from "../retro-service/RetroService.ts";
 import {IMessage} from "@stomp/stompjs";
 import {eventHandler, EventType} from "./WebsocketEventHandler.ts";
+import {DateTime} from "luxon";
 
 describe('WebsocketEventHandler', () => {
-    const testDate = new Date('2025-03-13T05:19:22.898Z');
+    const testDate = DateTime.fromISO('2025-03-13T05:19:22.898Z');
     const baseMockThought: Thought = {
         id: 'thought-123',
         message: 'Test thought',
@@ -38,7 +39,7 @@ describe('WebsocketEventHandler', () => {
 
         expect(mockHandler).toHaveBeenCalledWith({
             ...baseMockThought,
-            createdAt: baseMockThought.createdAt.toISOString()
+            createdAt: baseMockThought.createdAt.toISO()
         });
     });
 
@@ -51,7 +52,7 @@ describe('WebsocketEventHandler', () => {
 
         expect(mockHandler).not.toHaveBeenCalledWith({
             ...baseMockThought,
-            createdAt: baseMockThought.createdAt.toISOString()
+            createdAt: baseMockThought.createdAt.toISO()
         });
     });
 

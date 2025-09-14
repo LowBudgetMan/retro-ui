@@ -2,6 +2,7 @@ import { render, screen } from '@testing-library/react';
 import { RetroCard } from './RetroCard';
 import { RetroListItem, Template } from '../../services/retro-service/RetroService.ts';
 import '@testing-library/jest-dom';
+import { DateTime } from 'luxon';
 
 jest.mock('react-router-dom', () => ({
   Link: ({ to, children, className, ...props }: any) => (
@@ -56,7 +57,7 @@ describe('RetroCard', () => {
     teamId: 'team-456',
     finished: false,
     templateId: 'template-1',
-    createdAt: new Date('2023-01-15T10:30:00Z')
+    createdAt: DateTime.fromISO('2023-01-15T10:30:00Z')
   };
 
   describe('Rendering', () => {

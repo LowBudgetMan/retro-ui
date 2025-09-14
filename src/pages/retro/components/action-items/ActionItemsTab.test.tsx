@@ -1,7 +1,8 @@
-import {fireEvent, render, screen, waitFor} from "@testing-library/react";
-import {ActionItemsTab} from "./ActionItemsTab.tsx";
-import {useActionItems} from "../../../../context/hooks.tsx";
-import {ActionItemsService} from "../../../../services/action-items-service/ActionItemsService.ts";
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { ActionItemsTab } from './ActionItemsTab.tsx';
+import { useActionItems } from '../../../../context/hooks.tsx';
+import { ActionItemsService } from '../../../../services/action-items-service/ActionItemsService.ts';
+import { DateTime } from 'luxon';
 
 jest.mock('../../../../context/hooks.tsx');
 jest.mock('../../../../services/action-items-service/ActionItemsService.ts');
@@ -44,8 +45,8 @@ describe('ActionItemsTab', () => {
 
     it('should display action items', () => {
         const actionItems = [
-            {id: '1', action: 'Do a thing', createdAt: new Date()},
-            {id: '2', action: 'Do another thing', createdAt: new Date()}
+            {id: '1', action: 'Do a thing', createdAt: DateTime.now()},
+            {id: '2', action: 'Do another thing', createdAt: DateTime.now()}
         ];
         useActionItemsMock.mockReturnValue({teamId: '123', actionItems});
         render(<ActionItemsTab />);

@@ -4,6 +4,7 @@ import { useLoaderData } from 'react-router-dom';
 import { TeamPageData } from './teamLoader';
 import { RetroListItem, Template } from '../../services/retro-service/RetroService.ts';
 import '@testing-library/jest-dom';
+import { DateTime } from 'luxon';
 
 jest.mock('react-router-dom', () => ({
   useLoaderData: jest.fn(),
@@ -77,14 +78,14 @@ describe('TeamPage', () => {
       teamId: 'team-123',
       finished: false,
       templateId: 'template-1',
-      createdAt: new Date('2023-01-15T10:00:00Z')
+      createdAt: DateTime.fromISO('2023-01-15T10:00:00Z')
     },
     {
       id: 'retro-2',
       teamId: 'team-123',
       finished: true,
       templateId: 'template-2',
-      createdAt: new Date('2023-01-20T14:30:00Z')
+      createdAt: DateTime.fromISO('2023-01-20T14:30:00Z')
     }
   ];
 
@@ -151,7 +152,7 @@ describe('TeamPage', () => {
         teamId: 'team-123',
         finished: false,
         templateId: 'non-existent-template',
-        createdAt: new Date('2023-01-25T09:00:00Z')
+        createdAt: DateTime.fromISO('2023-01-25T09:00:00Z')
       };
 
       const teamDataWithMissingTemplate: TeamPageData = {

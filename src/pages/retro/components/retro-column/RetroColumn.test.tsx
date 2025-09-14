@@ -1,6 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import { RetroColumn } from './RetroColumn.tsx';
 import '@testing-library/jest-dom';
+import { DateTime } from 'luxon';
 
 describe('RetroColumn', () => {
   const mockCategory = {
@@ -20,7 +21,7 @@ describe('RetroColumn', () => {
       completed: false,
       category: 'Went Well',
       retroId: 'retro-123',
-      createdAt: new Date(),
+      createdAt: DateTime.now(),
     },
   ];
 

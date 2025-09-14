@@ -6,6 +6,7 @@ import {useRetro} from "../../context/hooks.tsx";
 
 export function RetroComponent() {
     const {retro} = useRetro();
+    console.log(retro);
     return (
         <div>
             <h1><Link to={`/teams/${retro.teamId}`} className={'breadcrumb'}>&lt;</Link>{retro.template.name}</h1>
@@ -19,7 +20,7 @@ export function RetroComponent() {
                             category={category}
                             thoughts={retro.thoughts
                                 .filter(thought => thought.category === category.name)
-                                .sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime())}
+                                 .sort((a, b) => a.createdAt.toMillis() - b.createdAt.toMillis())}
                         />
                     ))}
                 </div>

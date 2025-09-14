@@ -2,7 +2,7 @@ import {render, screen} from '@testing-library/react';
 import {RetroComponent} from './Retro.tsx';
 import '@testing-library/jest-dom';
 import {RetroColumn} from "./components/retro-column/RetroColumn.tsx";
-
+import { DateTime } from "luxon";
 import {PropsWithChildren} from "react";
 import {useActionItems, useRetro} from "../../context/hooks.tsx";
 
@@ -35,7 +35,7 @@ describe('RetroComponent', () => {
     id: 'retro-123',
     teamId: 'team-456',
     finished: false,
-    dateCreated: new Date(),
+    createdAt: DateTime.now(),
     thoughts: [
       {
         id: 'thought-1',
@@ -44,7 +44,7 @@ describe('RetroComponent', () => {
         completed: false,
         category: 'Went Well',
         retroId: 'retro-123',
-        createdAt: new Date(),
+        createdAt: DateTime.now(),
       },
       {
         id: 'thought-2',
@@ -53,7 +53,7 @@ describe('RetroComponent', () => {
         completed: false,
         category: 'Needs Improvement',
         retroId: 'retro-123',
-        createdAt: new Date(),
+        createdAt: DateTime.now(),
       },
     ],
     template: {
@@ -103,7 +103,7 @@ describe('RetroComponent', () => {
       completed: false,
       category: 'Went Well',
       retroId: 'retro-123',
-      createdAt: new Date('2025-01-02'),
+      createdAt: DateTime.fromISO('2025-01-02'),
     };
     const thought2 = {
       id: 'thought-2',
@@ -112,7 +112,7 @@ describe('RetroComponent', () => {
       completed: false,
       category: 'Went Well',
       retroId: 'retro-123',
-      createdAt: new Date('2025-01-01'),
+      createdAt: DateTime.fromISO('2025-01-01'),
     };
     (useRetro as jest.Mock).mockReturnValue({
       retro: {

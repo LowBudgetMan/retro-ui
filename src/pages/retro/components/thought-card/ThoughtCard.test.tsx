@@ -2,11 +2,12 @@ import {fireEvent, render, screen, within, act} from "@testing-library/react";
 import {ThoughtCard} from "./ThoughtCard.tsx";
 import {Thought} from "../../../../services/retro-service/RetroService.ts";
 import {ThoughtService} from "../../../../services/thought-service/ThoughtService.ts";
+import {DateTime} from "luxon";
 
 jest.mock("../../../../services/thought-service/ThoughtService.ts");
 const mockedThoughtService = ThoughtService as jest.Mocked<typeof ThoughtService>;
 
-const currentTime = new Date();
+const currentTime = DateTime.now();
 
 describe('ThoughtCard', () => {
     const teamId = 'teamId';

@@ -1,8 +1,9 @@
 import {render, screen} from "@testing-library/react";
 import {ActionItemCard} from "./ActionItemCard.tsx";
 import {ActionItem} from "../../../../../services/action-items-service/ActionItemsService.ts";
+import { DateTime } from "luxon";
 
-const currentTime = new Date();
+const currentTime = DateTime.now();
 
 describe('ActionItemCard', () => {
     const actionItem: ActionItem = {

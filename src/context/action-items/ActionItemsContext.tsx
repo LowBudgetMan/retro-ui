@@ -1,11 +1,11 @@
 import {createContext, PropsWithChildren, useCallback, useEffect, useState} from "react";
 import {ActionItem} from "../../services/action-items-service/ActionItemsService.ts";
 import {WebsocketService} from "../../services/websocket/WebsocketService.ts";
-import {eventHandler, EventType} from "../../services/websocket/WebsocketEventHandler.ts";
+import {EventType} from "../../services/websocket/WebsocketEventHandler.ts";
 import {
     getDestination,
     createActionItemSubscriptionId,
-    updateActionItemSubscriptionId
+    updateActionItemSubscriptionId, eventHandler
 } from "../../services/websocket/constants/action-items.ts";
 
 export type ActionItemsContextValue = {

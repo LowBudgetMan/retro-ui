@@ -1,5 +1,6 @@
 import {act, render} from '@testing-library/react';
 import {RetroContextProvider} from './RetroContext.tsx';
+import { DateTime } from 'luxon';
 import {WebsocketService} from '../../services/websocket/WebsocketService.ts';
 import {Thought} from "../../services/retro-service/RetroService.ts";
 import {
@@ -21,7 +22,7 @@ describe('RetroContextProvider', () => {
         id: 'test-retro-id',
         teamId: 'test-team-id',
         finished: false,
-        dateCreated: new Date(),
+        createdAt: DateTime.now(),
         thoughts: [],
         template: {
             id: 'test-template-id',
@@ -102,8 +103,8 @@ describe('useRetro state updates', () => {
         id: 'test-retro-id',
         teamId: 'test-team-id',
         finished: false,
-        dateCreated: new Date(),
-        thoughts: [{ id: '1', message: 'Existing thought', category: 'happy', votes: 0, completed: false, retroId: 'test-retro-id', createdAt: new Date() }],
+        createdAt: DateTime.now(),
+        thoughts: [{ id: '1', message: 'Existing thought', category: 'happy', votes: 0, completed: false, retroId: 'test-retro-id', createdAt: DateTime.now() }],
         template: {
             id: 'test-template-id',
             name: 'Test Template',
@@ -126,7 +127,7 @@ describe('useRetro state updates', () => {
             </RetroContextProvider>
         );
 
-        const newThought: Thought = { id: '2', message: 'New thought', category: 'happy', votes: 0, completed: false, retroId: 'test-retro-id', createdAt: new Date() };
+        const newThought: Thought = { id: '2', message: 'New thought', category: 'happy', votes: 0, completed: false, retroId: 'test-retro-id', createdAt: DateTime.now() };
         act(() => {
             contextValue.createThought(newThought);
         });
@@ -143,7 +144,7 @@ describe('useRetro state updates', () => {
             </RetroContextProvider>
         );
 
-        const updatedThought: Thought = { id: '1', message: 'Updated thought', category: 'happy', votes: 1, completed: true, retroId: 'test-retro-id', createdAt: new Date() };
+        const updatedThought: Thought = { id: '1', message: 'Updated thought', category: 'happy', votes: 1, completed: true, retroId: 'test-retro-id', createdAt: DateTime.now() };
         act(() => {
             contextValue.updateThought(updatedThought);
         });
@@ -160,7 +161,7 @@ describe('useRetro state updates', () => {
             </RetroContextProvider>
         );
 
-        const updatedThought: Thought = { id: '2', message: 'Updated thought', category: 'happy', votes: 1, completed: true, retroId: 'test-retro-id', createdAt: new Date() };
+        const updatedThought: Thought = { id: '2', message: 'Updated thought', category: 'happy', votes: 1, completed: true, retroId: 'test-retro-id', createdAt: DateTime.now() };
         act(() => {
             contextValue.updateThought(updatedThought);
         });
@@ -177,7 +178,7 @@ describe('useRetro state updates', () => {
             </RetroContextProvider>
         );
 
-        const thoughtToDelete: Thought = { id: '1', message: 'Existing thought', category: 'happy', votes: 0, completed: false, retroId: 'test-retro-id', createdAt: new Date() };
+        const thoughtToDelete: Thought = { id: '1', message: 'Existing thought', category: 'happy', votes: 0, completed: false, retroId: 'test-retro-id', createdAt: DateTime.now() };
         act(() => {
             contextValue.deleteThought(thoughtToDelete);
         });

@@ -14,6 +14,7 @@
   "dependencies": {
     "@stomp/stompjs": "^7.0.0",
     "axios": "^1.6.8",
+    "luxon": "^3.7.1",
     "oidc-client-ts": "^3.0.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
@@ -23,6 +24,7 @@
     "@testing-library/jest-dom": "^6.4.2",
     "@testing-library/react": "^14.2.1",
     "@types/jest": "^29.5.14",
+    "@types/luxon": "^3.7.1",
     "@types/react": "^18.2.64",
     "@types/react-dom": "^18.2.21",
     "@typescript-eslint/eslint-plugin": "^7.1.1",

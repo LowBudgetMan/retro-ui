@@ -1,7 +1,8 @@
 import '@jest/globals';
 import axios from 'axios';
 import MockAdapter from 'axios-mock-adapter';
-import {RetroService, Retro, Thought, RetroListItem} from './RetroService.ts';
+import { RetroService, Retro, Thought, RetroListItem } from './RetroService.ts';
+import { DateTime } from 'luxon';
 
 const mock = new MockAdapter(axios);
 
@@ -9,7 +10,7 @@ describe('RetroService', () => {
     const baseUrl = 'http://localhost:8080/api';
     const teamId = 'team-123';
     const retroId = 'retro-123';
-    const testDate = new Date('2024-01-01T00:00:00.000Z');
+    const testDate = DateTime.fromISO('2024-01-01T00:00:00.000Z');
 
     beforeEach(() => {
         mock.reset();
@@ -23,14 +24,14 @@ describe('RetroService', () => {
                     teamId,
                     finished: false,
                     templateId: 'template-1',
-                    createdAt: testDate.toISOString()
+                    createdAt: testDate.toISO()
                 }
             ];
 
             const expectedRetros: RetroListItem[] = [
                 {
                     ...mockRetroResponse[0],
-                    createdAt: testDate
+                    createdAt: testDate,
                 }
             ];
 
@@ -60,12 +61,12 @@ describe('RetroService', () => {
                     categories: []
                 },
                 thoughts: [],
-                dateCreated: testDate.toISOString()
+                createdAt: testDate.toISO()
             };
 
             const expectedRetro: Retro = {
                 ...mockRetroResponse,
-                dateCreated: testDate
+                createdAt: testDate,
             };
 
             mock.onGet(`${baseUrl}/teams/${teamId}/retros/${retroId}`).reply(200, mockRetroResponse);
@@ -131,14 +132,14 @@ describe('RetroService', () => {
                     completed: false,
                     category: 'What went well',
                     retroId: retroId.toString(),
-                    createdAt: testDate.toISOString()
+                    createdAt: testDate.toISO()
                 }
             ];
 
             const expectedThoughts: Thought[] = [
                 {
                     ...mockThoughtResponse[0],
-                    createdAt: testDate
+                    createdAt: testDate,
                 }
             ];
 
@@ -154,4 +155,4 @@ describe('RetroService', () => {
             await expect(RetroService.getThoughts(teamId, retroId.toString())).rejects.toThrow();
         });
     });
-}); 
+});

@@ -12,7 +12,7 @@ export function RetroCard({retro, template}: RetroCardProps) {
         <Link className={cardStyles.link} to={`/teams/${retro.teamId}/retros/${retro.id}`}>
             <div className={cardStyles.retroCard}>
                 <p className={cardStyles.retroName}>{template.name}</p>
-                <p className={cardStyles.retroCreatedDate}>{new Intl.DateTimeFormat("en-US").format(retro.createdAt)}</p>
+                <p className={cardStyles.retroCreatedDate}>{retro.createdAt.toLocaleString()}</p>
             </div>
         </Link>
     )

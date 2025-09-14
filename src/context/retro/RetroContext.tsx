@@ -1,13 +1,14 @@
-import {Retro, Template, Thought} from "../../services/retro-service/RetroService.ts";
+import {Retro, Template, Thought, transformThought} from "../../services/retro-service/RetroService.ts";
 import {createContext, PropsWithChildren, useCallback, useEffect, useState} from "react";
+import { DateTime } from "luxon";
 import {WebsocketService} from "../../services/websocket/WebsocketService.ts";
 import {
     createThoughtSubscriptionId,
-    deleteThoughtSubscriptionId,
+    deleteThoughtSubscriptionId, eventHandler,
     getDestination,
     updateThoughtSubscriptionId
 } from "../../services/websocket/constants/thoughts.ts";
-import {eventHandler, EventType} from "../../services/websocket/WebsocketEventHandler.ts";
+import {EventType} from "../../services/websocket/WebsocketEventHandler.ts";
 
 export type RetroContextProviderProps = {
     retro: Retro;
@@ -15,8 +16,6 @@ export type RetroContextProviderProps = {
 
 export type RetroContextValue = {
     retro: Retro;
-    // TODO: Do I need these exposed as part of the context or should they just be internal to the provider? 
-    // TODO: So far they only seem neccessary for tests.
     createThought: (thought: Thought) => void;
     updateThought: (thought: Thought) => void;
     deleteThought: (thought: Thought) => void;
@@ -27,7 +26,7 @@ export const RetroContext = createContext<RetroContextValue>({
         id: '',
         teamId: '',
         finished: false,
-        dateCreated: new Date(),
+        createdAt: DateTime.now(),
         thoughts: [],
         template: {} as Template
     },
@@ -42,7 +41,7 @@ export function RetroContextProvider({children, retro}: PropsWithChildren<RetroC
     const createThought = useCallback((newThought: Thought) => {
         setRetroState(prevState => ({
             ...prevState,
-            thoughts: [...prevState.thoughts, newThought]
+            thoughts: [...prevState.thoughts, transformThought(newThought)]
         }));
     }, []);
 
@@ -52,7 +51,7 @@ export function RetroContextProvider({children, retro}: PropsWithChildren<RetroC
             if (index === -1) return prevState;
 
             const newThoughts = [...prevState.thoughts];
-            newThoughts[index] = updatedThought;
+            newThoughts[index] = transformThought(updatedThought);
             return { ...prevState, thoughts: newThoughts };
         });
     }, []);
