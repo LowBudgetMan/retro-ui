@@ -79,4 +79,21 @@ describe('ActionItemsService', () => {
             await expect(ActionItemsService.createActionItem(teamId, action, assignee)).rejects.toThrow();
         });
     });
+
+    describe('deleteActionItem', () => {
+        const actionItemId = 'action-item-456';
+
+        it('should send a delete request to the correct endpoint', async () => {
+            mock.onDelete(`${baseUrl}/teams/${teamId}/action-items/${actionItemId}`).reply(204);
+
+            const result = await ActionItemsService.deleteActionItem(teamId, actionItemId);
+            expect(result.status).toBe(204);
+        });
+
+        it('should throw an error if the API call fails', async () => {
+            mock.onDelete(`${baseUrl}/teams/${teamId}/action-items/${actionItemId}`).reply(500);
+
+            await expect(ActionItemsService.deleteActionItem(teamId, actionItemId)).rejects.toThrow();
+        });
+    });
 });

@@ -27,6 +27,10 @@ async function setCompleted(teamId: string, actionItemId: string, completed: boo
     })
 }
 
+async function deleteActionItem(teamId: string, actionItemId: string) {
+    return axios.delete(`http://localhost:8080/api/teams/${teamId}/action-items/${actionItemId}`);
+}
+
 export function transformActionItem(actionItem: ActionItem): ActionItem {
     return {
         ...actionItem,
@@ -35,7 +39,8 @@ export function transformActionItem(actionItem: ActionItem): ActionItem {
 }
 
 export const ActionItemsService = {
-    getActionItems,
     createActionItem,
-    setCompleted
+    getActionItems,
+    setCompleted,
+    deleteActionItem
 }

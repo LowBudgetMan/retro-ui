@@ -13,7 +13,6 @@ export function RetroPage() {
     });
 
     const {retro, actionItems} = useLoaderData() as RetroPageLoaderData;
-    console.log(retro);
 
     return (
         <RetroContextProvider retro={retro}>

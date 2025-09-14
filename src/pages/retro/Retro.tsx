@@ -6,7 +6,6 @@ import {useRetro} from "../../context/hooks.tsx";
 
 export function RetroComponent() {
     const {retro} = useRetro();
-    console.log(retro);
     return (
         <div>
             <h1><Link to={`/teams/${retro.teamId}`} className={'breadcrumb'}>&lt;</Link>{retro.template.name}</h1>

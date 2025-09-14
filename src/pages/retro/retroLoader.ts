@@ -7,10 +7,8 @@ export type RetroPageLoaderData = {
 }
 
 export async function loader({params}: {params: {teamId: string, retroId: string}}) {
-    const value = {
+    return {
         retro: await RetroService.getRetro(params.teamId, params.retroId),
         actionItems: await ActionItemsService.getActionItems(params.teamId)
     };
-    console.log(value);
-    return value;
 }

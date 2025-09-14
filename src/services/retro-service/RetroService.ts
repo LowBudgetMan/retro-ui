@@ -81,7 +81,6 @@ async function getRetrosForTeam(teamId: string): Promise<RetroListItem[]> {
 
 async function getRetro(teamId: string, retroId: string): Promise<Retro> {
     const response = await axios.get(`http://localhost:8080/api/teams/${teamId}/retros/${retroId}`);
-    console.log(response);
     return transformRetro(response.data);
 }
 
@@ -102,7 +101,6 @@ async function createThought(teamId: string, retroId: string, message: string, c
 // TODO: Move thought stuff into ThoughtService
 async function getThoughts(teamId: string, retroId: string): Promise<Thought[]> {
     const response = await axios.get(`http://localhost:8080/api/team/${teamId}/retros/${retroId}/thoughts`);
-    console.log(response);
     return response.data.map(transformThought);
 }
 
