@@ -1,4 +1,4 @@
-import {fireEvent, render, screen} from "@testing-library/react";
+import {act, fireEvent, render, screen} from "@testing-library/react";
 import {ActionItemCard} from "./ActionItemCard.tsx";
 import {ActionItem, ActionItemsService} from "../../../../../services/action-items-service/ActionItemsService.ts";
 import { DateTime } from "luxon";
@@ -64,5 +64,39 @@ describe('ActionItemCard', () => {
             actionItem.id,
             !actionItem.completed
         );
+    });
+
+    describe('delete button', () => {
+        it('should show confirmation dialog when delete button is clicked', () => {
+            render(<ActionItemCard actionItem={actionItem}/>);
+
+            fireEvent.click(screen.getByText('D'));
+
+            expect(screen.getByText('Are you sure you want to delete this action item?')).toBeInTheDocument();
+        });
+
+        it('should call ActionItemsService.deleteActionItem when confirm button is clicked', async () => {
+            mockedActionItemsService.deleteActionItem = jest.fn().mockResolvedValue(undefined);
+            render(<ActionItemCard actionItem={actionItem}/>);
+
+            fireEvent.click(screen.getByText('D'));
+            await act(async () => {
+                fireEvent.click(screen.getByText('Confirm'));
+            });
+
+            expect(mockedActionItemsService.deleteActionItem).toHaveBeenCalledWith(
+                actionItem.teamId,
+                actionItem.id
+            );
+        });
+
+        it('should hide confirmation dialog when cancel button is clicked', () => {
+            render(<ActionItemCard actionItem={actionItem}/>);
+
+            fireEvent.click(screen.getByText('D'));
+            fireEvent.click(screen.getByText('Cancel'));
+
+            expect(screen.queryByText('Are you sure you want to delete this action item?')).not.toBeInTheDocument();
+        });
     });
 });
