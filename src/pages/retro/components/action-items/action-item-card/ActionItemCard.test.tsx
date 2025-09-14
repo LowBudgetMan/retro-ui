@@ -1,7 +1,10 @@
-import {render, screen} from "@testing-library/react";
+import {fireEvent, render, screen} from "@testing-library/react";
 import {ActionItemCard} from "./ActionItemCard.tsx";
-import {ActionItem} from "../../../../../services/action-items-service/ActionItemsService.ts";
+import {ActionItem, ActionItemsService} from "../../../../../services/action-items-service/ActionItemsService.ts";
 import { DateTime } from "luxon";
+
+jest.mock("../../../../../services/action-items-service/ActionItemsService.ts");
+const mockedActionItemsService = ActionItemsService as jest.Mocked<typeof ActionItemsService>;
 
 const currentTime = DateTime.now();
 
@@ -48,5 +51,18 @@ describe('ActionItemCard', () => {
         render(<ActionItemCard actionItem={completeActionItem}/>);
 
         expect(screen.getByText('C')).toBeInTheDocument();
+    });
+
+    it('should call ActionItemsService.setCompleted with inverse of completed when mark complete button is clicked', () => {
+        mockedActionItemsService.setCompleted = jest.fn().mockResolvedValue(undefined);
+        render(<ActionItemCard actionItem={actionItem}/>);
+
+        fireEvent.click(screen.getByText('N'));
+
+        expect(mockedActionItemsService.setCompleted).toHaveBeenCalledWith(
+            actionItem.teamId,
+            actionItem.id,
+            !actionItem.completed
+        );
     });
 });

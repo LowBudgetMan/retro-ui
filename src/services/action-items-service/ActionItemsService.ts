@@ -27,7 +27,6 @@ async function setCompleted(teamId: string, actionItemId: string, completed: boo
     })
 }
 
-// TODO: Replace JavaScript Dates with Luxon or equivalent
 export function transformActionItem(actionItem: ActionItem): ActionItem {
     return {
         ...actionItem,
