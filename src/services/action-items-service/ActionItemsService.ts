@@ -27,6 +27,12 @@ async function setCompleted(teamId: string, actionItemId: string, completed: boo
     })
 }
 
+async function setAction(teamId: string, actionItemId: string, action: string) {
+    return await axios.put(`http://localhost:8080/api/teams/${teamId}/action-items/${actionItemId}/action`, {
+        action
+    });
+}
+
 async function deleteActionItem(teamId: string, actionItemId: string) {
     return axios.delete(`http://localhost:8080/api/teams/${teamId}/action-items/${actionItemId}`);
 }
@@ -42,5 +48,6 @@ export const ActionItemsService = {
     createActionItem,
     getActionItems,
     setCompleted,
+    setAction,
     deleteActionItem
 }

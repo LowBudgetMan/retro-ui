@@ -96,4 +96,24 @@ describe('ActionItemsService', () => {
             await expect(ActionItemsService.deleteActionItem(teamId, actionItemId)).rejects.toThrow();
         });
     });
+
+    describe('setAction', () => {
+        const actionItemId = 'action-item-789';
+        const action = 'Updated Action';
+
+        it('should send a put request to the correct endpoint with the correct payload', async () => {
+            mock.onPut(`${baseUrl}/teams/${teamId}/action-items/${actionItemId}/action`, {
+                action
+            }).reply(204);
+
+            const result = await ActionItemsService.setAction(teamId, actionItemId, action);
+            expect(result.status).toBe(204);
+        });
+
+        it('should throw an error if the API call fails', async () => {
+            mock.onPut(`${baseUrl}/teams/${teamId}/action-items/${actionItemId}/action`).reply(500);
+
+            await expect(ActionItemsService.setAction(teamId, actionItemId, action)).rejects.toThrow();
+        });
+    });
 });
