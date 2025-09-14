@@ -6,6 +6,7 @@ import { WebsocketService } from '../../services/websocket/WebsocketService.ts';
 import { DateTime } from 'luxon';
 import {
     createActionItemSubscriptionId,
+    deleteActionItemSubscriptionId,
     updateActionItemSubscriptionId
 } from "../../services/websocket/constants/action-items.ts";
 
@@ -67,7 +68,12 @@ describe('ActionItemsContextProvider', () => {
             updateActionItemSubscriptionId,
             expect.any(Function)
         );
-        expect(WebsocketService.subscribe).toHaveBeenCalledTimes(2);
+        expect(WebsocketService.subscribe).toHaveBeenCalledWith(
+            '/topic/team-1.action-items',
+            deleteActionItemSubscriptionId,
+            expect.any(Function)
+        );
+        expect(WebsocketService.subscribe).toHaveBeenCalledTimes(3);
     });
 
     it('should unsubscribe from websocket events on unmount', () => {
@@ -81,7 +87,8 @@ describe('ActionItemsContextProvider', () => {
 
         expect(WebsocketService.unsubscribe).toHaveBeenCalledWith(createActionItemSubscriptionId);
         expect(WebsocketService.unsubscribe).toHaveBeenCalledWith(updateActionItemSubscriptionId);
-        expect(WebsocketService.unsubscribe).toHaveBeenCalledTimes(2);
+        expect(WebsocketService.unsubscribe).toHaveBeenCalledWith(deleteActionItemSubscriptionId);
+        expect(WebsocketService.unsubscribe).toHaveBeenCalledTimes(3);
     });
 
     describe('useActionItems state updates', () => {
@@ -130,6 +137,22 @@ describe('ActionItemsContextProvider', () => {
 
             expect(contextValue.actionItems).toHaveLength(2);
             expect(contextValue.actionItems[1]).toEqual(updatedActionItem);
+        });
+
+        it('should delete an action item', () => {
+            let contextValue: ReturnType<typeof useActionItems> = null!;
+            render(
+                <ActionItemsContextProvider teamId={teamId} actionItems={mockActionItems}>
+                    <TestComponent onUpdate={(value) => (contextValue = value)} />
+                </ActionItemsContextProvider>
+            );
+
+            act(() => {
+                contextValue.deleteActionItem(mockActionItems[1]);
+            });
+
+            expect(contextValue.actionItems).toHaveLength(1);
+            expect(contextValue.actionItems[0]).toEqual(mockActionItems[0]);
         });
     });
 });

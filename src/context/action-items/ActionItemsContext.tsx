@@ -5,7 +5,7 @@ import {EventType} from "../../services/websocket/WebsocketEventHandler.ts";
 import {
     getDestination,
     createActionItemSubscriptionId,
-    updateActionItemSubscriptionId, eventHandler
+    updateActionItemSubscriptionId, eventHandler, deleteActionItemSubscriptionId
 } from "../../services/websocket/constants/action-items.ts";
 
 export type ActionItemsContextValue = {
@@ -13,6 +13,7 @@ export type ActionItemsContextValue = {
     actionItems: ActionItem[];
     createActionItem: (newActionItem: ActionItem) => void;
     updateActionItem: (updatedActionItem: ActionItem) => void;
+    deleteActionItem: (deletedActionItem: ActionItem) => void;
 }
 
 export const ActionItemsContext = createContext<ActionItemsContextValue>({
@@ -20,6 +21,7 @@ export const ActionItemsContext = createContext<ActionItemsContextValue>({
     actionItems: [],
     createActionItem: () => {},
     updateActionItem: () => {},
+    deleteActionItem: () => {},
 })
 
 type ActionItemsContextProviderProps = {
@@ -43,6 +45,12 @@ export function ActionItemsContextProvider({teamId, actionItems, children}: Prop
         });
     }, [setActionItemsState]);
 
+    const deleteActionItem = useCallback((deletedActionItem: ActionItem) => {
+        setActionItemsState(prevState => {
+            return prevState.filter(actionItem => actionItem.id !== deletedActionItem.id);
+        });
+    }, [setActionItemsState]);
+
     useEffect(() => {
         WebsocketService.subscribe(getDestination(teamId), createActionItemSubscriptionId, eventHandler(EventType.CREATE, createActionItem));
         return () => {WebsocketService.unsubscribe(createActionItemSubscriptionId);};
@@ -53,8 +61,13 @@ export function ActionItemsContextProvider({teamId, actionItems, children}: Prop
         return () => {WebsocketService.unsubscribe(updateActionItemSubscriptionId);};
     }, [teamId, updateActionItem]);
 
+    useEffect(() => {
+        WebsocketService.subscribe(getDestination(teamId), deleteActionItemSubscriptionId, eventHandler(EventType.DELETE, deleteActionItem));
+        return () => {WebsocketService.unsubscribe(deleteActionItemSubscriptionId);};
+    }, [teamId, deleteActionItem]);
+
     return (
-        <ActionItemsContext.Provider value={{teamId, actionItems: actionItemsState, createActionItem, updateActionItem}}>
+        <ActionItemsContext.Provider value={{teamId, actionItems: actionItemsState, createActionItem, updateActionItem, deleteActionItem}}>
             {children}
         </ActionItemsContext.Provider>
     )
