@@ -1,6 +1,7 @@
 import {ActionItem, ActionItemsService} from "../../../../../services/action-items-service/ActionItemsService.ts";
 import styles from './ActionItemCard.module.css';
-import {useCallback, useState} from "react";
+import {useCallback, useEffect, KeyboardEvent, useState} from "react";
+import {onKeys} from "../../../../../services/key-event-handler/KeyEventHandler.ts";
 
 export interface ActionItemCardProps {
     actionItem: ActionItem;
@@ -8,6 +9,16 @@ export interface ActionItemCardProps {
 
 export function ActionItemCard({actionItem}: ActionItemCardProps) {
     const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
+    const [editing, setEditing] = useState<boolean>(false);
+    const [editValue, setEditValue] = useState(actionItem.action ?? '');
+
+    function handleKeyPress(event: KeyboardEvent<HTMLTextAreaElement>) {
+        if (!event.shiftKey) ActionItemsService.setAction(actionItem.teamId, actionItem.id, editValue).then(() => setEditing(false));
+    }
+
+    useEffect(() => {
+        setEditValue(actionItem.action ?? '');
+    }, [actionItem, editing])
 
     const handleCompleteClicked = useCallback(async () => {
         await ActionItemsService.setCompleted(actionItem.teamId, actionItem.id, !actionItem.completed);
@@ -23,6 +34,7 @@ export function ActionItemCard({actionItem}: ActionItemCardProps) {
     }, [])
 
     const handleDeleteClick = useCallback(() => {
+        setEditing(false);
         setShowDeleteConfirmation(true);
     }, [])
 
@@ -39,12 +51,20 @@ export function ActionItemCard({actionItem}: ActionItemCardProps) {
             ) : (
                 <>
                     <div>
-                        <p>{actionItem.action}</p>
+                        {editing ? (
+                            <textarea
+                                value={editValue}
+                                onChange={(event) => {setEditValue(event.target.value);}}
+                                onKeyDown={onKeys(['Enter'], handleKeyPress)}
+                            >{actionItem.action}</textarea>
+                        ) : (
+                            <p>{actionItem.action}</p>
+                        )}
                         <p>{actionItem.assignee}</p>
                     </div>
                     <div className={styles.cardBottom}>
                         <p>{actionItem.createdAt.toLocaleString()}</p>
-                        <button>E</button>
+                        <button onClick={() => setEditing(!editing)}>E</button>
                         <button onClick={handleDeleteClick}>D</button>
                         <button onClick={handleCompleteClicked}>{actionItem.completed ? 'C' : 'N'}</button>
                     </div>
