@@ -116,4 +116,24 @@ describe('ActionItemsService', () => {
             await expect(ActionItemsService.setAction(teamId, actionItemId, action)).rejects.toThrow();
         });
     });
+
+    describe('setAssignee', () => {
+        const actionItemId = 'action-item-789';
+        const assignee = 'New Assignee';
+
+        it('should send a put request to the correct endpoint with the correct payload', async () => {
+            mock.onPut(`${baseUrl}/teams/${teamId}/action-items/${actionItemId}/assignee`, {
+                assignee
+            }).reply(204);
+
+            const result = await ActionItemsService.setAssignee(teamId, actionItemId, assignee);
+            expect(result.status).toBe(204);
+        });
+
+        it('should throw an error if the API call fails', async () => {
+            mock.onPut(`${baseUrl}/teams/${teamId}/action-items/${actionItemId}/action`).reply(500);
+
+            await expect(ActionItemsService.setAssignee(teamId, actionItemId, assignee)).rejects.toThrow();
+        });
+    });
 });
