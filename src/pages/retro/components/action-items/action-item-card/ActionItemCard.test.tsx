@@ -25,7 +25,7 @@ describe('ActionItemCard', () => {
 
     it('should display the assignee of the action item', () => {
         render(<ActionItemCard actionItem={actionItem}/>);
-        expect(screen.getByText('Test User')).toBeInTheDocument();
+        expect(screen.getByDisplayValue('Test User')).toBeInTheDocument();
     });
 
     it('should display the creation date of the action item', () => {
@@ -76,7 +76,7 @@ describe('ActionItemCard', () => {
 
             const messageElement = screen.getByText('This is a test action item');
             expect(messageElement.tagName).toBe('P');
-            expect(screen.queryByRole('textbox')).not.toBeInTheDocument();
+            expect(screen.queryByRole('textbox', {name: ''})).not.toBeInTheDocument();
         });
 
         it('should switch from paragraph to textarea when edit button is clicked', () => {
@@ -94,7 +94,7 @@ describe('ActionItemCard', () => {
 
             fireEvent.click(screen.getByText('E'));
 
-            const textarea = screen.getByRole('textbox') as HTMLTextAreaElement;
+            const textarea = screen.getByRole('textbox', {name: ''}) as HTMLTextAreaElement;
             fireEvent.change(textarea, { target: { value: 'Updated thought message' } });
 
             expect(textarea.value).toBe('Updated thought message');
@@ -105,7 +105,7 @@ describe('ActionItemCard', () => {
 
             fireEvent.click(screen.getByText('E'));
 
-            const textarea = screen.getByRole('textbox') as HTMLTextAreaElement;
+            const textarea = screen.getByRole('textbox', {name: ''}) as HTMLTextAreaElement;
             fireEvent.change(textarea, { target: { value: 'Updated message' } });
 
             await act(async () => {
@@ -125,12 +125,12 @@ describe('ActionItemCard', () => {
 
             fireEvent.click(screen.getByText('E'));
 
-            const textarea = screen.getByRole('textbox') as HTMLTextAreaElement;
+            const textarea = screen.getByRole('textbox', {name: ''}) as HTMLTextAreaElement;
             fireEvent.change(textarea, { target: { value: 'Updated message' } });
             fireEvent.keyDown(textarea, { key: 'Enter', shiftKey: true });
 
             expect(mockedActionItemsService.setAction).not.toHaveBeenCalled();
-            expect(screen.getByRole('textbox')).toBeInTheDocument();
+            expect(screen.getByRole('textbox', {name: ''})).toBeInTheDocument();
         });
 
         it('should exit edit mode and revert to original message when edit button is clicked again without submitting', () => {
@@ -138,11 +138,11 @@ describe('ActionItemCard', () => {
 
             fireEvent.click(screen.getByText('E'));
 
-            const textarea = screen.getByRole('textbox') as HTMLTextAreaElement;
+            const textarea = screen.getByRole('textbox', {name: ''}) as HTMLTextAreaElement;
             fireEvent.change(textarea, { target: { value: 'Changed but not submitted' } });
             fireEvent.click(screen.getByText('E'));
 
-            expect(screen.queryByRole('textbox')).not.toBeInTheDocument();
+            expect(screen.queryByRole('textbox', {name: ''})).not.toBeInTheDocument();
             expect(screen.getByText('This is a test action item')).toBeInTheDocument();
             expect(screen.getByText('This is a test action item').tagName).toBe('P');
             expect(mockedActionItemsService.setAction).not.toHaveBeenCalled();
@@ -153,12 +153,12 @@ describe('ActionItemCard', () => {
 
             fireEvent.click(screen.getByText('E'));
 
-            let textarea = screen.getByRole('textbox') as HTMLTextAreaElement;
+            let textarea = screen.getByRole('textbox', {name: ''}) as HTMLTextAreaElement;
             fireEvent.change(textarea, { target: { value: 'Changed but not submitted' } });
             fireEvent.click(screen.getByText('E')); // Exit edit mode without submitting
             fireEvent.click(screen.getByText('E')); // Re-enter edit mode
 
-            textarea = screen.getByRole('textbox') as HTMLTextAreaElement;
+            textarea = screen.getByRole('textbox', {name: ''}) as HTMLTextAreaElement;
             expect(textarea.value).toBe('This is a test action item');
         });
 
@@ -171,7 +171,7 @@ describe('ActionItemCard', () => {
             const { rerender } = render(<ActionItemCard actionItem={actionItem}/>);
 
             fireEvent.click(screen.getByText('E'));
-            const textarea = screen.getByRole('textbox') as HTMLTextAreaElement;
+            const textarea = screen.getByRole('textbox', {name: ''}) as HTMLTextAreaElement;
             fireEvent.change(textarea, { target: { value: 'Updated message from server' } });
 
             await act(async () => {

@@ -2,6 +2,7 @@ import {ActionItem, ActionItemsService} from "../../../../../services/action-ite
 import styles from './ActionItemCard.module.css';
 import {useCallback, useEffect, KeyboardEvent, useState} from "react";
 import {onKeys} from "../../../../../services/key-event-handler/KeyEventHandler.ts";
+import {AssigneeInput} from "../AssigneeInput/AssigneeInput.tsx";
 
 export interface ActionItemCardProps {
     actionItem: ActionItem;
@@ -60,7 +61,7 @@ export function ActionItemCard({actionItem}: ActionItemCardProps) {
                         ) : (
                             <p>{actionItem.action}</p>
                         )}
-                        <p>{actionItem.assignee}</p>
+                        <AssigneeInput actionItem={actionItem} />
                     </div>
                     <div className={styles.cardBottom}>
                         <p>{actionItem.createdAt.toLocaleString()}</p>
