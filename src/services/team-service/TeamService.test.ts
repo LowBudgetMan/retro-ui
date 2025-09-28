@@ -1,5 +1,5 @@
 import '@jest/globals';
-import axios from 'axios';
+import axios, {AxiosHeaders} from 'axios';
 import MockAdapter from 'axios-mock-adapter';
 import {TeamListItem, TeamService} from './TeamService.ts';
 
@@ -16,6 +16,67 @@ describe('TeamService', () => {
   beforeEach(() => {
     mock.reset();
   });
+
+  describe('createInvite', () => {
+      const setupCreateInviteMock = (
+          statusCode: number = 201,
+          isNetworkError: boolean = false,
+          headers: AxiosHeaders = {location: '/api/teams/261cc597-63e6-4ea5-8c78-666c074b5685/invites/7136b165-7d90-42a2-8d75-ced473151094'} as unknown as AxiosHeaders
+      ) => {
+          const endpoint = `${TestConfig.baseUrl}/teams/${TestConfig.teamId}/invites`;
+
+          if (isNetworkError) {
+              mock.onPost(endpoint).networkError();
+              return;
+          }
+
+          mock.onPost(endpoint).reply(statusCode, null, headers);
+      }
+
+      it('should return the invite ID on successful creation', async () => {
+          setupCreateInviteMock(201, false);
+          const actual = await TeamService.createInvite(TestConfig.teamId);
+          expect(actual).toEqual('7136b165-7d90-42a2-8d75-ced473151094');
+      });
+
+      it('should throw exception when network call fails', async () => {
+          setupCreateInviteMock(201, true);
+          await expect(TeamService.createInvite(TestConfig.teamId)).rejects.toThrow();
+      });
+
+      it('should throw exception when location header does not exist', async () => {
+          setupCreateInviteMock(201, false, {} as unknown as AxiosHeaders);
+          await expect(TeamService.createInvite(TestConfig.teamId)).rejects.toThrow();
+      });
+  });
+
+  describe('addUserToTeam', () => {
+      const setupAddUserToTeamMock = (
+          statusCode: number = 204,
+          request: {inviteId: string},
+          isNetworkError: boolean = false,
+      ) => {
+          const endpoint = `${TestConfig.baseUrl}/teams/${TestConfig.teamId}/users`;
+          if (isNetworkError) {
+              mock.onPost(endpoint, request).networkError();
+              return;
+          }
+
+          mock.onPost(endpoint, request).reply(statusCode, null);
+      };
+
+      it('should return when user successfully added to team', async () => {
+          const inviteId = 'inviteId';
+          setupAddUserToTeamMock(204, {inviteId})
+          await expect(TeamService.addUserToTeam(TestConfig.teamId, inviteId)).resolves.toBeTruthy();
+      })
+
+      it('should throw an error when user unsuccessfully added to team', async () => {
+          const inviteId = 'inviteId';
+          setupAddUserToTeamMock(409, {inviteId})
+          await expect(TeamService.addUserToTeam(TestConfig.teamId, inviteId)).rejects.toThrow();
+      })
+  })
 
   describe('getTeams', () => {
     const setupGetTeamsMock = (

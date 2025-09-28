@@ -15,7 +15,20 @@ async function getTeam(id: string): Promise<TeamListItem> {
 }
 
 async function createTeam(name: string): Promise<void> {
-    await axios.post('http://localhost:8080/api/teams', {name})
+    await axios.post('http://localhost:8080/api/teams', {name});
+}
+
+async function createInvite(teamId: string): Promise<string> {
+    return await axios.post(`http://localhost:8080/api/teams/${teamId}/invites`)
+        .then(response => {
+            const locationHeader = response.headers['location'] as string;
+            const lastSlashIndex = locationHeader.lastIndexOf('/') + 1;
+            return locationHeader.substring(lastSlashIndex);
+        });
+}
+
+async function addUserToTeam(teamId: string, inviteId: string): Promise<void> {
+    return await axios.post(`http://localhost:8080/api/teams/${teamId}/users`, {inviteId});
 }
 
 function transformTeam(team: TeamListItem): TeamListItem {
@@ -28,5 +41,7 @@ function transformTeam(team: TeamListItem): TeamListItem {
 export const TeamService = {
     createTeam,
     getTeam,
-    getTeams
+    getTeams,
+    createInvite,
+    addUserToTeam,
 }
