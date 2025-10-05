@@ -1,7 +1,7 @@
 import '@jest/globals';
 import axios, {AxiosHeaders} from 'axios';
 import MockAdapter from 'axios-mock-adapter';
-import {TeamListItem, TeamService} from './TeamService.ts';
+import {Invite, TeamListItem, TeamService} from './TeamService.ts';
 
 const mock = new MockAdapter(axios);
 
@@ -49,6 +49,50 @@ describe('TeamService', () => {
           await expect(TeamService.createInvite(TestConfig.teamId)).rejects.toThrow();
       });
   });
+
+  describe('getInvitesForTeam', () => {
+      const setupGetInvitesForTeamMock = (
+          statusCode: number = 200,
+          isNetworkError: boolean = false,
+          responseData?: {id: string, teamId: string, createdAt: string}[],
+      ) => {
+          const endpoint = `${TestConfig.baseUrl}/teams/${TestConfig.teamId}/invites`;
+
+          if (isNetworkError) {
+              mock.onPost(endpoint).networkError();
+              return;
+          }
+
+          mock.onGet(endpoint).reply(statusCode, responseData);
+      }
+
+      it('should return a list of invites on success', async () => {
+          const remoteData = [
+              {id: 'invite1', teamId: 'teamId', createdAt: new Date().toISOString()},
+              {id: 'invite2', teamId: 'teamId', createdAt: new Date().toISOString()}
+          ];
+
+          const expected: Invite[] = [
+              {id: 'invite1', teamId: 'teamId', createdAt: new Date()},
+              {id: 'invite2', teamId: 'teamId', createdAt: new Date()}
+          ];
+          setupGetInvitesForTeamMock(200, false, remoteData);
+
+          const actual = await TeamService.getInvitesForTeam(TestConfig.teamId);
+
+          expect(actual.toString()).toEqual(expected.toString());
+      });
+
+      it('should handle server errors when fetching invites', async () => {
+          setupGetInvitesForTeamMock(500);
+          await expect(TeamService.getInvitesForTeam(TestConfig.teamId)).rejects.toThrow();
+      });
+
+      it('should handle network errors when fetching invites', async () => {
+          setupGetInvitesForTeamMock(200, true);
+          await expect(TeamService.getInvitesForTeam(TestConfig.teamId)).rejects.toThrow();
+      });
+  })
 
   describe('addUserToTeam', () => {
       const setupAddUserToTeamMock = (

@@ -6,6 +6,12 @@ export interface TeamListItem {
     createdAt: Date,
 }
 
+export interface Invite {
+    id: string,
+    teamId: string,
+    createdAt: Date,
+}
+
 async function getTeams(): Promise<TeamListItem[]> {
     return axios.get('http://localhost:8080/api/teams').then(response => response.data.map(transformTeam));
 }
@@ -27,6 +33,11 @@ async function createInvite(teamId: string): Promise<string> {
         });
 }
 
+async function getInvitesForTeam(teamId: string): Promise<Invite[]> {
+    return await axios.get(`http://localhost:8080/api/teams/${teamId}/invites`)
+        .then(response => response.data.map(transformInvite));
+}
+
 async function addUserToTeam(teamId: string, inviteId: string): Promise<void> {
     return await axios.post(`http://localhost:8080/api/teams/${teamId}/users`, {inviteId});
 }
@@ -38,10 +49,18 @@ function transformTeam(team: TeamListItem): TeamListItem {
     }
 }
 
+function transformInvite(invite: Invite): Invite {
+    return {
+        ...invite,
+        createdAt: new Date(invite.createdAt)
+    }
+}
+
 export const TeamService = {
     createTeam,
     getTeam,
     getTeams,
     createInvite,
+    getInvitesForTeam,
     addUserToTeam,
 }

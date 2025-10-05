@@ -6,7 +6,7 @@ export type RetroPageLoaderData = {
     actionItems: ActionItem[];
 }
 
-export async function loader({params}: {params: {teamId: string, retroId: string}}) {
+export async function loader({params}: {params: {teamId: string, retroId: string}}): Promise<RetroPageLoaderData> {
     return {
         retro: await RetroService.getRetro(params.teamId, params.retroId),
         actionItems: await ActionItemsService.getActionItems(params.teamId)
