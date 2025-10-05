@@ -2,6 +2,7 @@ import {Invite, TeamListItem, TeamService} from "../../services/team-service/Tea
 import {RetroListItem, RetroService, Template} from "../../services/retro-service/RetroService.ts";
 import {RetroTemplateService} from "../../services/retro-template-service/RetroTemplateService.ts";
 import {waitForAuthInitialization} from "../user/UserContext.ts";
+import {LoaderFunctionArgs} from "react-router-dom";
 
 export interface TeamPageData extends TeamListItem {
     invites: Invite[],
@@ -9,13 +10,13 @@ export interface TeamPageData extends TeamListItem {
     templates: Template[]
 }
 
-export async function loader({params}: {params: {teamId: string}}): Promise<TeamPageData> {
+export async function loader({params}: LoaderFunctionArgs<{teamId: string}>): Promise<TeamPageData> {
     await waitForAuthInitialization();
-    
+
     return {
-        ...await TeamService.getTeam(params.teamId),
+        ...await TeamService.getTeam(params.teamId!),
         templates: await RetroTemplateService.getTemplates(),
-        retros: await RetroService.getRetrosForTeam(params.teamId),
-        invites: await TeamService.getInvitesForTeam(params.teamId)
+        retros: await RetroService.getRetrosForTeam(params.teamId!),
+        invites: await TeamService.getInvitesForTeam(params.teamId!)
     }
 }
