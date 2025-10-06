@@ -8,10 +8,14 @@ interface MockSubscription {
     unsubscribe: jest.Mock;
 }
 
+interface MockFrame {
+    [key: string]: unknown;
+}
+
 interface MockClient {
     connected: boolean;
     active: boolean;
-    onConnect: ((frame: any) => void) | null;
+    onConnect: ((frame: MockFrame) => void) | null;
     activate: jest.Mock;
     deactivate: jest.Mock;
     subscribe: jest.Mock;
@@ -162,7 +166,7 @@ describe('WebsocketService', () => {
             
             // Trigger the onConnect handler
             if (mockClient.onConnect) {
-                mockClient.onConnect({} as any);
+                mockClient.onConnect({});
             }
 
             expect(mockClient.subscribe).toHaveBeenCalledWith(
@@ -221,11 +225,11 @@ describe('WebsocketService', () => {
             // Simulate reconnection
             mockClient.connected = true;
             if (mockClient.onConnect) {
-                mockClient.onConnect({} as any);
+                mockClient.onConnect({});
             }
             
             // Verify no resubscription occurred
             expect(mockClient.subscribe).toHaveBeenCalledTimes(1);
         });
     });
-}); 
+});

@@ -81,7 +81,7 @@ describe('Header', () => {
         setTheme: jest.fn(),
       });
       
-      let rerender: any;
+      let rerender: (component: React.ReactElement) => void;
       await act(async () => {
         const result = render(<Header />);
         rerender = result.rerender;
@@ -118,14 +118,16 @@ describe('Header', () => {
     });
 
     it('should remove event listeners on unmount', async () => {
-      let unmount: any;
+      let unmount: () => void;
       await act(async () => {
         const result = render(<Header />);
         unmount = result.unmount;
       });
-      
-      unmount();
-      
+
+      act(() => {
+        unmount();
+      });
+
       expect(userManager.events.removeUserLoaded).toHaveBeenCalled();
       expect(userManager.events.removeUserUnloaded).toHaveBeenCalled();
     });

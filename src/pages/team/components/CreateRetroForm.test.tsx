@@ -23,12 +23,17 @@ jest.mock('./CreateRetroForm.module.css', () => ({
   optionsList: 'mock-options-list-class',
 }));
 
+interface MockCreateRetroFormOptionProps {
+  template: Template;
+  selectionCallback: (templateId: string) => void;
+}
+
 jest.mock('./CreateRetroFormOption.tsx', () => ({
-  CreateRetroFormOption: ({ template, selectionCallback }: any) => (
+  CreateRetroFormOption: ({ template, selectionCallback }: MockCreateRetroFormOptionProps) => (
     <div data-testid={`option-${template.id}`}>
       <h3>{template.name}</h3>
       <p>{template.description}</p>
-      <button 
+      <button
         data-testid={`select-${template.id}`}
         onClick={() => selectionCallback(template.id)}
       >

@@ -3,8 +3,15 @@ import { TeamCard } from './TeamCard';
 import { TeamListItem } from '../../services/team-service/TeamService.ts';
 import '@testing-library/jest-dom';
 
+interface MockLinkProps {
+  to: string;
+  children: React.ReactNode;
+  className?: string;
+  [key: string]: unknown;
+}
+
 jest.mock('react-router-dom', () => ({
-  Link: ({ to, children, className, ...props }: any) => (
+  Link: ({ to, children, className, ...props }: MockLinkProps) => (
     <a href={to} className={className} {...props}>
       {children}
     </a>

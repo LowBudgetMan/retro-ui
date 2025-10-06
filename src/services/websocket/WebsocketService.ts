@@ -5,7 +5,7 @@ interface Subscription {
     destination: string;
     id: string;
     handler: (event: IMessage) => void;
-    subscription?: any; // TODO: Remove this I think
+    subscription?: { unsubscribe: () => void };
 }
 
 let client: Client;

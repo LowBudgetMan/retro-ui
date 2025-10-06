@@ -13,10 +13,21 @@ jest.mock('./CreateRetroFormOption.module.css', () => ({
   selectButton: 'mock-select-button-class',
 }));
 
+interface MockCategoryListProps {
+  categories: Array<{
+    name: string;
+    position: number;
+    lightBackgroundColor: string;
+    lightTextColor: string;
+    darkBackgroundColor: string;
+    darkTextColor: string;
+  }>;
+}
+
 jest.mock('../../../components/category-list/CategoryList.tsx', () => ({
-  CategoryList: ({ categories }: any) => (
+  CategoryList: ({ categories }: MockCategoryListProps) => (
     <div data-testid="category-list">
-      {categories.map((category: any) => (
+      {categories.map((category) => (
         <span key={category.name} data-testid={`category-${category.name}`}>
           {category.name}
         </span>

@@ -31,10 +31,10 @@ describe('ThemeContext', () => {
         window.matchMedia = jest.fn().mockImplementation(() => ({
             matches: false,
             media: 'query',
-            addEventListener: (_: string, listener: any) => {
+            addEventListener: (_: string, listener: (e: { matches: boolean }) => void) => {
                 mediaQueryListeners.push(listener);
             },
-            removeEventListener: (_: string, listener: any) => {
+            removeEventListener: (_: string, listener: (e: { matches: boolean }) => void) => {
                 mediaQueryListeners = mediaQueryListeners.filter(l => l !== listener);
             }
         }));

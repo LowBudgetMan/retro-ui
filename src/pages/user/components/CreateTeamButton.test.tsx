@@ -11,22 +11,34 @@ jest.mock('react-router-dom', () => ({
 }));
 
 // Mock the CreateModal component
+interface MockCreateModalProps {
+  buttonContent: React.ReactNode;
+  buttonClassName: string;
+  modalContent: React.ReactNode | ((props: { isOpen: boolean; setIsOpen: (isOpen: boolean) => void }) => React.ReactNode);
+  backgroundButtonAriaLabel: string;
+}
+
 jest.mock('../../../components/modal/CreateModal', () => ({
-  CreateModal: ({ buttonContent, buttonClassName, modalContent, backgroundButtonAriaLabel }: any) => (
+  CreateModal: ({ buttonContent, buttonClassName, modalContent, backgroundButtonAriaLabel }: MockCreateModalProps) => (
     <div data-testid="mock-create-modal" data-aria-label={backgroundButtonAriaLabel}>
       <button data-testid="mock-button" className={buttonClassName}>
         {buttonContent}
       </button>
       <div data-testid="modal-content">
-        {typeof modalContent === 'function' ? modalContent(() => {}) : modalContent}
+        {typeof modalContent === 'function' ? modalContent({ isOpen: true, setIsOpen: () => {} }) : modalContent}
       </div>
     </div>
   ),
 }));
 
 // Mock the CreateTeamModal component
+interface MockCreateTeamModalProps {
+  isOpen: boolean;
+  setIsOpen: (isOpen: boolean) => void;
+}
+
 jest.mock('./CreateTeamModal', () => ({
-  CreateTeamModal: ({ isOpen, setIsOpen }: any) => (
+  CreateTeamModal: ({ isOpen, setIsOpen }: MockCreateTeamModalProps) => (
     <div data-testid="mock-create-team-modal" data-is-open={isOpen ? 'true' : 'false'}>
       <button data-testid="mock-modal-close-button" onClick={() => setIsOpen(false)}>Close Modal</button>
     </div>

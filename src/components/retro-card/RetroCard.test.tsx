@@ -4,8 +4,15 @@ import { RetroListItem, Template } from '../../services/retro-service/RetroServi
 import '@testing-library/jest-dom';
 import { DateTime } from 'luxon';
 
+interface MockLinkProps {
+  to: string;
+  children: React.ReactNode;
+  className?: string;
+  [key: string]: unknown;
+}
+
 jest.mock('react-router-dom', () => ({
-  Link: ({ to, children, className, ...props }: any) => (
+  Link: ({ to, children, className, ...props }: MockLinkProps) => (
     <a href={to} className={className} {...props}>
       {children}
     </a>

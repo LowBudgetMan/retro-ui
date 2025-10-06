@@ -8,12 +8,19 @@ jest.mock('react-router-dom', () => ({
   useLoaderData: jest.fn(),
 }));
 
+interface MockCreateModalProps {
+  buttonContent: React.ReactNode;
+  buttonClassName: string;
+  modalContent: React.ReactNode | ((props: { setIsOpen: (isOpen: boolean) => void }) => React.ReactNode);
+  backgroundButtonAriaLabel: string;
+}
+
 jest.mock('../../../components/modal/CreateModal.tsx', () => ({
-  CreateModal: ({ buttonContent, buttonClassName, modalContent, backgroundButtonAriaLabel }: any) => {
+  CreateModal: ({ buttonContent, buttonClassName, modalContent, backgroundButtonAriaLabel }: MockCreateModalProps) => {
     const mockSetIsOpen = jest.fn();
     return (
       <div data-testid="create-modal">
-        <button 
+        <button
           className={buttonClassName}
           data-testid="modal-trigger-button"
           onClick={() => {}}
@@ -21,7 +28,7 @@ jest.mock('../../../components/modal/CreateModal.tsx', () => ({
           {buttonContent}
         </button>
         <div data-testid="modal-content" data-aria-label={backgroundButtonAriaLabel}>
-          {typeof modalContent === 'function' 
+          {typeof modalContent === 'function'
             ? modalContent({ setIsOpen: mockSetIsOpen })
             : modalContent
           }
@@ -31,8 +38,14 @@ jest.mock('../../../components/modal/CreateModal.tsx', () => ({
   },
 }));
 
+interface MockCreateRetroFormProps {
+  onSubmitSuccess: () => void;
+  onCancel: () => void;
+  templates: Template[];
+}
+
 jest.mock('./CreateRetroForm.tsx', () => ({
-  CreateRetroForm: ({ onSubmitSuccess, onCancel, templates }: any) => (
+  CreateRetroForm: ({ onSubmitSuccess, onCancel, templates }: MockCreateRetroFormProps) => (
     <div data-testid="create-retro-form">
       <span data-testid="templates-count">{templates ? templates.length : 0}</span>
       <button data-testid="form-submit" onClick={onSubmitSuccess}>Submit</button>

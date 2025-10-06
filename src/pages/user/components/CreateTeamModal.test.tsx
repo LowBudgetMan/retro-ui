@@ -11,8 +11,15 @@ jest.mock('react-router-dom', () => ({
 }));
 
 // Mock the modal component
+interface MockModalProps {
+  children: React.ReactNode;
+  isOpen: boolean;
+  setIsOpen: (isOpen: boolean) => void;
+  backgroundButtonAriaLabel: string;
+}
+
 jest.mock('../../../components/modal/Modal', () => ({
-  Modal: ({ children, isOpen, setIsOpen, backgroundButtonAriaLabel }: any) => (
+  Modal: ({ children, isOpen, setIsOpen, backgroundButtonAriaLabel }: MockModalProps) => (
     <div data-testid="mock-modal" data-is-open={isOpen} data-aria-label={backgroundButtonAriaLabel}>
       <button data-testid="mock-close-button" onClick={() => setIsOpen(false)}>Close Modal</button>
       {children}
@@ -21,8 +28,13 @@ jest.mock('../../../components/modal/Modal', () => ({
 }));
 
 // Mock the CreateTeamForm component
+interface MockCreateTeamFormProps {
+  onSubmitSuccess: () => void;
+  onCancel: () => void;
+}
+
 jest.mock('./CreateTeamForm', () => ({
-  CreateTeamForm: ({ onSubmitSuccess, onCancel }: any) => (
+  CreateTeamForm: ({ onSubmitSuccess, onCancel }: MockCreateTeamFormProps) => (
     <div data-testid="mock-create-team-form">
       <button data-testid="mock-form-submit-button" onClick={onSubmitSuccess}>Submit Form</button>
       <button data-testid="mock-form-cancel-button" onClick={onCancel}>Cancel Form</button>

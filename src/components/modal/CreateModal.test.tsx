@@ -3,8 +3,15 @@ import { CreateModal } from './CreateModal';
 import '@testing-library/jest-dom';
 
 // Mock the modal component
+interface MockModalProps {
+  isOpen: boolean;
+  setIsOpen: (isOpen: boolean) => void;
+  children: React.ReactNode;
+  backgroundButtonAriaLabel: string;
+}
+
 jest.mock('./Modal', () => ({
-  Modal: ({ isOpen, setIsOpen, children, backgroundButtonAriaLabel }: any) => (
+  Modal: ({ isOpen, setIsOpen, children, backgroundButtonAriaLabel }: MockModalProps) => (
     <div data-testid="mock-modal" data-is-open={isOpen} data-aria-label={backgroundButtonAriaLabel}>
       <button data-testid="mock-close-button" onClick={() => setIsOpen(false)}>Close Modal</button>
       {children}

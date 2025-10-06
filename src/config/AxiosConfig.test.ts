@@ -27,10 +27,10 @@ import axios from 'axios';
 import { userManager } from '../pages/user/UserContext.ts';
 
 describe('AxiosConfig', () => {
-  let requestInterceptor: any;
-  let responseInterceptor: any;
-  let requestErrorHandler: any;
-  let responseErrorHandler: any;
+  let requestInterceptor: (config: unknown) => Promise<unknown>;
+  let responseInterceptor: (response: unknown) => unknown;
+  let requestErrorHandler: (error: unknown) => Promise<never>;
+  let responseErrorHandler: (error: unknown) => Promise<never>;
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -50,7 +50,13 @@ describe('AxiosConfig', () => {
   });
 
   describe('Request Interceptor', () => {
-    let mockConfig: any;
+    interface MockConfig {
+      headers: {
+        setAuthorization: jest.Mock;
+      };
+    }
+
+    let mockConfig: MockConfig;
 
     beforeEach(() => {
       mockConfig = {
