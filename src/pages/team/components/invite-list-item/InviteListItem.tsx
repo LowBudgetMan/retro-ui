@@ -1,5 +1,6 @@
-import {Invite} from "../../../../services/team-service/TeamService.ts";
+import {Invite, TeamService} from "../../../../services/team-service/TeamService.ts";
 import {InvitePackage} from "../../../invite/inviteLoader.ts";
+import {useRevalidator} from "react-router-dom";
 
 interface Props {
     invite: Invite;
@@ -8,6 +9,7 @@ interface Props {
 }
 
 export function InviteListItem({ invite, teamId, teamName }: Props) {
+    const revalidator = useRevalidator();
 
     const handleCopy = async (inviteId: string): Promise<void> => {
         const invitePackage = btoa(JSON.stringify({
@@ -25,11 +27,18 @@ export function InviteListItem({ invite, teamId, teamName }: Props) {
         }
     }
 
+    const handleDelete = async (teamId: string, inviteId: string) => {
+        await TeamService.deleteInvite(teamId, inviteId)
+            .then(() => {revalidator.revalidate()})
+            .catch((err) => {console.error('Delete failed:', err)});
+    }
+
     return (
         <div>
             <span>{invite.id}</span>
             <span>{invite.createdAt.toISOString()}</span>
             <span><button onClick={() => handleCopy(invite.id)}>copy</button></span>
+            <span><button onClick={() => handleDelete(teamId, invite.id)}>delete</button></span>
         </div>
     )
 }
