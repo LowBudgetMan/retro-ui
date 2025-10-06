@@ -1,7 +1,7 @@
 import '@jest/globals';
 import { render, act } from '@testing-library/react';
 import { ThemeProvider } from './ThemeContext.tsx';
-import { Theme } from './ThemeContext.tsx';
+import { Theme } from './ThemeContextTypes.ts';
 import {useTheme} from "../hooks.tsx";
 
 const localStorageMock = (() => {

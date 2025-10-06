@@ -1,6 +1,6 @@
 import {ReactElement, useEffect, useState} from "react";
 import {userManager} from "../../pages/user/UserContext.ts";
-import {Theme} from "../../context/theme/ThemeContext.tsx";
+import {Theme} from "../../context/theme/ThemeContextTypes.ts";
 import {useTheme} from "../../context/hooks.tsx";
 
 export function Header() {

@@ -1,12 +1,7 @@
-import {createContext, PropsWithChildren, useEffect, useState} from "react";
+import {createContext, PropsWithChildren, useCallback, useEffect, useState} from "react";
+import {Theme} from "./ThemeContextTypes.ts";
 
 const THEME_KEY = "theme";
-
-export enum Theme {
-    LIGHT = "light",
-    DARK = "dark",
-    SYSTEM = "system"
-}
 
 type ThemeContextValue = {
     theme: Theme;
@@ -31,12 +26,12 @@ export function ThemeProvider(props: PropsWithChildren) {
         localStorage.setItem(THEME_KEY, newTheme);
     };
 
-    const getEffectiveTheme = (): Theme => {
+    const getEffectiveTheme = useCallback((): Theme => {
         const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
         return theme === Theme.SYSTEM
             ? (mediaQuery.matches ? Theme.DARK : Theme.LIGHT)
             : theme
-    }
+    }, [theme])
 
     useEffect(() => {
         const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
@@ -55,7 +50,7 @@ export function ThemeProvider(props: PropsWithChildren) {
         return () => {
             mediaQuery.removeEventListener('change', handleSystemThemeChange);
         };
-    }, [theme]);
+    }, [theme, getEffectiveTheme]);
 
     return (
         <ThemeContext.Provider value={{theme, setTheme: handleThemeChange, getEffectiveTheme}}>

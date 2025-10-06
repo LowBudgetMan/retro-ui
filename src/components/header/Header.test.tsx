@@ -1,7 +1,7 @@
 import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
 import { Header } from './Header.tsx';
 import { userManager } from '../../pages/user/UserContext.ts';
-import { Theme } from '../../context/theme/ThemeContext.tsx';
+import { Theme } from '../../context/theme/ThemeContextTypes.ts';
 import '@testing-library/jest-dom';
 import {useTheme} from "../../context/hooks.tsx";
 

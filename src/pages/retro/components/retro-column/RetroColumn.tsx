@@ -3,7 +3,7 @@ import {CreateThought} from "../create-thought/CreateThought.tsx";
 import {ThoughtCard} from "../thought-card/ThoughtCard.tsx";
 import styles from "./RetroColumn.module.css";
 import {CountSeparator} from "../count-separator/CountSeparator.tsx";
-import {Theme} from "../../../../context/theme/ThemeContext.tsx";
+import {Theme} from "../../../../context/theme/ThemeContextTypes.ts";
 import {useMemo} from "react";
 import {useTheme} from "../../../../context/hooks.tsx";
 

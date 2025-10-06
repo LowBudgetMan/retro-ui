@@ -1,5 +1,5 @@
 import {Category} from "../../services/retro-service/RetroService.ts";
-import {Theme} from "../../context/theme/ThemeContext.tsx";
+import {Theme} from "../../context/theme/ThemeContextTypes.ts";
 import {useEffect, useState} from "react";
 import styles from "./CategoryPill.module.css";
 import {useTheme} from "../../context/hooks.tsx";
