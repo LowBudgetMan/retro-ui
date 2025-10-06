@@ -38,6 +38,10 @@ async function getInvitesForTeam(teamId: string): Promise<Invite[]> {
         .then(response => response.data.map(transformInvite));
 }
 
+async function deleteInvite(teamId: string, inviteId: string): Promise<void> {
+    return await axios.delete(`http://localhost:8080/api/teams/${teamId}/invites/${inviteId}`);
+}
+
 async function addUserToTeam(teamId: string, inviteId: string): Promise<void> {
     return await axios.post(`http://localhost:8080/api/teams/${teamId}/users`, {inviteId});
 }
@@ -63,4 +67,5 @@ export const TeamService = {
     createInvite,
     getInvitesForTeam,
     addUserToTeam,
+    deleteInvite,
 }

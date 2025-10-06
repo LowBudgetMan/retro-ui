@@ -8,6 +8,7 @@ const mock = new MockAdapter(axios);
 const TestConfig = {
   baseUrl: 'http://localhost:8080/api',
   teamId: 'team-123',
+  inviteId: '7136b165-7d90-42a2-8d75-ced473151094',
   teamName: 'Test Team',
   createdAt: new Date(),
 };
@@ -21,7 +22,7 @@ describe('TeamService', () => {
       const setupCreateInviteMock = (
           statusCode: number = 201,
           isNetworkError: boolean = false,
-          headers: AxiosHeaders = {location: '/api/teams/261cc597-63e6-4ea5-8c78-666c074b5685/invites/7136b165-7d90-42a2-8d75-ced473151094'} as unknown as AxiosHeaders
+          headers: AxiosHeaders = {location: `/api/teams/261cc597-63e6-4ea5-8c78-666c074b5685/invites/${TestConfig.inviteId}`} as unknown as AxiosHeaders
       ) => {
           const endpoint = `${TestConfig.baseUrl}/teams/${TestConfig.teamId}/invites`;
 
@@ -36,7 +37,7 @@ describe('TeamService', () => {
       it('should return the invite ID on successful creation', async () => {
           setupCreateInviteMock(201, false);
           const actual = await TeamService.createInvite(TestConfig.teamId);
-          expect(actual).toEqual('7136b165-7d90-42a2-8d75-ced473151094');
+          expect(actual).toEqual(TestConfig.inviteId);
       });
 
       it('should throw exception when network call fails', async () => {
@@ -59,7 +60,7 @@ describe('TeamService', () => {
           const endpoint = `${TestConfig.baseUrl}/teams/${TestConfig.teamId}/invites`;
 
           if (isNetworkError) {
-              mock.onPost(endpoint).networkError();
+              mock.onGet(endpoint).networkError();
               return;
           }
 
@@ -91,6 +92,37 @@ describe('TeamService', () => {
       it('should handle network errors when fetching invites', async () => {
           setupGetInvitesForTeamMock(200, true);
           await expect(TeamService.getInvitesForTeam(TestConfig.teamId)).rejects.toThrow();
+      });
+  });
+
+  describe('deleteInvite', () => {
+      const setupDeleteInviteMock = (
+          statusCode: number = 204,
+          isNetworkError: boolean = false,
+      ) => {
+          const endpoint = `${TestConfig.baseUrl}/teams/${TestConfig.teamId}/invites/${TestConfig.inviteId}`;
+
+          if (isNetworkError) {
+              mock.onDelete(endpoint).networkError();
+              return;
+          }
+
+          mock.onDelete(endpoint).reply(statusCode, null);
+      }
+
+      it('should successfully call delete endpoint', async () => {
+          setupDeleteInviteMock();
+          await expect(TeamService.deleteInvite(TestConfig.teamId, TestConfig.inviteId)).resolves.toBeTruthy();
+      });
+
+      it('should throw exception when not 204', async () => {
+          setupDeleteInviteMock(500);
+          await expect(TeamService.deleteInvite(TestConfig.teamId, TestConfig.inviteId)).rejects.toThrow();
+      });
+
+      it('should throw exception when there is a network error', async () => {
+          setupDeleteInviteMock(204, true);
+          await expect(TeamService.deleteInvite(TestConfig.teamId, TestConfig.inviteId)).rejects.toThrow();
       });
   })
 
