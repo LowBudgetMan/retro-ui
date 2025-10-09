@@ -43,3 +43,32 @@ jobs:
         with:
           name: retro-ui
           path: dist
+  build-image:
+    runs-on: ubuntu-latest
+    needs: [build]
+    permissions:
+      packages: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: retro-ui
+          path: dist
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Set lowercase owner name
+        run: echo "OWNER_LC=${OWNER,,}" >> "${GITHUB_ENV}"
+        env:
+          OWNER: ${{ github.repository_owner }}
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags:  ghcr.io/${{ env.OWNER_LC }}/retro-ui:latest
