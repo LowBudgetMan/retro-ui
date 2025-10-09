@@ -43,3 +43,20 @@ jobs:
         with:
           name: retro-ui
           path: dist
+  build-image:
+    runs-on: ubuntu-latest
+    needs: [build]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Log in to Docker Hub (or GitHub Container Registry)
+        uses: docker/login-action@v3
+        with:
+          username: ${{ GITHUB_ACTOR }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: LowBudgetMan/retro-ui:latest
