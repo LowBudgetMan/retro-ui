@@ -9,7 +9,7 @@ const mock = new MockAdapter(axios);
 
 jest.mock('../../config/ApiConfig.ts', () => ({
     ApiConfig: {
-        baseApiUrl: 'http://localhost:8080',
+        baseApiUrl: () => 'http://localhost:8080',
         websocketUrl: 'ws://localhost:8080/websocket/websocket'
     }
 }));
@@ -78,10 +78,10 @@ describe('RetroTemplateService', () => {
                 }
             ];
 
-            mock.onGet(`${ApiConfig.baseApiUrl}/api/templates`).reply(200, mockTemplatesResponse);
+            mock.onGet(`${ApiConfig.baseApiUrl()}/api/templates`).reply(200, mockTemplatesResponse);
 
             const result = await RetroTemplateService.getTemplates();
-            
+
             expect(result).toEqual(mockTemplatesResponse);
             expect(result).toHaveLength(2);
             expect(result[0].id).toBe('template-1');
@@ -92,16 +92,16 @@ describe('RetroTemplateService', () => {
         });
 
         it('should return empty array when no templates exist', async () => {
-            mock.onGet(`${ApiConfig.baseApiUrl}/api/templates`).reply(200, []);
+            mock.onGet(`${ApiConfig.baseApiUrl()}/api/templates`).reply(200, []);
 
             const result = await RetroTemplateService.getTemplates();
-            
+
             expect(result).toEqual([]);
             expect(result).toHaveLength(0);
         });
 
         it('should handle server errors when fetching templates', async () => {
-            mock.onGet(`${ApiConfig.baseApiUrl}/api/templates`).reply(500, {
+            mock.onGet(`${ApiConfig.baseApiUrl()}/api/templates`).reply(500, {
                 error: 'Internal Server Error'
             });
 
@@ -109,13 +109,13 @@ describe('RetroTemplateService', () => {
         });
 
         it('should handle network errors when fetching templates', async () => {
-            mock.onGet(`${ApiConfig.baseApiUrl}/api/templates`).networkError();
+            mock.onGet(`${ApiConfig.baseApiUrl()}/api/templates`).networkError();
 
             await expect(RetroTemplateService.getTemplates()).rejects.toThrow();
         });
 
         it('should handle malformed response data', async () => {
-            mock.onGet(`${ApiConfig.baseApiUrl}/api/templates`).reply(200, 'invalid json');
+            mock.onGet(`${ApiConfig.baseApiUrl()}/api/templates`).reply(200, 'invalid json');
 
             const result = await RetroTemplateService.getTemplates();
             expect(result).toBe('invalid json');
@@ -129,10 +129,10 @@ describe('RetroTemplateService', () => {
                 categories: []
             };
 
-            mock.onGet(`${ApiConfig.baseApiUrl}/api/templates`).reply(200, [minimalTemplate]);
+            mock.onGet(`${ApiConfig.baseApiUrl()}/api/templates`).reply(200, [minimalTemplate]);
 
             const result = await RetroTemplateService.getTemplates();
-            
+
             expect(result).toEqual([minimalTemplate]);
             expect(result[0].categories).toHaveLength(0);
             expect(result[0].description).toBe('');
@@ -171,10 +171,10 @@ describe('RetroTemplateService', () => {
                 ]
             };
 
-            mock.onGet(`${ApiConfig.baseApiUrl}/api/templates`).reply(200, [complexTemplate]);
+            mock.onGet(`${ApiConfig.baseApiUrl()}/api/templates`).reply(200, [complexTemplate]);
 
             const result = await RetroTemplateService.getTemplates();
-            
+
             expect(result).toEqual([complexTemplate]);
             expect(result[0].categories).toHaveLength(3);
             expect(result[0].categories[0].position).toBe(1);
@@ -183,16 +183,16 @@ describe('RetroTemplateService', () => {
         });
 
         it('should verify the correct API endpoint is called', async () => {
-            mock.onGet(`${ApiConfig.baseApiUrl}/api/templates`).reply(200, []);
+            mock.onGet(`${ApiConfig.baseApiUrl()}/api/templates`).reply(200, []);
 
             await RetroTemplateService.getTemplates();
-            
+
             expect(mock.history.get).toHaveLength(1);
-            expect(mock.history.get[0].url).toBe(`${ApiConfig.baseApiUrl}/api/templates`);
+            expect(mock.history.get[0].url).toBe(`${ApiConfig.baseApiUrl()}/api/templates`);
         });
 
         it('should handle timeout errors', async () => {
-            mock.onGet(`${ApiConfig.baseApiUrl}/api/templates`).timeout();
+            mock.onGet(`${ApiConfig.baseApiUrl()}/api/templates`).timeout();
 
             await expect(RetroTemplateService.getTemplates()).rejects.toThrow();
         });

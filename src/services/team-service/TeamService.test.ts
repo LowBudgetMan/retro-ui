@@ -8,7 +8,7 @@ const mock = new MockAdapter(axios);
 
 jest.mock('../../config/ApiConfig.ts', () => ({
     ApiConfig: {
-        baseApiUrl: 'http://localhost:8080',
+        baseApiUrl: () => 'http://localhost:8080',
         websocketUrl: 'ws://localhost:8080/websocket/websocket'
     }
 }));
@@ -31,7 +31,7 @@ describe('TeamService', () => {
           isNetworkError: boolean = false,
           headers: AxiosHeaders = {location: `/api/teams/261cc597-63e6-4ea5-8c78-666c074b5685/invites/${TestConfig.inviteId}`} as unknown as AxiosHeaders
       ) => {
-          const endpoint = `${ApiConfig.baseApiUrl}/api/teams/${TestConfig.teamId}/invites`;
+          const endpoint = `${ApiConfig.baseApiUrl()}/api/teams/${TestConfig.teamId}/invites`;
 
           if (isNetworkError) {
               mock.onPost(endpoint).networkError();
@@ -64,7 +64,7 @@ describe('TeamService', () => {
           isNetworkError: boolean = false,
           responseData?: {id: string, teamId: string, createdAt: string}[],
       ) => {
-          const endpoint = `${ApiConfig.baseApiUrl}/api/teams/${TestConfig.teamId}/invites`;
+          const endpoint = `${ApiConfig.baseApiUrl()}/api/teams/${TestConfig.teamId}/invites`;
 
           if (isNetworkError) {
               mock.onGet(endpoint).networkError();
@@ -107,7 +107,7 @@ describe('TeamService', () => {
           statusCode: number = 204,
           isNetworkError: boolean = false,
       ) => {
-          const endpoint = `${ApiConfig.baseApiUrl}/api/teams/${TestConfig.teamId}/invites/${TestConfig.inviteId}`;
+          const endpoint = `${ApiConfig.baseApiUrl()}/api/teams/${TestConfig.teamId}/invites/${TestConfig.inviteId}`;
 
           if (isNetworkError) {
               mock.onDelete(endpoint).networkError();
@@ -139,7 +139,7 @@ describe('TeamService', () => {
           request: {inviteId: string},
           isNetworkError: boolean = false,
       ) => {
-          const endpoint = `${ApiConfig.baseApiUrl}/api/teams/${TestConfig.teamId}/users`;
+          const endpoint = `${ApiConfig.baseApiUrl()}/api/teams/${TestConfig.teamId}/users`;
           if (isNetworkError) {
               mock.onPost(endpoint, request).networkError();
               return;
@@ -167,7 +167,7 @@ describe('TeamService', () => {
       responseData?: TeamListItem[],
       isNetworkError: boolean = false
     ) => {
-      const endpoint = `${ApiConfig.baseApiUrl}/api/teams`;
+      const endpoint = `${ApiConfig.baseApiUrl()}/api/teams`;
       
       if (isNetworkError) {
         mock.onGet(endpoint).networkError();
@@ -226,7 +226,7 @@ describe('TeamService', () => {
       responseData?: TeamListItem,
       isNetworkError: boolean = false
     ) => {
-      const endpoint = `${ApiConfig.baseApiUrl}/api/teams/${TestConfig.teamId}`;
+      const endpoint = `${ApiConfig.baseApiUrl()}/api/teams/${TestConfig.teamId}`;
       
       if (isNetworkError) {
         mock.onGet(endpoint).networkError();
@@ -261,7 +261,7 @@ describe('TeamService', () => {
       statusCode: number = 201,
       isNetworkError: boolean = false
     ) => {
-      const endpoint = `${ApiConfig.baseApiUrl}/api/teams`;
+      const endpoint = `${ApiConfig.baseApiUrl()}/api/teams`;
       
       if (isNetworkError) {
         mock.onPost(endpoint).networkError();

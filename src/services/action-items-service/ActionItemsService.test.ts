@@ -9,7 +9,7 @@ const mock = new MockAdapter(axios);
 
 jest.mock('../../config/ApiConfig.ts', () => ({
     ApiConfig: {
-        baseApiUrl: 'http://localhost:8080',
+        baseApiUrl: () => 'http://localhost:8080',
         websocketUrl: 'ws://localhost:8080/websocket/websocket'
     }
 }));
@@ -28,7 +28,7 @@ describe('ActionItemsService', () => {
                 { id: '2', teamId, action: 'Action 2', assignee: 'User 2', completed: true, createdAt: '2023-01-02T00:00:00.000Z' },
             ];
 
-            mock.onGet(`${ApiConfig.baseApiUrl}/api/teams/${teamId}/action-items`).reply(200, mockActionItems);
+            mock.onGet(`${ApiConfig.baseApiUrl()}/api/teams/${teamId}/action-items`).reply(200, mockActionItems);
 
             const actionItems = await ActionItemsService.getActionItems(teamId);
 
@@ -40,7 +40,7 @@ describe('ActionItemsService', () => {
         });
 
         it('should throw an error if the API call fails', async () => {
-            mock.onGet(`${ApiConfig.baseApiUrl}/api/teams/${teamId}/action-items`).reply(500);
+            mock.onGet(`${ApiConfig.baseApiUrl()}/api/teams/${teamId}/action-items`).reply(500);
 
             await expect(ActionItemsService.getActionItems(teamId)).rejects.toThrow();
         });
@@ -52,7 +52,7 @@ describe('ActionItemsService', () => {
         it('should set completed as passed value', async () => {
             const completed = true;
 
-            mock.onPut(`${ApiConfig.baseApiUrl}/api/teams/${teamId}/action-items/${actionItemId}/completed`, {
+            mock.onPut(`${ApiConfig.baseApiUrl()}/api/teams/${teamId}/action-items/${actionItemId}/completed`, {
                 completed
             }).reply(204);
 
@@ -61,7 +61,7 @@ describe('ActionItemsService', () => {
         });
 
         it('should throw when status is not 204', async () => {
-            mock.onPut(`${ApiConfig.baseApiUrl}/api/teams/${teamId}/action-items/${actionItemId}/completed`).reply(500);
+            mock.onPut(`${ApiConfig.baseApiUrl()}/api/teams/${teamId}/action-items/${actionItemId}/completed`).reply(500);
             await expect(ActionItemsService.setCompleted(teamId, actionItemId, true)).rejects.toThrow();
         });
     });
@@ -71,7 +71,7 @@ describe('ActionItemsService', () => {
         const assignee = 'User 3';
 
         it('should post to the correct endpoint with the correct payload', async () => {
-            mock.onPost(`${ApiConfig.baseApiUrl}/api/teams/${teamId}/action-items`, {
+            mock.onPost(`${ApiConfig.baseApiUrl()}/api/teams/${teamId}/action-items`, {
                 action,
                 assignee
             }).reply(201);
@@ -81,7 +81,7 @@ describe('ActionItemsService', () => {
         });
 
         it('should throw an error if the API call fails', async () => {
-            mock.onPost(`${ApiConfig.baseApiUrl}/api/teams/${teamId}/action-items`).reply(500);
+            mock.onPost(`${ApiConfig.baseApiUrl()}/api/teams/${teamId}/action-items`).reply(500);
 
             await expect(ActionItemsService.createActionItem(teamId, action, assignee)).rejects.toThrow();
         });
@@ -91,14 +91,14 @@ describe('ActionItemsService', () => {
         const actionItemId = 'action-item-456';
 
         it('should send a delete request to the correct endpoint', async () => {
-            mock.onDelete(`${ApiConfig.baseApiUrl}/api/teams/${teamId}/action-items/${actionItemId}`).reply(204);
+            mock.onDelete(`${ApiConfig.baseApiUrl()}/api/teams/${teamId}/action-items/${actionItemId}`).reply(204);
 
             const result = await ActionItemsService.deleteActionItem(teamId, actionItemId);
             expect(result.status).toBe(204);
         });
 
         it('should throw an error if the API call fails', async () => {
-            mock.onDelete(`${ApiConfig.baseApiUrl}/api/teams/${teamId}/action-items/${actionItemId}`).reply(500);
+            mock.onDelete(`${ApiConfig.baseApiUrl()}/api/teams/${teamId}/action-items/${actionItemId}`).reply(500);
 
             await expect(ActionItemsService.deleteActionItem(teamId, actionItemId)).rejects.toThrow();
         });
@@ -109,7 +109,7 @@ describe('ActionItemsService', () => {
         const action = 'Updated Action';
 
         it('should send a put request to the correct endpoint with the correct payload', async () => {
-            mock.onPut(`${ApiConfig.baseApiUrl}/api/teams/${teamId}/action-items/${actionItemId}/action`, {
+            mock.onPut(`${ApiConfig.baseApiUrl()}/api/teams/${teamId}/action-items/${actionItemId}/action`, {
                 action
             }).reply(204);
 
@@ -118,7 +118,7 @@ describe('ActionItemsService', () => {
         });
 
         it('should throw an error if the API call fails', async () => {
-            mock.onPut(`${ApiConfig.baseApiUrl}/api/teams/${teamId}/action-items/${actionItemId}/action`).reply(500);
+            mock.onPut(`${ApiConfig.baseApiUrl()}/api/teams/${teamId}/action-items/${actionItemId}/action`).reply(500);
 
             await expect(ActionItemsService.setAction(teamId, actionItemId, action)).rejects.toThrow();
         });
@@ -129,7 +129,7 @@ describe('ActionItemsService', () => {
         const assignee = 'New Assignee';
 
         it('should send a put request to the correct endpoint with the correct payload', async () => {
-            mock.onPut(`${ApiConfig.baseApiUrl}/api/teams/${teamId}/action-items/${actionItemId}/assignee`, {
+            mock.onPut(`${ApiConfig.baseApiUrl()}/api/teams/${teamId}/action-items/${actionItemId}/assignee`, {
                 assignee
             }).reply(204);
 
@@ -138,7 +138,7 @@ describe('ActionItemsService', () => {
         });
 
         it('should throw an error if the API call fails', async () => {
-            mock.onPut(`${ApiConfig.baseApiUrl}/api/teams/${teamId}/action-items/${actionItemId}/action`).reply(500);
+            mock.onPut(`${ApiConfig.baseApiUrl()}/api/teams/${teamId}/action-items/${actionItemId}/action`).reply(500);
 
             await expect(ActionItemsService.setAssignee(teamId, actionItemId, assignee)).rejects.toThrow();
         });

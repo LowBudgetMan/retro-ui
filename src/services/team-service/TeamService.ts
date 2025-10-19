@@ -14,19 +14,19 @@ export interface Invite {
 }
 
 async function getTeams(): Promise<TeamListItem[]> {
-    return axios.get(`${ApiConfig.baseApiUrl}/api/teams`).then(response => response.data.map(transformTeam));
+    return axios.get(`${ApiConfig.baseApiUrl()}/api/teams`).then(response => response.data.map(transformTeam));
 }
 
 async function getTeam(id: string): Promise<TeamListItem> {
-    return await axios.get(`${ApiConfig.baseApiUrl}/api/teams/${id}`).then(response => transformTeam(response.data));
+    return await axios.get(`${ApiConfig.baseApiUrl()}/api/teams/${id}`).then(response => transformTeam(response.data));
 }
 
 async function createTeam(name: string): Promise<void> {
-    await axios.post(`${ApiConfig.baseApiUrl}/api/teams`, {name});
+    await axios.post(`${ApiConfig.baseApiUrl()}/api/teams`, {name});
 }
 
 async function createInvite(teamId: string): Promise<string> {
-    return await axios.post(`${ApiConfig.baseApiUrl}/api/teams/${teamId}/invites`)
+    return await axios.post(`${ApiConfig.baseApiUrl()}/api/teams/${teamId}/invites`)
         .then(response => {
             const locationHeader = response.headers['location'] as string;
             const lastSlashIndex = locationHeader.lastIndexOf('/') + 1;
@@ -35,16 +35,16 @@ async function createInvite(teamId: string): Promise<string> {
 }
 
 async function getInvitesForTeam(teamId: string): Promise<Invite[]> {
-    return await axios.get(`${ApiConfig.baseApiUrl}/api/teams/${teamId}/invites`)
+    return await axios.get(`${ApiConfig.baseApiUrl()}/api/teams/${teamId}/invites`)
         .then(response => response.data.map(transformInvite));
 }
 
 async function deleteInvite(teamId: string, inviteId: string): Promise<void> {
-    return await axios.delete(`${ApiConfig.baseApiUrl}/api/teams/${teamId}/invites/${inviteId}`);
+    return await axios.delete(`${ApiConfig.baseApiUrl()}/api/teams/${teamId}/invites/${inviteId}`);
 }
 
 async function addUserToTeam(teamId: string, inviteId: string): Promise<void> {
-    return await axios.post(`${ApiConfig.baseApiUrl}/api/teams/${teamId}/users`, {inviteId});
+    return await axios.post(`${ApiConfig.baseApiUrl()}/api/teams/${teamId}/users`, {inviteId});
 }
 
 function transformTeam(team: TeamListItem): TeamListItem {

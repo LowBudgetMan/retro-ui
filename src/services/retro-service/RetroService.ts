@@ -76,24 +76,24 @@ export function transformThought(thought: Thought): Thought {
 }
 
 async function getRetrosForTeam(teamId: string): Promise<RetroListItem[]> {
-    const response = await axios.get(`${ApiConfig.baseApiUrl}/api/teams/${teamId}/retros`);
+    const response = await axios.get(`${ApiConfig.baseApiUrl()}/api/teams/${teamId}/retros`);
     return response.data.map(transformRetroListItem);
 }
 
 async function getRetro(teamId: string, retroId: string): Promise<Retro> {
-    const response = await axios.get(`${ApiConfig.baseApiUrl}/api/teams/${teamId}/retros/${retroId}`);
+    const response = await axios.get(`${ApiConfig.baseApiUrl()}/api/teams/${teamId}/retros/${retroId}`);
     return transformRetro(response.data);
 }
 
 async function createRetro(teamId: string, retroTemplateId: string) {
-    return await axios.post(`${ApiConfig.baseApiUrl}/api/teams/${teamId}/retros`, {
+    return await axios.post(`${ApiConfig.baseApiUrl()}/api/teams/${teamId}/retros`, {
         retroTemplateId
     });
 }
 
 // TODO: Move thought stuff into ThoughtService
 async function createThought(teamId: string, retroId: string, message: string, categoryName: string) {
-    return await axios.post(`${ApiConfig.baseApiUrl}/api/teams/${teamId}/retros/${retroId}/thoughts`, {
+    return await axios.post(`${ApiConfig.baseApiUrl()}/api/teams/${teamId}/retros/${retroId}/thoughts`, {
         message,
         category: categoryName
     });
@@ -101,7 +101,7 @@ async function createThought(teamId: string, retroId: string, message: string, c
 
 // TODO: Move thought stuff into ThoughtService
 async function getThoughts(teamId: string, retroId: string): Promise<Thought[]> {
-    const response = await axios.get(`${ApiConfig.baseApiUrl}/api/team/${teamId}/retros/${retroId}/thoughts`);
+    const response = await axios.get(`${ApiConfig.baseApiUrl()}/api/team/${teamId}/retros/${retroId}/thoughts`);
     return response.data.map(transformThought);
 }
 

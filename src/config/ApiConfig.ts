@@ -4,7 +4,7 @@ interface AuthConfig {
 }
 
 interface ApiConfig {
-    baseApiUrl: string;
+    baseApiUrl: () => string;
     websocketUrl: string;
     authConfig: AuthConfig;
 }
@@ -19,8 +19,12 @@ const localAuthConfig: AuthConfig = {
     clientId: 'retroquest-web',
 }
 
+const getBaseApiUrl = () => {
+    return baseApiUrl;
+}
+
 export const ApiConfig: ApiConfig = {
-    baseApiUrl,
+    baseApiUrl: getBaseApiUrl,
     websocketUrl,
     authConfig: localAuthConfig
 }
