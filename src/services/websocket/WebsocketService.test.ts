@@ -3,7 +3,6 @@ import { Client } from '@stomp/stompjs';
 import { WebsocketService } from './WebsocketService';
 import { getConfig } from './WebsocketConfig';
 
-// Mock the Client class from @stomp/stompjs
 interface MockSubscription {
     unsubscribe: jest.Mock;
 }
@@ -50,7 +49,7 @@ jest.mock('./WebsocketConfig', () => ({
 
 describe('WebsocketService', () => {
     const mockConfig = {
-        brokerURL: 'ws://localhost:8080/websocket/websocket',
+        brokerURL: `ws://this-is-a-websocket-url/websocket/websocket`,
         connectHeaders: {
             Authorization: 'Bearer test-token'
         },
