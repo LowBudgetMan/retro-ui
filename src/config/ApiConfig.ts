@@ -5,7 +5,7 @@ interface AuthConfig {
 
 interface ApiConfig {
     baseApiUrl: () => string;
-    websocketUrl: string;
+    websocketUrl: () => string;
     authConfig: AuthConfig;
 }
 
@@ -23,8 +23,12 @@ const getBaseApiUrl = () => {
     return baseApiUrl;
 }
 
+const getWebsocketUrl = () => {
+    return websocketUrl;
+}
+
 export const ApiConfig: ApiConfig = {
     baseApiUrl: getBaseApiUrl,
-    websocketUrl,
+    websocketUrl: getWebsocketUrl,
     authConfig: localAuthConfig
 }

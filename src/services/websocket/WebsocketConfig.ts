@@ -4,7 +4,7 @@ import {ApiConfig} from "../../config/ApiConfig.ts";
 
 export async function getConfig(): Promise<StompConfig> {
     return {
-        brokerURL: ApiConfig.websocketUrl,
+        brokerURL: ApiConfig.websocketUrl(),
         connectHeaders: {
             Authorization: `Bearer ${(await userManager.getUser())?.access_token}`,
         },
