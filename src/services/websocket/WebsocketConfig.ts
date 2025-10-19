@@ -1,14 +1,10 @@
 import {StompConfig} from "@stomp/stompjs";
 import {userManager} from "../../pages/user/UserContext.ts";
-
-// TODO: This should come from properties
-const url = window.location.hostname.includes('localhost')
-    ? 'ws://localhost:8080/websocket/websocket'
-    : `wss://${window.location.hostname}/websocket/websocket`;
+import {ApiConfig} from "../../config/ApiConfig.ts";
 
 export async function getConfig(): Promise<StompConfig> {
     return {
-        brokerURL: url,
+        brokerURL: ApiConfig.websocketUrl,
         connectHeaders: {
             Authorization: `Bearer ${(await userManager.getUser())?.access_token}`,
         },
