@@ -8,7 +8,7 @@ const mock = new MockAdapter(axios);
 
 jest.mock('../../config/ApiConfig.ts', () => ({
     ApiConfig: {
-        baseApiUrl: 'http://localhost:8080/api',
+        baseApiUrl: 'http://localhost:8080',
         websocketUrl: 'ws://localhost:8080/websocket/websocket'
     }
 }));
