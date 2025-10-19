@@ -1,8 +1,9 @@
 import {User, UserManager, UserManagerSettings} from "oidc-client-ts";
+import {ApiConfig} from "../../config/ApiConfig.ts";
 
 const settings: UserManagerSettings = {
-    authority: 'http://localhost:8010/realms/myrealm',
-    client_id: 'retroquest-web',
+    authority: `${ApiConfig.authConfig.authority}`,
+    client_id: `${ApiConfig.authConfig.clientId}`,
     redirect_uri: `${window.location.origin}/auth-redirect`,
     post_logout_redirect_uri: `${window.location.origin}/`,
     automaticSilentRenew: true,
