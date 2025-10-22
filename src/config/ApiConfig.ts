@@ -6,7 +6,7 @@ interface AuthConfig {
 interface ApiConfig {
     baseApiUrl: () => string;
     websocketUrl: () => string;
-    authConfig: AuthConfig;
+    authConfig: () => AuthConfig;
 }
 
 const baseApiUrl = 'http://localhost:8080';
@@ -27,8 +27,12 @@ const getWebsocketUrl = () => {
     return websocketUrl;
 }
 
+const getAuthConfig = (): AuthConfig => {
+    return localAuthConfig;
+}
+
 export const ApiConfig: ApiConfig = {
     baseApiUrl: getBaseApiUrl,
     websocketUrl: getWebsocketUrl,
-    authConfig: localAuthConfig
+    authConfig: getAuthConfig
 }

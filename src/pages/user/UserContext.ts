@@ -2,8 +2,8 @@ import {User, UserManager, UserManagerSettings} from "oidc-client-ts";
 import {ApiConfig} from "../../config/ApiConfig.ts";
 
 const settings: UserManagerSettings = {
-    authority: `${ApiConfig.authConfig.authority}`,
-    client_id: `${ApiConfig.authConfig.clientId}`,
+    authority: `${ApiConfig.authConfig().authority}`,
+    client_id: `${ApiConfig.authConfig().clientId}`,
     redirect_uri: `${window.location.origin}/auth-redirect`,
     post_logout_redirect_uri: `${window.location.origin}/`,
     automaticSilentRenew: true,
