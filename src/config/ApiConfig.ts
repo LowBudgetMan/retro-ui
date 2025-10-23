@@ -1,7 +1,5 @@
-interface AuthConfig {
-    authority: string;
-    clientId: string;
-}
+import axios from "axios";
+import {AuthConfig, RemoteConfig} from "./ApiConfigTypes.ts";
 
 interface ApiConfig {
     baseApiUrl: () => string;
@@ -10,14 +8,9 @@ interface ApiConfig {
 }
 
 const baseApiUrl = 'http://localhost:8080';
-const websocketUrl = window.location.hostname.includes('localhost')
-    ? 'ws://localhost:8080/websocket/websocket'
-    : `wss://${window.location.hostname}/websocket/websocket`;
-
-const localAuthConfig: AuthConfig = {
-    authority: 'http://localhost:8010/realms/myrealm',
-    clientId: 'retroquest-web',
-}
+const remoteConfig = (await axios.get(`${baseApiUrl}/api/configuration`, {})).data as RemoteConfig;
+const websocketUrl = `${remoteConfig.websocketEnvironmentConfig.baseUrl}/websocket/websocket`;
+const localAuthConfig: AuthConfig = { ...remoteConfig.webAuthentication }
 
 const getBaseApiUrl = () => {
     return baseApiUrl;
