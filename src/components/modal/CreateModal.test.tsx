@@ -10,7 +10,7 @@ interface MockModalProps {
   backgroundButtonAriaLabel: string;
 }
 
-jest.mock('./Modal', () => ({
+vi.mock('./Modal', () => ({
   Modal: ({ isOpen, setIsOpen, children, backgroundButtonAriaLabel }: MockModalProps) => (
     <div data-testid="mock-modal" data-is-open={isOpen} data-aria-label={backgroundButtonAriaLabel}>
       <button data-testid="mock-close-button" onClick={() => setIsOpen(false)}>Close Modal</button>
@@ -29,7 +29,7 @@ describe('CreateModal', () => {
   };
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   describe('Rendering', () => {
@@ -63,22 +63,22 @@ describe('CreateModal', () => {
     });
 
     it('should use external state when provided', () => {
-      const setIsOpen = jest.fn();
+      const setIsOpen = vi.fn();
       render(<CreateModal {...defaultProps} isOpen={true} setIsOpen={setIsOpen} />);
-      
+
       const modal = screen.getByTestId('mock-modal');
       expect(modal).toHaveAttribute('data-is-open', 'true');
-      
+
       const closeButton = screen.getByTestId('mock-close-button');
       fireEvent.click(closeButton);
-      
+
       expect(setIsOpen).toHaveBeenCalledWith(false);
     });
 
     it('should handle function-based modalContent', () => {
-      const modalContentFn = jest.fn().mockReturnValue(<div>Function Content</div>);
+      const modalContentFn = vi.fn().mockReturnValue(<div>Function Content</div>);
       render(<CreateModal {...defaultProps} modalContent={modalContentFn} />);
-      
+
       expect(modalContentFn).toHaveBeenCalled();
       expect(screen.getByText('Function Content')).toBeInTheDocument();
     });

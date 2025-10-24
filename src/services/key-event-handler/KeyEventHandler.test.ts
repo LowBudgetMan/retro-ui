@@ -1,12 +1,12 @@
-import '@jest/globals';
+import { vi } from 'vitest';
 import { onKeys } from './KeyEventHandler';
 
 describe('onKeys', () => {
-    let mockCallback: jest.Mock;
+    let mockCallback: any;
     let mockEvent: KeyboardEvent;
 
     beforeEach(() => {
-        mockCallback = jest.fn();
+        mockCallback = vi.fn();
         mockEvent = new KeyboardEvent('keydown', { key: 'Enter' });
     });
 

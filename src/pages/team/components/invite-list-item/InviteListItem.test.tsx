@@ -2,11 +2,11 @@ import {InviteListItem} from "./InviteListItem.tsx";
 import {fireEvent, render, screen} from "@testing-library/react";
 import {Invite, TeamService} from "../../../../services/team-service/TeamService.ts";
 import {useRevalidator} from "react-router-dom";
-import SpyInstance = jest.SpyInstance;
+import { vi, describe, it, beforeEach, expect } from 'vitest';
 
-jest.mock('react-router-dom', () => ({
-    ...jest.requireActual('react-router-dom'),
-    useRevalidator: jest.fn(),
+vi.mock('react-router-dom', () => ({
+    ...vi.importActual('react-router-dom'),
+    useRevalidator: vi.fn(),
 }));
 
 
@@ -26,19 +26,17 @@ describe('InviteListItem', () => {
     });
 
     describe('copy invite button', () => {
-        let clipboardSpy: SpyInstance<Promise<void>>;
-
         beforeEach(() => {
             Object.defineProperty(window.navigator, 'clipboard', {
                 value: {
-                    writeText: jest.fn().mockResolvedValue(undefined),
+                    writeText: vi.fn().mockResolvedValue(undefined),
                 },
                 configurable: true,
             });
-            clipboardSpy = jest.spyOn(window.navigator.clipboard, 'writeText');
         })
 
         it('should copy the invite as a url to the clipboard', async () => {
+            const clipboardSpy = vi.spyOn(window.navigator.clipboard, 'writeText');
             const invitePackage = btoa(JSON.stringify({
                 inviteId: invite.id,
                 teamId,
@@ -53,20 +51,20 @@ describe('InviteListItem', () => {
     });
 
     describe('delete invite button', () => {
-        let deleteInviteSpy: SpyInstance<Promise<void>>;
-        let mockRevalidator: { revalidate: jest.Mock };
+        let deleteInviteSpy: any;
+        let mockRevalidator: any;
 
         beforeEach(() => {
-            deleteInviteSpy = jest.spyOn(TeamService, 'deleteInvite').mockResolvedValue(undefined);
+            deleteInviteSpy = vi.spyOn(TeamService, 'deleteInvite').mockResolvedValue(undefined);
             mockRevalidator = {
-                revalidate: jest.fn().mockResolvedValue(undefined),
+                revalidate: vi.fn().mockResolvedValue(undefined),
             };
 
-            (useRevalidator as jest.Mock).mockReturnValue(mockRevalidator);
+            (useRevalidator as any).mockReturnValue(mockRevalidator);
         });
 
         afterEach(() => {
-            jest.clearAllMocks();
+            vi.clearAllMocks();
         });
 
         it('should call deleteInvite and revalidate on successful deletion', async () => {
@@ -80,7 +78,7 @@ describe('InviteListItem', () => {
         });
 
         it('should handle delete errors gracefully', async () => {
-            const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+            const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
             const error = new Error('Delete failed');
             deleteInviteSpy.mockRejectedValue(error);
 

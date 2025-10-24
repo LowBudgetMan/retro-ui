@@ -4,18 +4,18 @@ import { userManager } from '../user/UserContext';
 import '@testing-library/jest-dom';
 
 // Mock the userManager
-jest.mock('../user/UserContext', () => ({
-  userManager: {
-    signinSilentCallback: jest.fn(),
+vi.mock('../user/UserContext', () => ({
+    userManager: {
+        signinSilentCallback: vi.fn(),
   },
 }));
 
 // Mock console.log to avoid noise in test output
-const mockConsoleLog = jest.spyOn(console, 'log').mockImplementation(() => {});
+const mockConsoleLog = vi.spyOn(console, 'log').mockImplementation(() => {});
 
 describe('SilentRedirectPage', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   afterAll(() => {
@@ -23,7 +23,7 @@ describe('SilentRedirectPage', () => {
   });
 
   it('should call userManager.signinSilentCallback when component loads', () => {
-    const mockSigninSilentCallback = userManager.signinSilentCallback as jest.Mock;
+    const mockSigninSilentCallback = userManager.signinSilentCallback as any;
     mockSigninSilentCallback.mockResolvedValue(undefined);
 
     render(<SilentRedirectPage />);
@@ -32,7 +32,7 @@ describe('SilentRedirectPage', () => {
   });
 
   it('should render nothing visible when component is loaded', () => {
-    const mockSigninSilentCallback = userManager.signinSilentCallback as jest.Mock;
+    const mockSigninSilentCallback = userManager.signinSilentCallback as any;
     mockSigninSilentCallback.mockResolvedValue(undefined);
 
     const { container } = render(<SilentRedirectPage />);

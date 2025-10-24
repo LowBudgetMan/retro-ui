@@ -11,7 +11,7 @@ interface MockLinkProps {
   [key: string]: unknown;
 }
 
-jest.mock('react-router-dom', () => ({
+vi.mock('react-router-dom', () => ({
   Link: ({ to, children, className, ...props }: MockLinkProps) => (
     <a href={to} className={className} {...props}>
       {children}
@@ -19,7 +19,13 @@ jest.mock('react-router-dom', () => ({
   ),
 }));
 
-jest.mock('./RetroCard.module.css', () => ({
+vi.mock('./RetroCard.module.css', () => ({
+  default: {
+    link: 'mock-link-class',
+    retroCard: 'mock-retro-card-class',
+    retroName: 'mock-retro-name-class',
+    retroCreatedDate: 'mock-retro-created-date-class',
+  },
   link: 'mock-link-class',
   retroCard: 'mock-retro-card-class',
   retroName: 'mock-retro-name-class',

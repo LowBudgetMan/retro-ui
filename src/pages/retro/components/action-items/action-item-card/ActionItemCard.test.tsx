@@ -2,9 +2,10 @@ import {act, fireEvent, render, screen} from "@testing-library/react";
 import {ActionItemCard} from "./ActionItemCard.tsx";
 import {ActionItem, ActionItemsService} from "../../../../../services/action-items-service/ActionItemsService.ts";
 import { DateTime } from "luxon";
+import { vi, describe, it, beforeEach, expect } from 'vitest';
 
-jest.mock("../../../../../services/action-items-service/ActionItemsService.ts");
-const mockedActionItemsService = ActionItemsService as jest.Mocked<typeof ActionItemsService>;
+vi.mock("../../../../../services/action-items-service/ActionItemsService.ts");
+const mockedActionItemsService = ActionItemsService as any;
 
 const currentTime = DateTime.now();
 
@@ -54,7 +55,7 @@ describe('ActionItemCard', () => {
     });
 
     it('should call ActionItemsService.setCompleted with inverse of completed when mark complete button is clicked', () => {
-        mockedActionItemsService.setCompleted = jest.fn().mockResolvedValue(undefined);
+        mockedActionItemsService.setCompleted = vi.fn().mockResolvedValue(undefined);
         render(<ActionItemCard actionItem={actionItem}/>);
 
         fireEvent.click(screen.getByText('N'));
@@ -68,7 +69,7 @@ describe('ActionItemCard', () => {
 
     describe('Edit functionality', () => {
         beforeEach(() => {
-            mockedActionItemsService.setAction = jest.fn().mockResolvedValue(undefined);
+            mockedActionItemsService.setAction = vi.fn().mockResolvedValue(undefined);
         });
 
         it('should display paragraph element when not in edit mode', () => {
@@ -196,7 +197,7 @@ describe('ActionItemCard', () => {
         });
 
         it('should call ActionItemsService.deleteActionItem when confirm button is clicked', async () => {
-            mockedActionItemsService.deleteActionItem = jest.fn().mockResolvedValue(undefined);
+            mockedActionItemsService.deleteActionItem = vi.fn().mockResolvedValue(undefined);
             render(<ActionItemCard actionItem={actionItem}/>);
 
             fireEvent.click(screen.getByText('D'));

@@ -2,9 +2,9 @@ import {loader, InvitePageData, InvitePackage} from './inviteLoader';
 import {waitForAuthInitialization} from '../user/UserContext';
 import '@testing-library/jest-dom';
 
-jest.mock('../user/UserContext');
+vi.mock('../user/UserContext');
 
-const mockWaitForAuthInitialization = waitForAuthInitialization as jest.MockedFunction<typeof waitForAuthInitialization>;
+const mockWaitForAuthInitialization = waitForAuthInitialization as any;
 
 describe('inviteLoader', () => {
     const mockInvitePackage: InvitePackage = {
@@ -16,7 +16,7 @@ describe('inviteLoader', () => {
     const validPackageParam = btoa(JSON.stringify(mockInvitePackage));
 
     beforeEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
         mockWaitForAuthInitialization.mockResolvedValue();
     });
 

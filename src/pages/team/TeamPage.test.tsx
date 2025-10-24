@@ -9,9 +9,9 @@ import {DateTime} from 'luxon';
 import {Invite, TeamService} from "../../services/team-service/TeamService.ts";
 import React from "react";
 
-jest.mock('react-router-dom', () => ({
-    useLoaderData: jest.fn(),
-    useRevalidator: jest.fn(),
+vi.mock('react-router-dom', () => ({
+    useLoaderData: vi.fn(),
+    useRevalidator: vi.fn(),
     Link: ({to, children, ...props}: { to: string; children: React.ReactNode }) => (
         <a href={to} {...props}>
             {children}
@@ -19,7 +19,7 @@ jest.mock('react-router-dom', () => ({
     ),
 }));
 
-jest.mock('../../components/retro-card/RetroCard.tsx', () => ({
+vi.mock('../../components/retro-card/RetroCard.tsx', () => ({
     RetroCard: ({retro, template}: { retro: RetroListItem; template: Template }) => (
         <div data-testid={`retro-card-${retro.id}`}>
             <span data-testid="retro-template-name">{template.name}</span>
@@ -30,21 +30,26 @@ jest.mock('../../components/retro-card/RetroCard.tsx', () => ({
     ),
 }));
 
-jest.mock('./components/CreateRetroButton.tsx', () => ({
+vi.mock('./components/CreateRetroButton.tsx', () => ({
     CreateRetroButton: () => (
         <div data-testid="create-retro-button">Create Retro Button</div>
     ),
 }));
 
-jest.mock('./TeamPage.module.css', () => ({
+vi.mock('./TeamPage.module.css', () => ({
+    default: {
+        teamPage: 'mock-team-page-class',
+        retrosList: 'mock-retros-list-class',
+        retroListItem: 'mock-retro-list-item-class',
+    },
     teamPage: 'mock-team-page-class',
     retrosList: 'mock-retros-list-class',
     retroListItem: 'mock-retro-list-item-class',
 }));
 
-jest.mock('../../services/team-service/TeamService.ts', () => ({
+vi.mock('../../services/team-service/TeamService.ts', () => ({
     TeamService: {
-        createInvite: jest.fn(),
+        createInvite: vi.fn(),
     },
 }));
 
@@ -122,10 +127,10 @@ describe('TeamPage', () => {
     };
 
     beforeEach(() => {
-        jest.clearAllMocks();
-        (useLoaderData as jest.Mock).mockReturnValue(mockTeamData);
-        (useRevalidator as jest.Mock).mockReturnValue({
-            revalidate: jest.fn().mockResolvedValue(undefined),
+        vi.clearAllMocks();
+        (useLoaderData as any).mockReturnValue(mockTeamData);
+        (useRevalidator as any).mockReturnValue({
+            revalidate: vi.fn().mockResolvedValue(undefined),
             state: 'idle'
         } as const);
     });
@@ -190,7 +195,7 @@ describe('TeamPage', () => {
                 retros: [...mockRetros, retroWithMissingTemplate]
             };
 
-            (useLoaderData as jest.Mock).mockReturnValue(teamDataWithMissingTemplate);
+            (useLoaderData as any).mockReturnValue(teamDataWithMissingTemplate);
 
             render(<TeamPage/>);
 
@@ -235,7 +240,7 @@ describe('TeamPage', () => {
         describe('Create invite button', () => {
             it('should call TeamService.createInvite with correct team id when create button is clicked', async () => {
                 const user = userEvent.setup();
-                (TeamService.createInvite as jest.Mock).mockResolvedValue('new-invite-id');
+                (TeamService.createInvite as any).mockResolvedValue('new-invite-id');
 
                 render(<TeamPage/>);
 
@@ -248,12 +253,12 @@ describe('TeamPage', () => {
 
             it('should call revalidator.revalidate when createInvite is successful', async () => {
                 const user = userEvent.setup();
-                const mockRevalidate = jest.fn().mockResolvedValue(undefined);
-                (useRevalidator as jest.Mock).mockReturnValue({
+                const mockRevalidate = vi.fn().mockResolvedValue(undefined);
+                (useRevalidator as any).mockReturnValue({
                     revalidate: mockRevalidate,
                     state: 'idle'
                 });
-                (TeamService.createInvite as jest.Mock).mockResolvedValue('new-invite-id');
+                (TeamService.createInvite as any).mockResolvedValue('new-invite-id');
 
                 render(<TeamPage/>);
 

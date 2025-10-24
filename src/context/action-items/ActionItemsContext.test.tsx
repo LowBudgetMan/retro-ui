@@ -1,3 +1,4 @@
+import { vi } from 'vitest';
 import {act, render} from '@testing-library/react';
 import { ActionItemsContextProvider } from './ActionItemsContext.tsx';
 import { useActionItems } from '../hooks.tsx';
@@ -10,16 +11,16 @@ import {
     updateActionItemSubscriptionId
 } from "../../services/websocket/constants/action-items.ts";
 
-jest.mock('../../services/websocket/WebsocketService.ts', () => ({
+vi.mock('../../services/websocket/WebsocketService.ts', () => ({
     WebsocketService: {
-        subscribe: jest.fn(),
-        unsubscribe: jest.fn()
+        subscribe: vi.fn(),
+        unsubscribe: vi.fn()
     }
 }));
 
 describe('ActionItemsContextProvider', () => {
     beforeEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
     });
 
     const teamId = 'team-1'

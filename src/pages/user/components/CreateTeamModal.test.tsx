@@ -1,11 +1,12 @@
 import { render, screen } from '@testing-library/react';
 import { CreateTeamModal } from './CreateTeamModal';
 import '@testing-library/jest-dom';
+import { vi, describe, it, beforeEach, expect } from 'vitest';
 
 // Mock react-router-dom
-jest.mock('react-router-dom', () => ({
+vi.mock('react-router-dom', () => ({
   useRevalidator: () => ({
-    revalidate: jest.fn().mockResolvedValue(undefined),
+    revalidate: vi.fn().mockResolvedValue(undefined),
     state: 'idle'
   })
 }));
@@ -18,7 +19,7 @@ interface MockModalProps {
   backgroundButtonAriaLabel: string;
 }
 
-jest.mock('../../../components/modal/Modal', () => ({
+vi.mock('../../../components/modal/Modal', () => ({
   Modal: ({ children, isOpen, setIsOpen, backgroundButtonAriaLabel }: MockModalProps) => (
     <div data-testid="mock-modal" data-is-open={isOpen} data-aria-label={backgroundButtonAriaLabel}>
       <button data-testid="mock-close-button" onClick={() => setIsOpen(false)}>Close Modal</button>
@@ -33,7 +34,7 @@ interface MockCreateTeamFormProps {
   onCancel: () => void;
 }
 
-jest.mock('./CreateTeamForm', () => ({
+vi.mock('./CreateTeamForm', () => ({
   CreateTeamForm: ({ onSubmitSuccess, onCancel }: MockCreateTeamFormProps) => (
     <div data-testid="mock-create-team-form">
       <button data-testid="mock-form-submit-button" onClick={onSubmitSuccess}>Submit Form</button>
@@ -48,11 +49,11 @@ describe('CreateTeamModal', () => {
   // Common props for testing
   const defaultProps = {
     isOpen: true,
-    setIsOpen: jest.fn(),
+    setIsOpen: vi.fn(),
   };
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   describe('Rendering', () => {

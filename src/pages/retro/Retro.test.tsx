@@ -6,8 +6,8 @@ import { DateTime } from "luxon";
 import {PropsWithChildren} from "react";
 import {useActionItems, useRetro} from "../../context/hooks.tsx";
 
-jest.mock('react-router-dom', () => ({
-  useLoaderData: jest.fn(),
+vi.mock('react-router-dom', () => ({
+  useLoaderData: vi.fn(),
   Link: ({ to, children, ...props }: PropsWithChildren<{to: string}>) => (
       <a href={to} {...props}>
         {children}
@@ -15,17 +15,20 @@ jest.mock('react-router-dom', () => ({
   ),
 }));
 
-jest.mock('./RetroPage.module.css', () => ({
+vi.mock('./RetroPage.module.css', () => ({
+  default: {
+    retroColumns: 'mock-retro-columns-class',
+  },
   retroColumns: 'mock-retro-columns-class',
 }));
 
-jest.mock('../../context/hooks.tsx', () => ({
-  useRetro: jest.fn(),
-  useActionItems: jest.fn(),
+vi.mock('../../context/hooks.tsx', () => ({
+  useRetro: vi.fn(),
+  useActionItems: vi.fn(),
 }));
 
-jest.mock('./components/retro-column/RetroColumn.tsx', () => ({
-    RetroColumn: jest.fn(() => null),
+vi.mock('./components/retro-column/RetroColumn.tsx', () => ({
+    RetroColumn: vi.fn(() => null),
 }));
 
 
@@ -82,9 +85,9 @@ describe('RetroComponent', () => {
   };
 
   beforeEach(() => {
-    jest.clearAllMocks();
-    (useRetro as jest.Mock).mockReturnValue({ retro: mockRetro });
-    (useActionItems as jest.Mock).mockReturnValue({ actionItems: [] });
+    vi.clearAllMocks();
+    (useRetro as any).mockReturnValue({ retro: mockRetro });
+    (useActionItems as any).mockReturnValue({ actionItems: [] });
   });
 
   it('renders retro component with correct categories', () => {
@@ -114,7 +117,7 @@ describe('RetroComponent', () => {
       retroId: 'retro-123',
       createdAt: DateTime.fromISO('2025-01-01'),
     };
-    (useRetro as jest.Mock).mockReturnValue({
+    (useRetro as any).mockReturnValue({
       retro: {
         ...mockRetro,
         thoughts: [thought1, thought2],

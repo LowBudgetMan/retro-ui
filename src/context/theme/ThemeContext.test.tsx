@@ -1,4 +1,4 @@
-import '@jest/globals';
+import { vi } from 'vitest';
 import { render, act } from '@testing-library/react';
 import { ThemeProvider } from './ThemeContext.tsx';
 import { Theme } from './ThemeContextTypes.ts';
@@ -28,7 +28,7 @@ describe('ThemeContext', () => {
         localStorageMock.clear();
         mediaQueryListeners = [];
         
-        window.matchMedia = jest.fn().mockImplementation(() => ({
+        window.matchMedia = vi.fn().mockImplementation(() => ({
             matches: false,
             media: 'query',
             addEventListener: (_: string, listener: (e: { matches: boolean }) => void) => {
@@ -69,8 +69,8 @@ describe('ThemeContext', () => {
     }
 
     it('should use system theme by default', () => {
-        const onThemeChange = jest.fn();
-        
+        const onThemeChange = vi.fn();
+
         render(
             <ThemeProvider>
                 <TestComponent onThemeChange={onThemeChange} />
@@ -83,8 +83,8 @@ describe('ThemeContext', () => {
 
     it('should load theme from localStorage if available', () => {
         localStorageMock.setItem('theme', Theme.DARK);
-        const onThemeChange = jest.fn();
-        
+        const onThemeChange = vi.fn();
+
         render(
             <ThemeProvider>
                 <TestComponent onThemeChange={onThemeChange} />
@@ -96,8 +96,8 @@ describe('ThemeContext', () => {
     });
 
     it('should update theme when setTheme is called', () => {
-        const onThemeChange = jest.fn();
-        
+        const onThemeChange = vi.fn();
+
         const { getByText } = render(
             <ThemeProvider>
                 <TestComponent onThemeChange={onThemeChange} />
@@ -114,8 +114,8 @@ describe('ThemeContext', () => {
     });
 
     it('should respond to system theme changes when in system mode', () => {
-        const onThemeChange = jest.fn();
-        
+        const onThemeChange = vi.fn();
+
         render(
             <ThemeProvider>
                 <TestComponent onThemeChange={onThemeChange} />
@@ -123,7 +123,7 @@ describe('ThemeContext', () => {
         );
 
         act(() => {
-            mediaQueryListeners.forEach(listener => 
+            mediaQueryListeners.forEach(listener =>
                 listener({ matches: true })
             );
         });
@@ -131,7 +131,7 @@ describe('ThemeContext', () => {
         expect(document.documentElement.getAttribute('data-theme')).toBe('dark');
 
         act(() => {
-            mediaQueryListeners.forEach(listener => 
+            mediaQueryListeners.forEach(listener =>
                 listener({ matches: false })
             );
         });
@@ -140,8 +140,8 @@ describe('ThemeContext', () => {
     });
 
     it('should not respond to system theme changes when in manual mode', () => {
-        const onThemeChange = jest.fn();
-        
+        const onThemeChange = vi.fn();
+
         const { getByText } = render(
             <ThemeProvider>
                 <TestComponent onThemeChange={onThemeChange} />
@@ -153,7 +153,7 @@ describe('ThemeContext', () => {
         });
 
         act(() => {
-            mediaQueryListeners.forEach(listener => 
+            mediaQueryListeners.forEach(listener =>
                 listener({ matches: false })
             );
         });
@@ -162,10 +162,10 @@ describe('ThemeContext', () => {
     });
 
     it('should cleanup event listeners on unmount', () => {
-        const removeEventListener = jest.fn();
-        window.matchMedia = jest.fn().mockImplementation(() => ({
+        const removeEventListener = vi.fn();
+        window.matchMedia = vi.fn().mockImplementation(() => ({
             matches: false,
-            addEventListener: jest.fn(),
+            addEventListener: vi.fn(),
             removeEventListener
         }));
 
@@ -181,15 +181,15 @@ describe('ThemeContext', () => {
 
     describe('getEffectiveTheme', () => {
         it('should return DARK when theme is SYSTEM and system prefers dark mode', () => {
-            window.matchMedia = jest.fn().mockImplementation(() => ({
+            window.matchMedia = vi.fn().mockImplementation(() => ({
                 matches: true,
                 media: 'query',
-                addEventListener: jest.fn(),
-                removeEventListener: jest.fn()
+                addEventListener: vi.fn(),
+                removeEventListener: vi.fn()
             }));
 
-            const onEffectiveTheme = jest.fn();
-            
+            const onEffectiveTheme = vi.fn();
+
             render(
                 <ThemeProvider>
                     <EffectiveThemeTestComponent onEffectiveTheme={onEffectiveTheme} />
@@ -200,15 +200,15 @@ describe('ThemeContext', () => {
         });
 
         it('should return LIGHT when theme is SYSTEM and system prefers light mode', () => {
-            window.matchMedia = jest.fn().mockImplementation(() => ({
+            window.matchMedia = vi.fn().mockImplementation(() => ({
                 matches: false,
                 media: 'query',
-                addEventListener: jest.fn(),
-                removeEventListener: jest.fn()
+                addEventListener: vi.fn(),
+                removeEventListener: vi.fn()
             }));
 
-            const onEffectiveTheme = jest.fn();
-            
+            const onEffectiveTheme = vi.fn();
+
             render(
                 <ThemeProvider>
                     <EffectiveThemeTestComponent onEffectiveTheme={onEffectiveTheme} />
@@ -220,16 +220,16 @@ describe('ThemeContext', () => {
 
         it('should return the actual theme when theme is not SYSTEM', () => {
             localStorageMock.setItem('theme', Theme.DARK);
-            
-            window.matchMedia = jest.fn().mockImplementation(() => ({
+
+            window.matchMedia = vi.fn().mockImplementation(() => ({
                 matches: false,
                 media: 'query',
-                addEventListener: jest.fn(),
-                removeEventListener: jest.fn()
+                addEventListener: vi.fn(),
+                removeEventListener: vi.fn()
             }));
 
-            const onEffectiveTheme = jest.fn();
-            
+            const onEffectiveTheme = vi.fn();
+
             render(
                 <ThemeProvider>
                     <EffectiveThemeTestComponent onEffectiveTheme={onEffectiveTheme} />

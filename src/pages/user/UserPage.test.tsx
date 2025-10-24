@@ -5,12 +5,12 @@ import { TeamCard } from '../../components/team-card/TeamCard.tsx';
 import '@testing-library/jest-dom';
 
 // Mock react-router-dom
-jest.mock('react-router-dom', () => ({
-  useLoaderData: jest.fn(),
+vi.mock('react-router-dom', () => ({
+  useLoaderData: vi.fn(),
 }));
 
 // Mock the CreateTeamButton component
-jest.mock('./components/CreateTeamButton', () => ({
+vi.mock('./components/CreateTeamButton', () => ({
   CreateTeamButton: () => (
     <div data-testid="mock-create-team-button">
       <button data-testid="create-button">+</button>
@@ -19,8 +19,8 @@ jest.mock('./components/CreateTeamButton', () => ({
 }));
 
 // Mock the team-card component
-jest.mock('../../components/team-card/TeamCard.tsx', () => ({
-  TeamCard: jest.fn(({ team }) => (
+vi.mock('../../components/team-card/TeamCard.tsx', () => ({
+  TeamCard: vi.fn(({ team }: { team: { id: string; name: string; createdAt: Date } }) => (
     <div data-testid={`team-card-${team.id}`}>
       {team.name}
     </div>
@@ -28,12 +28,14 @@ jest.mock('../../components/team-card/TeamCard.tsx', () => ({
 }));
 
 // Mock the CSS module
-jest.mock('./UserPage.module.css', () => ({
-  userPage: 'mock-user-page-class',
-  teamsTitle: 'mock-teams-title-class',
-  teamsList: 'mock-teams-list-class',
-  teamItem: 'mock-team-item-class',
-  createNewTeamButton: 'mock-create-new-team-button-class',
+vi.mock('./UserPage.module.css', () => ({
+  default: {
+    userPage: 'mock-user-page-class',
+    teamsTitle: 'mock-teams-title-class',
+    teamsList: 'mock-teams-list-class',
+    teamItem: 'mock-team-item-class',
+    createNewTeamButton: 'mock-create-new-team-button-class',
+  },
 }));
 
 describe('UserPage', () => {
@@ -47,8 +49,8 @@ describe('UserPage', () => {
   };
 
   beforeEach(() => {
-    jest.clearAllMocks();
-    (useLoaderData as jest.Mock).mockReturnValue(mockUser);
+    vi.clearAllMocks();
+    (useLoaderData as ReturnType<typeof vi.fn>).mockReturnValue(mockUser);
   });
 
   describe('Rendering', () => {
@@ -76,7 +78,7 @@ describe('UserPage', () => {
     });
 
     it('should handle empty teams array', () => {
-      (useLoaderData as jest.Mock).mockReturnValue({
+      (useLoaderData as ReturnType<typeof vi.fn>).mockReturnValue({
         name: 'Test User',
         teams: [],
       });

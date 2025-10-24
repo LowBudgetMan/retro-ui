@@ -3,9 +3,10 @@ import {ThoughtCard} from "./ThoughtCard.tsx";
 import {Thought} from "../../../../services/retro-service/RetroService.ts";
 import {ThoughtService} from "../../../../services/thought-service/ThoughtService.ts";
 import {DateTime} from "luxon";
+import { vi, describe, it, beforeEach, expect } from 'vitest';
 
-jest.mock("../../../../services/thought-service/ThoughtService.ts");
-const mockedThoughtService = ThoughtService as jest.Mocked<typeof ThoughtService>;
+vi.mock("../../../../services/thought-service/ThoughtService.ts");
+const mockedThoughtService = ThoughtService as any;
 
 const currentTime = DateTime.now();
 
@@ -13,7 +14,7 @@ describe('ThoughtCard', () => {
     const teamId = 'teamId';
 
     beforeEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
     });
 
     const thought: Thought = {
@@ -73,7 +74,7 @@ describe('ThoughtCard', () => {
     });
 
     it('should call ThoughtService.setCompleted with inverse of completed when mark complete button is clicked', () => {
-        mockedThoughtService.setCompleted = jest.fn().mockResolvedValue(undefined);
+        mockedThoughtService.setCompleted = vi.fn().mockResolvedValue(undefined);
         render(<ThoughtCard teamId={teamId} thought={thought}/>);
 
         fireEvent.click(screen.getByLabelText('mark complete'));
@@ -88,7 +89,7 @@ describe('ThoughtCard', () => {
 
     describe('Edit functionality', () => {
         beforeEach(() => {
-            mockedThoughtService.setMessage = jest.fn().mockResolvedValue(undefined);
+            mockedThoughtService.setMessage = vi.fn().mockResolvedValue(undefined);
         });
 
         it('should display paragraph element when not in edit mode', () => {
@@ -209,7 +210,7 @@ describe('ThoughtCard', () => {
 
     describe('Delete thought', () => {
         beforeEach(() => {
-            mockedThoughtService.deleteThought = jest.fn().mockResolvedValue(undefined);
+            mockedThoughtService.deleteThought = vi.fn().mockResolvedValue(undefined);
         });
 
         it('should show confirmation UI when delete button is clicked', () => {

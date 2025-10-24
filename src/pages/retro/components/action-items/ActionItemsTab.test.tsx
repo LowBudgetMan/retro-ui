@@ -3,20 +3,23 @@ import { ActionItemsTab } from './ActionItemsTab.tsx';
 import { useActionItems } from '../../../../context/hooks.tsx';
 import { ActionItemsService } from '../../../../services/action-items-service/ActionItemsService.ts';
 import { DateTime } from 'luxon';
+import { vi, describe, it, beforeEach, expect } from 'vitest';
 
-jest.mock('../../../../context/hooks.tsx');
-jest.mock('../../../../services/action-items-service/ActionItemsService.ts');
+vi.mock('../../../../context/hooks.tsx');
+vi.mock('../../../../services/action-items-service/ActionItemsService.ts');
 
-jest.mock('./ActionItemsTab.module.css', () => ({
-    container: 'container',
-    containerOpen: 'containerOpen',
-    containerClosed: 'containerClosed',
-    tab: 'tab',
-    content: 'content',
+vi.mock('./ActionItemsTab.module.css', () => ({
+    default: {
+        container: 'container',
+        containerOpen: 'containerOpen',
+        containerClosed: 'containerClosed',
+        tab: 'tab',
+        content: 'content',
+    }
 }));
 
-const useActionItemsMock = useActionItems as jest.Mock;
-const createActionItemMock = ActionItemsService.createActionItem as jest.Mock;
+const useActionItemsMock = useActionItems as any;
+const createActionItemMock = ActionItemsService.createActionItem as any;
 
 describe('ActionItemsTab', () => {
     beforeEach(() => {
@@ -119,7 +122,7 @@ describe('ActionItemsTab', () => {
         });
 
         it('should log an error and not clear the inputs when the form submission fails', async () => {
-            const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+            const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
             createActionItemMock.mockRejectedValue({ status: 400 });
             render(<ActionItemsTab />);
 

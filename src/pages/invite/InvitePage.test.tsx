@@ -5,15 +5,15 @@ import { TeamService } from '../../services/team-service/TeamService';
 import { InvitePageData } from './inviteLoader';
 import '@testing-library/jest-dom';
 
-jest.mock('react-router-dom', () => ({
-  useLoaderData: jest.fn(),
-  useNavigate: jest.fn(),
+vi.mock('react-router-dom', () => ({
+  useLoaderData: vi.fn(),
+  useNavigate: vi.fn(),
 }));
 
-jest.mock('../../services/team-service/TeamService');
+vi.mock('../../services/team-service/TeamService');
 
-const mockNavigate = jest.fn();
-const mockAddUserToTeam = jest.fn();
+const mockNavigate = vi.fn();
+const mockAddUserToTeam = vi.fn();
 
 describe('InvitePage', () => {
     const mockInviteData: InvitePageData = {
@@ -23,10 +23,10 @@ describe('InvitePage', () => {
     };
 
     beforeEach(() => {
-        jest.clearAllMocks();
-        (useLoaderData as jest.Mock).mockReturnValue(mockInviteData);
-        (useNavigate as jest.Mock).mockReturnValue(mockNavigate);
-        (TeamService.addUserToTeam as jest.Mock).mockImplementation(mockAddUserToTeam);
+        vi.clearAllMocks();
+        (useLoaderData as any).mockReturnValue(mockInviteData);
+        (useNavigate as any).mockReturnValue(mockNavigate);
+        (TeamService.addUserToTeam as any).mockImplementation(mockAddUserToTeam);
     });
 
     it('should display the team name', () => {

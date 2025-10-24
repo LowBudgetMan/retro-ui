@@ -2,17 +2,18 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { CreateThought } from './CreateThought.tsx';
 import { RetroService } from '../../../../services/retro-service/RetroService.ts';
 import '@testing-library/jest-dom';
+import { vi, describe, test, beforeEach, expect } from 'vitest';
 
-jest.mock('../../../../services/retro-service/RetroService.ts', () => ({
+vi.mock('../../../../services/retro-service/RetroService.ts', () => ({
   RetroService: {
-    createThought: jest.fn(),
+    createThought: vi.fn(),
   },
 }));
 
 describe('CreateThought', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
-    (RetroService.createThought as jest.Mock).mockResolvedValue({});
+    vi.clearAllMocks();
+    (RetroService.createThought as any).mockResolvedValue({});
   });
 
   test('creates a thought when input loses focus with content', async () => {
@@ -101,9 +102,9 @@ describe('CreateThought', () => {
 
   test('handles error when creating thought fails', async () => {
     const originalConsoleError = console.error;
-    console.error = jest.fn();
-    
-    (RetroService.createThought as jest.Mock).mockRejectedValue(new Error('API error'));
+    console.error = vi.fn();
+
+    (RetroService.createThought as any).mockRejectedValue(new Error('API error'));
     
     render(
       <CreateThought

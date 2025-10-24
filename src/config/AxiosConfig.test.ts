@@ -1,26 +1,33 @@
-import '@jest/globals';
+import { vi } from 'vitest';
 import { User } from 'oidc-client-ts';
 import { configureAxios } from './AxiosConfig.ts';
 
 // Mock userManager
-jest.mock('../pages/user/UserContext.ts', () => ({
+vi.mock('../pages/user/UserContext.ts', () => ({
   userManager: {
-    getUser: jest.fn(),
-    signoutRedirect: jest.fn(),
+    getUser: vi.fn(),
+    signoutRedirect: vi.fn(),
   },
 }));
 
 // Mock axios interceptors
-jest.mock('axios', () => ({
-  interceptors: {
-    request: {
-      use: jest.fn(),
+vi.mock('axios', async () => {
+  const actual = await vi.importActual('axios');
+  return {
+    ...actual,
+    default: {
+      ...actual,
+      interceptors: {
+        request: {
+          use: vi.fn(),
+        },
+        response: {
+          use: vi.fn(),
+        },
+      },
     },
-    response: {
-      use: jest.fn(),
-    },
-  },
-}));
+  };
+});
 
 // Import after mocking
 import axios from 'axios';
@@ -33,15 +40,15 @@ describe('AxiosConfig', () => {
   let responseErrorHandler: (error: unknown) => Promise<never>;
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     
     // Capture the interceptor functions when configureAxios is called
-    (axios.interceptors.request.use as jest.Mock).mockImplementation((successHandler, errorHandler) => {
+    (axios.interceptors.request.use as any).mockImplementation((successHandler: any, errorHandler: any) => {
       requestInterceptor = successHandler;
       requestErrorHandler = errorHandler;
     });
-    
-    (axios.interceptors.response.use as jest.Mock).mockImplementation((successHandler, errorHandler) => {
+
+    (axios.interceptors.response.use as any).mockImplementation((successHandler: any, errorHandler: any) => {
       responseInterceptor = successHandler;
       responseErrorHandler = errorHandler;
     });
@@ -52,7 +59,7 @@ describe('AxiosConfig', () => {
   describe('Request Interceptor', () => {
     interface MockConfig {
       headers: {
-        setAuthorization: jest.Mock;
+        setAuthorization: any;
       };
     }
 
@@ -61,7 +68,7 @@ describe('AxiosConfig', () => {
     beforeEach(() => {
       mockConfig = {
         headers: {
-          setAuthorization: jest.fn(),
+          setAuthorization: vi.fn(),
         },
       };
     });
@@ -71,7 +78,7 @@ describe('AxiosConfig', () => {
         access_token: 'test-token',
       };
 
-      (userManager.getUser as jest.Mock).mockResolvedValue(mockUser);
+      (userManager.getUser as any).mockResolvedValue(mockUser);
 
       const result = await requestInterceptor(mockConfig);
 
@@ -85,7 +92,7 @@ describe('AxiosConfig', () => {
         access_token: undefined,
       };
 
-      (userManager.getUser as jest.Mock).mockResolvedValue(mockUser);
+      (userManager.getUser as any).mockResolvedValue(mockUser);
 
       const result = await requestInterceptor(mockConfig);
 
@@ -95,7 +102,7 @@ describe('AxiosConfig', () => {
     });
 
     it('should not add Authorization header when user is null', async () => {
-      (userManager.getUser as jest.Mock).mockResolvedValue(null);
+      (userManager.getUser as any).mockResolvedValue(null);
 
       const result = await requestInterceptor(mockConfig);
 
@@ -105,10 +112,10 @@ describe('AxiosConfig', () => {
     });
 
     it('should handle errors when getting user and continue with request', async () => {
-      const consoleLogSpy = jest.spyOn(console, 'log').mockImplementation();
+      const consoleLogSpy = vi.spyOn(console, 'log').mockImplementation();
       const error = new Error('Failed to get user');
-      
-      (userManager.getUser as jest.Mock).mockRejectedValue(error);
+
+      (userManager.getUser as any).mockRejectedValue(error);
 
       const result = await requestInterceptor(mockConfig);
 
@@ -120,12 +127,10 @@ describe('AxiosConfig', () => {
       consoleLogSpy.mockRestore();
     });
 
-    it('should reject promise when request error handler is called', () => {
+    it('should reject promise when request error handler is called', async () => {
       const error = new Error('Request error');
 
-      const result = requestErrorHandler(error);
-
-      expect(result).rejects.toBe(error);
+      await expect(requestErrorHandler(error)).rejects.toBe(error);
     });
   });
 
@@ -138,54 +143,50 @@ describe('AxiosConfig', () => {
       expect(result).toBe(mockResponse);
     });
 
-    it('should call signoutRedirect when response status is 401', () => {
+    it('should call signoutRedirect when response status is 401', async () => {
       const mockError = {
         response: {
           status: 401,
         },
       };
 
-      (userManager.signoutRedirect as jest.Mock).mockResolvedValue(undefined);
+      (userManager.signoutRedirect as any).mockResolvedValue(undefined);
 
-      const result = responseErrorHandler(mockError);
+      await expect(responseErrorHandler(mockError)).rejects.toBe(mockError);
 
       expect(userManager.signoutRedirect).toHaveBeenCalledTimes(1);
-      expect(result).rejects.toBe(mockError);
     });
 
-    it('should not call signoutRedirect when response status is not 401', () => {
+    it('should not call signoutRedirect when response status is not 401', async () => {
       const mockError = {
         response: {
           status: 500,
         },
       };
 
-      const result = responseErrorHandler(mockError);
+      await expect(responseErrorHandler(mockError)).rejects.toBe(mockError);
 
       expect(userManager.signoutRedirect).not.toHaveBeenCalled();
-      expect(result).rejects.toBe(mockError);
     });
 
-    it('should not call signoutRedirect when error has no response', () => {
+    it('should not call signoutRedirect when error has no response', async () => {
       const mockError = {
         message: 'Network error',
       };
 
-      const result = responseErrorHandler(mockError);
+      await expect(responseErrorHandler(mockError)).rejects.toBe(mockError);
 
       expect(userManager.signoutRedirect).not.toHaveBeenCalled();
-      expect(result).rejects.toBe(mockError);
     });
 
-    it('should not call signoutRedirect when error response has no status', () => {
+    it('should not call signoutRedirect when error response has no status', async () => {
       const mockError = {
         response: {},
       };
 
-      const result = responseErrorHandler(mockError);
+      await expect(responseErrorHandler(mockError)).rejects.toBe(mockError);
 
       expect(userManager.signoutRedirect).not.toHaveBeenCalled();
-      expect(result).rejects.toBe(mockError);
     });
   });
 

@@ -1,51 +1,46 @@
-import { User } from 'oidc-client-ts';
+import { User, UserManager } from 'oidc-client-ts';
 import '@testing-library/jest-dom';
+import { vi, describe, it, beforeEach, expect } from 'vitest';
 
-// Mock the userManager
+// Mock the userManager instance
 const mockUserManager = {
-  signinSilent: jest.fn(),
-  getUser: jest.fn(),
-};
+  signinSilent: vi.fn(),
+  getUser: vi.fn(),
+} as unknown as UserManager;
 
-jest.mock('./UserContext', () => {
-  const originalAttemptSilentSignIn = jest.fn().mockImplementation(async (): Promise<boolean> => {
-    return await mockUserManager.signinSilent()
-      .then((user: User | null) => !!user && !user.expired)
-      .catch(() => false);
-  });
-
-  const originalGetCurrentUser = async (): Promise<User | null> => {
-    try {
-      const user = await mockUserManager.getUser();
-      return user && !user.expired ? user : null;
-    } catch (error) {
-      return null;
-    }
-  };
-
-  const originalIsAuthenticated = jest.fn().mockImplementation(async (): Promise<boolean> => {
-    try {
-      const user = await originalGetCurrentUser();
-      return !!user && !user.expired;
-    } catch (error) {
-      return false;
-    }
-  });
-
-  const originalWaitForAuthInitialization = async (): Promise<void> => {
-    if (await originalIsAuthenticated()) {
-      return;
-    }
-
-    await originalAttemptSilentSignIn();
-  };
+// Mock the entire UserContext module
+vi.mock('./UserContext', () => {
+  const mockUserManager = {
+    signinSilent: vi.fn(),
+    getUser: vi.fn(),
+  } as unknown as UserManager;
 
   return {
-    attemptSilentSignIn: originalAttemptSilentSignIn,
-    getCurrentUser: originalGetCurrentUser,
-    isAuthenticated: originalIsAuthenticated,
+    attemptSilentSignIn: vi.fn().mockImplementation(async (): Promise<boolean> => {
+      return await mockUserManager.signinSilent()
+        .then((user) => !!user && !user.expired)
+        .catch(() => false);
+    }),
+    getCurrentUser: vi.fn().mockImplementation(async (): Promise<User | null> => {
+      return mockUserManager.getUser()
+        .then((user) => (user && !user.expired ? user : null))
+        .catch(() => null);
+    }),
+    isAuthenticated: vi.fn().mockImplementation(async (): Promise<boolean> => {
+      return await mockUserManager.getUser()
+        .then((user) => !!user && !user.expired)
+        .catch(() => false);
+    }),
     userManager: mockUserManager,
-    waitForAuthInitialization: originalWaitForAuthInitialization,
+    waitForAuthInitialization: vi.fn().mockImplementation(async (): Promise<void> => {
+      // Check if authenticated by calling getUser directly
+      const user = await mockUserManager.getUser().catch(() => null);
+      if (user && !user.expired) {
+        return;
+      } else {
+        await mockUserManager.signinSilent().catch(() => {});
+      }
+    }),
   };
 });
 
@@ -53,20 +48,18 @@ jest.mock('./UserContext', () => {
 import { attemptSilentSignIn, getCurrentUser, isAuthenticated, userManager, waitForAuthInitialization } from './UserContext';
 
 describe('UserContext', () => {
-  const mockedUserManager = userManager as jest.Mocked<typeof userManager>;
-
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   describe('attemptSilentSignIn', () => {
     it('should return false when userManager.signinSilent resolves with null', async () => {
-      mockedUserManager.signinSilent.mockResolvedValue(null);
+      userManager.signinSilent.mockResolvedValue(null);
 
       const result = await attemptSilentSignIn();
 
       expect(result).toBe(false);
-      expect(mockedUserManager.signinSilent).toHaveBeenCalledTimes(1);
+      expect(userManager.signinSilent).toHaveBeenCalledTimes(1);
     });
 
     it('should return false when userManager.signinSilent resolves with an expired user', async () => {
@@ -80,22 +73,22 @@ describe('UserContext', () => {
         expires_at: Date.now() - 1000,
       } as User;
 
-      mockedUserManager.signinSilent.mockResolvedValue(expiredUser);
+      userManager.signinSilent.mockResolvedValue(expiredUser);
 
       const result = await attemptSilentSignIn();
 
       expect(result).toBe(false);
-      expect(mockedUserManager.signinSilent).toHaveBeenCalledTimes(1);
+      expect(userManager.signinSilent).toHaveBeenCalledTimes(1);
     });
 
     it('should return false when userManager.signinSilent throws an error', async () => {
       const error = new Error('Silent sign-in failed');
-      mockedUserManager.signinSilent.mockRejectedValue(error);
+      userManager.signinSilent.mockRejectedValue(error);
 
       const result = await attemptSilentSignIn();
 
       expect(result).toBe(false);
-      expect(mockedUserManager.signinSilent).toHaveBeenCalledTimes(1);
+      expect(userManager.signinSilent).toHaveBeenCalledTimes(1);
     });
 
     it('should return true when userManager.signinSilent resolves with a valid user', async () => {
@@ -109,12 +102,12 @@ describe('UserContext', () => {
         expires_at: Date.now() + 3600000,
       } as User;
 
-      mockedUserManager.signinSilent.mockResolvedValue(validUser);
+      userManager.signinSilent.mockResolvedValue(validUser);
 
       const result = await attemptSilentSignIn();
 
       expect(result).toBe(true);
-      expect(mockedUserManager.signinSilent).toHaveBeenCalledTimes(1);
+      expect(userManager.signinSilent).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -130,12 +123,12 @@ describe('UserContext', () => {
         expires_at: Date.now() + 3600000,
       } as User;
 
-      mockedUserManager.getUser.mockResolvedValue(validUser);
+      userManager.getUser.mockResolvedValue(validUser);
 
       const result = await getCurrentUser();
 
       expect(result).toBe(validUser);
-      expect(mockedUserManager.getUser).toHaveBeenCalledTimes(1);
+      expect(userManager.getUser).toHaveBeenCalledTimes(1);
     });
 
     it('should return null if userManager.getUser returns an expired user', async () => {
@@ -149,31 +142,31 @@ describe('UserContext', () => {
         expires_at: Date.now() - 1000,
       } as User;
 
-      mockedUserManager.getUser.mockResolvedValue(expiredUser);
+      userManager.getUser.mockResolvedValue(expiredUser);
 
       const result = await getCurrentUser();
 
       expect(result).toBe(null);
-      expect(mockedUserManager.getUser).toHaveBeenCalledTimes(1);
+      expect(userManager.getUser).toHaveBeenCalledTimes(1);
     });
 
     it('should return null if userManager.getUser returns null', async () => {
-      mockedUserManager.getUser.mockResolvedValue(null);
+      userManager.getUser.mockResolvedValue(null);
 
       const result = await getCurrentUser();
 
       expect(result).toBe(null);
-      expect(mockedUserManager.getUser).toHaveBeenCalledTimes(1);
+      expect(userManager.getUser).toHaveBeenCalledTimes(1);
     });
 
     it('should return null if userManager.getUser throws an error', async () => {
       const error = new Error('Failed to get user');
-      mockedUserManager.getUser.mockRejectedValue(error);
+      userManager.getUser.mockRejectedValue(error);
 
       const result = await getCurrentUser();
 
       expect(result).toBe(null);
-      expect(mockedUserManager.getUser).toHaveBeenCalledTimes(1);
+      expect(userManager.getUser).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -189,12 +182,12 @@ describe('UserContext', () => {
         expires_at: Date.now() + 3600000,
       } as User;
 
-      mockedUserManager.getUser.mockResolvedValue(validUser);
+      userManager.getUser.mockResolvedValue(validUser);
 
       const result = await isAuthenticated();
 
       expect(result).toBe(true);
-      expect(mockedUserManager.getUser).toHaveBeenCalledTimes(1);
+      expect(userManager.getUser).toHaveBeenCalledTimes(1);
     });
 
     it('should return false when getCurrentUser returns an expired user', async () => {
@@ -208,31 +201,31 @@ describe('UserContext', () => {
         expires_at: Date.now() - 1000,
       } as User;
 
-      mockedUserManager.getUser.mockResolvedValue(expiredUser);
+      userManager.getUser.mockResolvedValue(expiredUser);
 
       const result = await isAuthenticated();
 
       expect(result).toBe(false);
-      expect(mockedUserManager.getUser).toHaveBeenCalledTimes(1);
+      expect(userManager.getUser).toHaveBeenCalledTimes(1);
     });
 
     it('should return false when getCurrentUser returns null', async () => {
-      mockedUserManager.getUser.mockResolvedValue(null);
+      userManager.getUser.mockResolvedValue(null);
 
       const result = await isAuthenticated();
 
       expect(result).toBe(false);
-      expect(mockedUserManager.getUser).toHaveBeenCalledTimes(1);
+      expect(userManager.getUser).toHaveBeenCalledTimes(1);
     });
 
     it('should return false when getCurrentUser throws an exception', async () => {
       const error = new Error('Failed to get user');
-      mockedUserManager.getUser.mockRejectedValue(error);
+      userManager.getUser.mockRejectedValue(error);
 
       const result = await isAuthenticated();
 
       expect(result).toBe(false);
-      expect(mockedUserManager.getUser).toHaveBeenCalledTimes(1);
+      expect(userManager.getUser).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -248,22 +241,22 @@ describe('UserContext', () => {
         expires_at: Date.now() + 3600000,
       } as User;
 
-      mockedUserManager.getUser.mockResolvedValue(validUser);
+      userManager.getUser.mockResolvedValue(validUser);
 
       await waitForAuthInitialization();
 
-      expect(mockedUserManager.getUser).toHaveBeenCalledTimes(1);
-      expect(mockedUserManager.signinSilent).not.toHaveBeenCalled();
+      expect(userManager.getUser).toHaveBeenCalledTimes(1);
+      expect(userManager.signinSilent).not.toHaveBeenCalled();
     });
 
     it('should call attemptSilentSignIn if isAuthenticated returns false', async () => {
-      mockedUserManager.getUser.mockResolvedValue(null);
-      mockedUserManager.signinSilent.mockResolvedValue(null);
+      userManager.getUser.mockResolvedValue(null);
+      userManager.signinSilent.mockResolvedValue(null);
 
       await waitForAuthInitialization();
 
-      expect(mockedUserManager.getUser).toHaveBeenCalledTimes(1);
-      expect(mockedUserManager.signinSilent).toHaveBeenCalledTimes(1);
+      expect(userManager.getUser).toHaveBeenCalledTimes(1);
+      expect(userManager.signinSilent).toHaveBeenCalledTimes(1);
     });
   });
 });

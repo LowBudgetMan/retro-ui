@@ -2,7 +2,7 @@ import {render, screen} from "@testing-library/react";
 import {CategoryList} from "./CategoryList.tsx";
 import {Category} from "../../services/retro-service/RetroService.ts";
 
-jest.mock('../category-pill/CategoryPill.tsx', () => ({
+vi.mock('../category-pill/CategoryPill.tsx', () => ({
     CategoryPill: ({category}: {category: Category}) => (
         <p>{category.name}</p>
     )

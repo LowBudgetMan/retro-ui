@@ -3,22 +3,26 @@ import { Modal } from './Modal';
 import '@testing-library/jest-dom';
 
 // Mock the CSS module
-jest.mock('./Modal.module.css', () => ({
-  backgroundButton: 'mock-background-button-class',
-  modalContainer: 'mock-modal-container-class',
+vi.mock('./Modal.module.css', () => ({
+    default: {
+        backgroundButton: 'mock-background-button-class',
+        modalContainer: 'mock-modal-container-class',
+    },
+    backgroundButton: 'mock-background-button-class',
+    modalContainer: 'mock-modal-container-class',
 }));
 
 describe('Modal', () => {
   // Common props for testing
   const defaultProps = {
     isOpen: true,
-    setIsOpen: jest.fn(),
+    setIsOpen: vi.fn(),
     children: <div>Modal Content</div>,
     ariaLabel: 'Close modal',
   };
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   describe('Rendering', () => {
@@ -68,23 +72,23 @@ describe('Modal', () => {
     });
 
     it('should not add event listener when isOpen is false', () => {
-      const addEventListenerSpy = jest.spyOn(document, 'addEventListener');
-      
+      const addEventListenerSpy = vi.spyOn(document, 'addEventListener');
+
       render(<Modal {...defaultProps} isOpen={false} />);
-      
+
       expect(addEventListenerSpy).not.toHaveBeenCalled();
-      
+
       addEventListenerSpy.mockRestore();
     });
 
     it('should remove event listener on unmount', () => {
-      const removeEventListenerSpy = jest.spyOn(document, 'removeEventListener');
-      
+      const removeEventListenerSpy = vi.spyOn(document, 'removeEventListener');
+
       const { unmount } = render(<Modal {...defaultProps} />);
       unmount();
-      
+
       expect(removeEventListenerSpy).toHaveBeenCalledWith('keydown', expect.any(Function));
-      
+
       removeEventListenerSpy.mockRestore();
     });
   });

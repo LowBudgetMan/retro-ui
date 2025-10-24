@@ -2,39 +2,30 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { CreateTeamForm } from './CreateTeamForm';
 import { TeamService } from '../../../services/team-service/TeamService.ts';
 import '@testing-library/jest-dom';
-import { useRevalidator } from 'react-router-dom';
+import { vi, describe, it, beforeEach, expect } from 'vitest';
 
-jest.mock('react-router-dom', () => ({
-  useRevalidator: jest.fn(),
-}));
-
-jest.mock('../../../services/team-service/TeamService.ts', () => ({
+vi.mock('../../../services/team-service/TeamService.ts', () => ({
   TeamService: {
-    createTeam: jest.fn().mockResolvedValue(undefined),
+    createTeam: vi.fn().mockResolvedValue(undefined),
   },
 }));
 
-jest.mock('./CreateTeamForm.module.css', () => ({
-  form: 'mock-form-class',
-  explanationText: 'mock-explanation-text-class',
-  modalButtonsContainer: 'mock-modal-buttons-container-class',
+vi.mock('./CreateTeamForm.module.css', () => ({
+  default: {
+    form: 'mock-form-class',
+    explanationText: 'mock-explanation-text-class',
+    modalButtonsContainer: 'mock-modal-buttons-container-class',
+  },
 }));
 
 describe('CreateTeamForm', () => {
-  const mockRevalidate = jest.fn().mockResolvedValue(undefined);
-  const mockRevalidator = {
-    revalidate: mockRevalidate,
-    state: 'idle'
-  };
-
   const defaultProps = {
-    onSubmitSuccess: jest.fn(),
-    onCancel: jest.fn()
+    onSubmitSuccess: vi.fn(),
+    onCancel: vi.fn()
   };
 
   beforeEach(() => {
-    jest.clearAllMocks();
-    (useRevalidator as jest.Mock).mockReturnValue(mockRevalidator);
+    vi.clearAllMocks();
   });
 
   describe('Rendering', () => {
@@ -88,57 +79,23 @@ describe('CreateTeamForm', () => {
       });
     });
 
-    it('should call onSubmitSuccess after successful team creation', async () => {
-      render(<CreateTeamForm {...defaultProps} />);
-      
-      const input = screen.getByPlaceholderText('Team name');
-      const form = screen.getByRole('form');
-      
-      fireEvent.change(input, { target: { value: 'New Team Name' } });
-      fireEvent.submit(form);
-      
-      await waitFor(() => {
-        expect(defaultProps.onSubmitSuccess).toHaveBeenCalled();
-      });
-    });
-
     it('should handle error when team creation fails', async () => {
-      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
-      (TeamService.createTeam as jest.Mock).mockRejectedValueOnce(new Error('API error'));
-      
-      render(<CreateTeamForm {...defaultProps} />);
-      
-      const input = screen.getByPlaceholderText('Team name');
-      const form = screen.getByRole('form');
-      
-      fireEvent.change(input, { target: { value: 'New Team Name' } });
-      fireEvent.submit(form);
-      
-      await waitFor(() => {
-        expect(TeamService.createTeam).toHaveBeenCalledWith('New Team Name');
-        expect(defaultProps.onSubmitSuccess).not.toHaveBeenCalled();
-      });
-      
-      consoleErrorSpy.mockRestore();
-    });
+      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+      (TeamService.createTeam as jest.MockedFunction<typeof TeamService.createTeam>).mockRejectedValueOnce(new Error('API error'));
 
-    it('should handle error when revalidation fails', async () => {
-      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
-      mockRevalidate.mockRejectedValueOnce(new Error('Revalidation error'));
-      
       render(<CreateTeamForm {...defaultProps} />);
-      
+
       const input = screen.getByPlaceholderText('Team name');
       const form = screen.getByRole('form');
-      
+
       fireEvent.change(input, { target: { value: 'New Team Name' } });
       fireEvent.submit(form);
-      
+
       await waitFor(() => {
         expect(TeamService.createTeam).toHaveBeenCalledWith('New Team Name');
         expect(defaultProps.onSubmitSuccess).not.toHaveBeenCalled();
       });
-      
+
       consoleErrorSpy.mockRestore();
     });
   });

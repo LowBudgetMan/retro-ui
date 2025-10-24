@@ -1,3 +1,4 @@
+import { vi } from 'vitest';
 import {Thought} from "../retro-service/RetroService.ts";
 import {IMessage} from "@stomp/stompjs";
 import {eventHandler, EventType} from "./WebsocketEventHandler.ts";
@@ -16,8 +17,8 @@ describe('WebsocketEventHandler', () => {
     };
 
     const createMockMessage = (actionType: EventType, content: Thought = baseMockThought): IMessage => ({
-        ack: jest.fn(),
-        nack: jest.fn(),
+        ack: vi.fn(),
+        nack: vi.fn(),
         body: JSON.stringify({
             actionType,
             payload: {
@@ -31,7 +32,7 @@ describe('WebsocketEventHandler', () => {
     });
 
     it('Should call handler when action matches requested action', () => {
-        const mockHandler = jest.fn();
+        const mockHandler = vi.fn();
         const message = createMockMessage(EventType.CREATE)
         const subject = eventHandler(EventType.CREATE, mockHandler);
 
@@ -44,7 +45,7 @@ describe('WebsocketEventHandler', () => {
     });
 
     it('Should not call handler when action does not match requested action', () => {
-        const mockHandler = jest.fn();
+        const mockHandler = vi.fn();
         const message = createMockMessage(EventType.CREATE)
         const subject = eventHandler(EventType.UPDATE, mockHandler);
 
@@ -57,7 +58,7 @@ describe('WebsocketEventHandler', () => {
     });
 
     it('should throw exception when body cannot be parsed into requested type', () => {
-        const mockHandler = jest.fn();
+        const mockHandler = vi.fn();
         const invalidMessage: IMessage = {
             ...createMockMessage(EventType.CREATE),
             body: 'invalid json'
