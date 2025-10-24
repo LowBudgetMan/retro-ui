@@ -121,7 +121,7 @@ describe('TemplatesPage', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    (useLoaderData as any).mockReturnValue(mockTemplatesPageData);
+    (useLoaderData as ReturnType<typeof vi.fn>).mockReturnValue(mockTemplatesPageData as TemplatesPageData);
   });
 
   describe('Rendering', () => {

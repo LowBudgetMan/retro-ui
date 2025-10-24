@@ -1,5 +1,5 @@
 import axios from "axios";
-import {ApiConfig} from "../../config/ApiConfig.ts";
+import {ApiConfig} from "../../config/ApiConfig";
 
 async function setCompleted(teamId: string, retroId: string, thoughtId: string, completed: boolean) {
     return await axios.put(`${ApiConfig.baseApiUrl()}/api/teams/${teamId}/retros/${retroId}/thoughts/${thoughtId}/completed`, {

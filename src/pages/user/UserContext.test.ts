@@ -1,19 +1,32 @@
-import { User, UserManager } from 'oidc-client-ts';
+import { User, UserManager, UserManagerSettings } from 'oidc-client-ts';
 import '@testing-library/jest-dom';
-import { vi, describe, it, beforeEach, expect } from 'vitest';
-
-// Mock the userManager instance
-const mockUserManager = {
-  signinSilent: vi.fn(),
-  getUser: vi.fn(),
-} as unknown as UserManager;
+import { vi, describe, it, beforeEach, expect, type Mock } from 'vitest';
 
 // Mock the entire UserContext module
 vi.mock('./UserContext', () => {
+  const dummySettings: UserManagerSettings = {
+    authority: 'https://dummy.auth.com',
+    client_id: 'dummy-client',
+    redirect_uri: 'https://dummy.com/auth-redirect',
+    post_logout_redirect_uri: 'https://dummy.com/',
+    automaticSilentRenew: true,
+    filterProtocolClaims: true,
+    silent_redirect_uri: 'https://dummy.com/silent-redirect',
+    includeIdTokenInSilentRenew: true,
+  };
+
+  // Create mock functions for UserManager methods
+  const mockSigninSilent = vi.fn();
+  const mockGetUser = vi.fn();
+
   const mockUserManager = {
-    signinSilent: vi.fn(),
-    getUser: vi.fn(),
-  } as unknown as UserManager;
+    signinSilent: mockSigninSilent,
+    getUser: mockGetUser,
+    settings: dummySettings,
+  } as UserManager & {
+    signinSilent: Mock;
+    getUser: Mock;
+  };
 
   return {
     attemptSilentSignIn: vi.fn().mockImplementation(async (): Promise<boolean> => {
@@ -45,7 +58,13 @@ vi.mock('./UserContext', () => {
 });
 
 // Import after mocking
-import { attemptSilentSignIn, getCurrentUser, isAuthenticated, userManager, waitForAuthInitialization } from './UserContext';
+import { attemptSilentSignIn, getCurrentUser, isAuthenticated, userManager as originalUserManager, waitForAuthInitialization } from './UserContext';
+
+// Create a properly typed mock of the userManager
+const userManager = originalUserManager as UserManager & {
+  signinSilent: Mock;
+  getUser: Mock;
+};
 
 describe('UserContext', () => {
   beforeEach(() => {

@@ -1,5 +1,5 @@
 import axios from "axios";
-import {AuthConfig, RemoteConfig} from "./ApiConfigTypes.ts";
+import {AuthConfig, RemoteConfig} from "./ApiConfigTypes";
 
 interface ApiConfig {
     baseApiUrl: () => string;

@@ -1,6 +1,6 @@
 import {StompConfig} from "@stomp/stompjs";
-import {userManager} from "../../pages/user/UserContext.ts";
-import {ApiConfig} from "../../config/ApiConfig.ts";
+import {userManager} from "../../pages/user/UserContext";
+import {ApiConfig} from "../../config/ApiConfig";
 
 export async function getConfig(): Promise<StompConfig> {
     return {

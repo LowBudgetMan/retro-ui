@@ -1,5 +1,5 @@
 import {User, UserManager, UserManagerSettings} from "oidc-client-ts";
-import {ApiConfig} from "../../config/ApiConfig.ts";
+import {ApiConfig} from "../../config/ApiConfig";
 
 const settings: UserManagerSettings = {
     authority: `${ApiConfig.authConfig().authority}`,

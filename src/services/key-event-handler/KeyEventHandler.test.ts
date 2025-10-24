@@ -2,7 +2,7 @@ import { vi } from 'vitest';
 import { onKeys } from './KeyEventHandler';
 
 describe('onKeys', () => {
-    let mockCallback: any;
+    let mockCallback: (event: KeyboardEvent) => void;
     let mockEvent: KeyboardEvent;
 
     beforeEach(() => {
