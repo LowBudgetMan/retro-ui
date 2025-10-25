@@ -13,7 +13,7 @@ vi.mock('../../../../services/retro-service/RetroService.ts', () => ({
 describe('CreateThought', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    (RetroService.createThought as any).mockResolvedValue({});
+    (RetroService.createThought as Mock).mockResolvedValue({});
   });
 
   test('creates a thought when input loses focus with content', async () => {
