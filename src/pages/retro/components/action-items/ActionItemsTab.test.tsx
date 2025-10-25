@@ -3,7 +3,7 @@ import { ActionItemsTab } from './ActionItemsTab.tsx';
 import { useActionItems } from '../../../../context/hooks.tsx';
 import { ActionItemsService } from '../../../../services/action-items-service/ActionItemsService.ts';
 import { DateTime } from 'luxon';
-import { vi, describe, it, beforeEach, expect } from 'vitest';
+import {vi, describe, it, beforeEach, expect, Mock} from 'vitest';
 
 vi.mock('../../../../context/hooks.tsx');
 vi.mock('../../../../services/action-items-service/ActionItemsService.ts');
@@ -18,8 +18,8 @@ vi.mock('./ActionItemsTab.module.css', () => ({
     }
 }));
 
-const useActionItemsMock = useActionItems as any;
-const createActionItemMock = ActionItemsService.createActionItem as any;
+const useActionItemsMock = useActionItems as Mock;
+const createActionItemMock = ActionItemsService.createActionItem as Mock;
 
 describe('ActionItemsTab', () => {
     beforeEach(() => {
