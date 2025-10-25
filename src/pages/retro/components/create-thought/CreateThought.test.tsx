@@ -2,7 +2,7 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { CreateThought } from './CreateThought.tsx';
 import { RetroService } from '../../../../services/retro-service/RetroService.ts';
 import '@testing-library/jest-dom';
-import { vi, describe, test, beforeEach, expect } from 'vitest';
+import {vi, describe, test, beforeEach, expect, Mock} from 'vitest';
 
 vi.mock('../../../../services/retro-service/RetroService.ts', () => ({
   RetroService: {
@@ -104,7 +104,7 @@ describe('CreateThought', () => {
     const originalConsoleError = console.error;
     console.error = vi.fn();
 
-    (RetroService.createThought as any).mockRejectedValue(new Error('API error'));
+    (RetroService.createThought as Mock).mockRejectedValue(new Error('API error'));
     
     render(
       <CreateThought
