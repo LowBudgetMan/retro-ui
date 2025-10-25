@@ -6,7 +6,6 @@ import {DateTime} from "luxon";
 import { vi, describe, it, beforeEach, expect } from 'vitest';
 
 vi.mock("../../../../services/thought-service/ThoughtService.ts");
-const mockedThoughtService = ThoughtService as any;
 
 const currentTime = DateTime.now();
 
@@ -46,7 +45,7 @@ describe('ThoughtCard', () => {
         render(<ThoughtCard teamId={teamId} thought={thought} />);
 
         fireEvent.click(screen.getByLabelText('vote'));
-        expect(mockedThoughtService.vote).toHaveBeenCalledWith(
+        expect(ThoughtService.vote).toHaveBeenCalledWith(
             teamId,
             thought.retroId,
             thought.id
@@ -74,12 +73,12 @@ describe('ThoughtCard', () => {
     });
 
     it('should call ThoughtService.setCompleted with inverse of completed when mark complete button is clicked', () => {
-        mockedThoughtService.setCompleted = vi.fn().mockResolvedValue(undefined);
+        ThoughtService.setCompleted = vi.fn().mockResolvedValue(undefined);
         render(<ThoughtCard teamId={teamId} thought={thought}/>);
 
         fireEvent.click(screen.getByLabelText('mark complete'));
 
-        expect(mockedThoughtService.setCompleted).toHaveBeenCalledWith(
+        expect(ThoughtService.setCompleted).toHaveBeenCalledWith(
             teamId,
             thought.retroId,
             thought.id,
@@ -89,7 +88,7 @@ describe('ThoughtCard', () => {
 
     describe('Edit functionality', () => {
         beforeEach(() => {
-            mockedThoughtService.setMessage = vi.fn().mockResolvedValue(undefined);
+            ThoughtService.setMessage = vi.fn().mockResolvedValue(undefined);
         });
 
         it('should display paragraph element when not in edit mode', () => {
@@ -134,7 +133,7 @@ describe('ThoughtCard', () => {
                 await Promise.resolve();
             });
             
-            expect(mockedThoughtService.setMessage).toHaveBeenCalledWith(
+            expect(ThoughtService.setMessage).toHaveBeenCalledWith(
                 teamId,
                 thought.retroId,
                 thought.id,
@@ -151,7 +150,7 @@ describe('ThoughtCard', () => {
             fireEvent.change(textarea, { target: { value: 'Updated message' } });
             fireEvent.keyDown(textarea, { key: 'Enter', shiftKey: true });
             
-            expect(mockedThoughtService.setMessage).not.toHaveBeenCalled();
+            expect(ThoughtService.setMessage).not.toHaveBeenCalled();
             expect(screen.getByRole('textbox')).toBeInTheDocument();
         });
 
@@ -167,7 +166,7 @@ describe('ThoughtCard', () => {
             expect(screen.queryByRole('textbox')).not.toBeInTheDocument();
             expect(screen.getByText('This is a test thought')).toBeInTheDocument();
             expect(screen.getByText('This is a test thought').tagName).toBe('P');
-            expect(mockedThoughtService.setMessage).not.toHaveBeenCalled();
+            expect(ThoughtService.setMessage).not.toHaveBeenCalled();
         });
 
         it('should reset textarea value to original message when re-entering edit mode after canceling', () => {
@@ -210,7 +209,7 @@ describe('ThoughtCard', () => {
 
     describe('Delete thought', () => {
         beforeEach(() => {
-            mockedThoughtService.deleteThought = vi.fn().mockResolvedValue(undefined);
+            ThoughtService.deleteThought = vi.fn().mockResolvedValue(undefined);
         });
 
         it('should show confirmation UI when delete button is clicked', () => {
@@ -254,7 +253,7 @@ describe('ThoughtCard', () => {
             fireEvent.click(screen.getByLabelText('delete'));
             fireEvent.click(screen.getByText('Confirm'));
 
-            expect(mockedThoughtService.deleteThought).toHaveBeenCalledWith(
+            expect(ThoughtService.deleteThought).toHaveBeenCalledWith(
                 teamId,
                 thought.retroId,
                 thought.id
