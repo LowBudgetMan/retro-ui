@@ -2,8 +2,8 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import { CreateRetroButton } from './CreateRetroButton';
 import { useLoaderData } from 'react-router-dom';
 import { Template } from '../../../services/retro-service/RetroService.ts';
-import { TeamPageData } from '../teamLoader.ts';
 import '@testing-library/jest-dom';
+import {Mock} from "vitest";
 
 vi.mock('react-router-dom', () => ({
   useLoaderData: vi.fn(),
@@ -104,7 +104,7 @@ describe('CreateRetroButton', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    (useLoaderData as ReturnType<typeof vi.fn>).mockReturnValue(mockTeamData as TeamPageData);
+    (useLoaderData as Mock).mockReturnValue(mockTeamData);
   });
 
   describe('Rendering', () => {
@@ -146,7 +146,7 @@ describe('CreateRetroButton', () => {
 
   describe('Data Integration', () => {
     it('should use templates from useLoaderData', () => {
-      const customTemplates: Template[] = [
+      const templates: Template[] = [
         {
           id: 'custom-template',
           name: 'Custom Template',
@@ -155,10 +155,7 @@ describe('CreateRetroButton', () => {
         }
       ];
 
-      (useLoaderData as ReturnType<typeof vi.fn>).mockReturnValue({
-        ...mockTeamData,
-        templates: customTemplates
-      } as TeamPageData);
+      (useLoaderData as Mock).mockReturnValue({...mockTeamData, templates});
 
       render(<CreateRetroButton />);
       
@@ -167,10 +164,7 @@ describe('CreateRetroButton', () => {
     });
 
     it('should handle empty templates array', () => {
-      (useLoaderData as ReturnType<typeof vi.fn>).mockReturnValue({
-        ...mockTeamData,
-        templates: []
-      } as TeamPageData);
+      (useLoaderData as Mock).mockReturnValue({...mockTeamData, templates: []});
 
       render(<CreateRetroButton />);
 
@@ -190,7 +184,7 @@ describe('CreateRetroButton', () => {
         extraProp: 'should be ignored'
       };
 
-      (useLoaderData as ReturnType<typeof vi.fn>).mockReturnValue(teamDataWithExtraProps as TeamPageData);
+      (useLoaderData as Mock).mockReturnValue(teamDataWithExtraProps);
 
       render(<CreateRetroButton />);
       
