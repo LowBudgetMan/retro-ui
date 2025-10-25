@@ -8,6 +8,7 @@ import '@testing-library/jest-dom';
 import {DateTime} from 'luxon';
 import {Invite, TeamService} from "../../services/team-service/TeamService.ts";
 import React from "react";
+import {Mock} from "vitest";
 
 vi.mock('react-router-dom', () => ({
     useLoaderData: vi.fn(),
@@ -128,8 +129,8 @@ describe('TeamPage', () => {
 
     beforeEach(() => {
         vi.clearAllMocks();
-        (useLoaderData as any).mockReturnValue(mockTeamData);
-        (useRevalidator as any).mockReturnValue({
+        (useLoaderData as Mock).mockReturnValue(mockTeamData);
+        (useRevalidator as Mock).mockReturnValue({
             revalidate: vi.fn().mockResolvedValue(undefined),
             state: 'idle'
         } as const);
@@ -195,7 +196,7 @@ describe('TeamPage', () => {
                 retros: [...mockRetros, retroWithMissingTemplate]
             };
 
-            (useLoaderData as any).mockReturnValue(teamDataWithMissingTemplate);
+            (useLoaderData as Mock).mockReturnValue(teamDataWithMissingTemplate);
 
             render(<TeamPage/>);
 
@@ -240,7 +241,7 @@ describe('TeamPage', () => {
         describe('Create invite button', () => {
             it('should call TeamService.createInvite with correct team id when create button is clicked', async () => {
                 const user = userEvent.setup();
-                (TeamService.createInvite as any).mockResolvedValue('new-invite-id');
+                (TeamService.createInvite as Mock).mockResolvedValue('new-invite-id');
 
                 render(<TeamPage/>);
 
@@ -254,11 +255,11 @@ describe('TeamPage', () => {
             it('should call revalidator.revalidate when createInvite is successful', async () => {
                 const user = userEvent.setup();
                 const mockRevalidate = vi.fn().mockResolvedValue(undefined);
-                (useRevalidator as any).mockReturnValue({
+                (useRevalidator as Mock).mockReturnValue({
                     revalidate: mockRevalidate,
                     state: 'idle'
                 });
-                (TeamService.createInvite as any).mockResolvedValue('new-invite-id');
+                (TeamService.createInvite as Mock).mockResolvedValue('new-invite-id');
 
                 render(<TeamPage/>);
 
