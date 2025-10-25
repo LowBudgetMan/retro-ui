@@ -1,8 +1,13 @@
 import {InviteListItem} from "./InviteListItem.tsx";
 import {fireEvent, render, screen} from "@testing-library/react";
 import {Invite, TeamService} from "../../../../services/team-service/TeamService.ts";
-import {useRevalidator} from "react-router-dom";
-import { vi, describe, it, beforeEach, expect } from 'vitest';
+import {RevalidationState, useRevalidator} from "react-router-dom";
+import {vi, describe, it, beforeEach, afterEach, expect, Mock} from 'vitest';
+
+interface MockRevalidator {
+    revalidate: ReturnType<typeof vi.fn>;
+    state: RevalidationState;
+}
 
 vi.mock('react-router-dom', () => ({
     ...vi.importActual('react-router-dom'),
@@ -51,16 +56,17 @@ describe('InviteListItem', () => {
     });
 
     describe('delete invite button', () => {
-        let deleteInviteSpy: any;
-        let mockRevalidator: any;
+        let deleteInviteSpy: Mock;
+        let mockRevalidator: MockRevalidator;
 
         beforeEach(() => {
             deleteInviteSpy = vi.spyOn(TeamService, 'deleteInvite').mockResolvedValue(undefined);
             mockRevalidator = {
                 revalidate: vi.fn().mockResolvedValue(undefined),
+                state: undefined as unknown as RevalidationState,
             };
 
-            (useRevalidator as any).mockReturnValue(mockRevalidator);
+            vi.mocked(useRevalidator).mockReturnValue(mockRevalidator);
         });
 
         afterEach(() => {
