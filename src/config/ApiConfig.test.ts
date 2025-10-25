@@ -7,7 +7,6 @@ vi.mock('axios', async () => {
   return {
     ...actual,
     default: {
-      ...actual.default,
       get: vi.fn(),
     },
   };
