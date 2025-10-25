@@ -1,203 +1,135 @@
-import { vi } from 'vitest';
-import { User } from 'oidc-client-ts';
-import { configureAxios } from './AxiosConfig.ts';
+import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
+import axios from 'axios';
+import MockAdapter from 'axios-mock-adapter';
+import {User} from 'oidc-client-ts';
+import {configureAxios} from './AxiosConfig';
+import {userManager} from '../pages/user/UserContext';
 
-// Mock userManager
-vi.mock('../pages/user/UserContext.ts', () => ({
-  userManager: {
-    getUser: vi.fn(),
-    signoutRedirect: vi.fn(),
-  },
+vi.mock('../pages/user/UserContext', () => ({
+    userManager: {
+        getUser: vi.fn(),
+        signoutRedirect: vi.fn(),
+    },
 }));
 
-// Mock axios interceptors
-vi.mock('axios', async () => {
-  const actual = await vi.importActual('axios');
-  return {
-    ...actual,
-    default: {
-      ...actual,
-      interceptors: {
-        request: {
-          use: vi.fn(),
-        },
-        response: {
-          use: vi.fn(),
-        },
-      },
-    },
-  };
-});
-
-// Import after mocking
-import axios from 'axios';
-import { userManager } from '../pages/user/UserContext.ts';
+const mockUserManager = vi.mocked(userManager);
 
 describe('AxiosConfig', () => {
-  let requestInterceptor: (config: unknown) => Promise<unknown>;
-  let responseInterceptor: (response: unknown) => unknown;
-  let requestErrorHandler: (error: unknown) => Promise<never>;
-  let responseErrorHandler: (error: unknown) => Promise<never>;
-
-  beforeEach(() => {
-    vi.clearAllMocks();
-    
-    // Capture the interceptor functions when configureAxios is called
-    (axios.interceptors.request.use as any).mockImplementation((successHandler: any, errorHandler: any) => {
-      requestInterceptor = successHandler;
-      requestErrorHandler = errorHandler;
-    });
-
-    (axios.interceptors.response.use as any).mockImplementation((successHandler: any, errorHandler: any) => {
-      responseInterceptor = successHandler;
-      responseErrorHandler = errorHandler;
-    });
-    
-    configureAxios();
-  });
-
-  describe('Request Interceptor', () => {
-    interface MockConfig {
-      headers: {
-        setAuthorization: any;
-      };
-    }
-
-    let mockConfig: MockConfig;
+    let mock: MockAdapter;
 
     beforeEach(() => {
-      mockConfig = {
-        headers: {
-          setAuthorization: vi.fn(),
-        },
-      };
+        vi.clearAllMocks();
+        axios.interceptors.request.clear();
+        axios.interceptors.response.clear();
+        mock = new MockAdapter(axios);
+        configureAxios();
     });
 
-    it('should add Authorization header when user has access token', async () => {
-      const mockUser: Partial<User> = {
-        access_token: 'test-token',
-      };
-
-      (userManager.getUser as any).mockResolvedValue(mockUser);
-
-      const result = await requestInterceptor(mockConfig);
-
-      expect(userManager.getUser).toHaveBeenCalledTimes(1);
-      expect(mockConfig.headers.setAuthorization).toHaveBeenCalledWith('Bearer test-token');
-      expect(result).toBe(mockConfig);
+    afterEach(() => {
+        mock.restore();
     });
 
-    it('should not add Authorization header when user has no access token', async () => {
-      const mockUser: Partial<User> = {
-        access_token: undefined,
-      };
+    describe('Request Interceptor', () => {
+        it('should add Authorization header when user has access token', async () => {
+            mockUserManager.getUser.mockResolvedValue({access_token: 'test-token'} as User);
+            mock.onGet('/test').reply(200, {success: true});
 
-      (userManager.getUser as any).mockResolvedValue(mockUser);
+            await axios.get('/test');
 
-      const result = await requestInterceptor(mockConfig);
+            expect(mockUserManager.getUser).toHaveBeenCalledTimes(1);
+            expect(mock.history.get[0].headers?.Authorization).toBe('Bearer test-token');
+        });
 
-      expect(userManager.getUser).toHaveBeenCalledTimes(1);
-      expect(mockConfig.headers.setAuthorization).not.toHaveBeenCalled();
-      expect(result).toBe(mockConfig);
+        it('should not add Authorization header when user has no access token', async () => {
+            mockUserManager.getUser.mockResolvedValue({access_token: ''} as User);
+            mock.onGet('/test').reply(200, {success: true});
+
+            await axios.get('/test');
+
+            expect(mockUserManager.getUser).toHaveBeenCalledTimes(1);
+            expect(mock.history.get[0].headers?.Authorization).toBeUndefined();
+        });
+
+        it('should not add Authorization header when user is null', async () => {
+            mockUserManager.getUser.mockResolvedValue(null);
+            mock.onGet('/test').reply(200, {success: true});
+
+            await axios.get('/test');
+
+            expect(mockUserManager.getUser).toHaveBeenCalledTimes(1);
+            expect(mock.history.get[0].headers?.Authorization).toBeUndefined();
+        });
+
+        it('should handle errors when getting user and continue with request', async () => {
+            const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {
+            });
+            mockUserManager.getUser.mockRejectedValue(new Error('User fetch failed'));
+            mock.onGet('/test').reply(200, {success: true});
+
+            await axios.get('/test');
+
+            expect(mockUserManager.getUser).toHaveBeenCalledTimes(1);
+            expect(consoleSpy).toHaveBeenCalledWith('Error getting user token for request:', expect.any(Error));
+            expect(mock.history.get[0].headers?.Authorization).toBeUndefined();
+            consoleSpy.mockRestore();
+        });
+
+        it('should reject promise when request error handler is called', async () => {
+            mockUserManager.getUser.mockResolvedValue({access_token: 'test-token'} as User);
+            mock.onGet('/test').reply(() => {
+                throw new Error('Network error');
+            });
+
+            await expect(axios.get('/test')).rejects.toThrow('Network error');
+            expect(mockUserManager.getUser).toHaveBeenCalledTimes(1);
+        });
     });
 
-    it('should not add Authorization header when user is null', async () => {
-      (userManager.getUser as any).mockResolvedValue(null);
+    describe('Response Interceptor', () => {
+        it('should return response as-is for successful responses', async () => {
+            const mockResponse = {data: {success: true}, status: 200};
+            mock.onGet('/test').reply(200, mockResponse.data);
 
-      const result = await requestInterceptor(mockConfig);
+            const response = await axios.get('/test');
 
-      expect(userManager.getUser).toHaveBeenCalledTimes(1);
-      expect(mockConfig.headers.setAuthorization).not.toHaveBeenCalled();
-      expect(result).toBe(mockConfig);
+            expect(response.data).toEqual(mockResponse.data);
+            expect(response.status).toBe(200);
+            expect(mockUserManager.signoutRedirect).not.toHaveBeenCalled();
+        });
+
+        it('should call signoutRedirect when response status is 401', async () => {
+            mockUserManager.signoutRedirect.mockResolvedValue(undefined);
+            mock.onGet('/test').reply(401, {error: 'Unauthorized'});
+
+            await expect(axios.get('/test')).rejects.toThrow();
+            expect(mockUserManager.signoutRedirect).toHaveBeenCalledTimes(1);
+        });
+
+        it('should not call signoutRedirect when response status is not 401', async () => {
+            mock.onGet('/test').reply(403, {error: 'Forbidden'});
+
+            await expect(axios.get('/test')).rejects.toThrow();
+            expect(mockUserManager.signoutRedirect).not.toHaveBeenCalled();
+        });
+
+        it('should not call signoutRedirect when error has no response', async () => {
+            mock.onGet('/test').reply(() => {
+                throw new Error('Network error');
+            });
+
+            await expect(axios.get('/test')).rejects.toThrow('Network error');
+            expect(mockUserManager.signoutRedirect).not.toHaveBeenCalled();
+        });
+
+        it('should not call signoutRedirect when error response has no status', async () => {
+            mock.onGet('/test').reply(() => {
+                const error = new Error('Server error') as Error & { response?: Record<string, unknown> };
+                error.response = {};
+                throw error;
+            });
+
+            await expect(axios.get('/test')).rejects.toThrow('Server error');
+            expect(mockUserManager.signoutRedirect).not.toHaveBeenCalled();
+        });
     });
-
-    it('should handle errors when getting user and continue with request', async () => {
-      const consoleLogSpy = vi.spyOn(console, 'log').mockImplementation();
-      const error = new Error('Failed to get user');
-
-      (userManager.getUser as any).mockRejectedValue(error);
-
-      const result = await requestInterceptor(mockConfig);
-
-      expect(userManager.getUser).toHaveBeenCalledTimes(1);
-      expect(consoleLogSpy).toHaveBeenCalledWith('Error getting user token for request:', error);
-      expect(mockConfig.headers.setAuthorization).not.toHaveBeenCalled();
-      expect(result).toBe(mockConfig);
-
-      consoleLogSpy.mockRestore();
-    });
-
-    it('should reject promise when request error handler is called', async () => {
-      const error = new Error('Request error');
-
-      await expect(requestErrorHandler(error)).rejects.toBe(error);
-    });
-  });
-
-  describe('Response Interceptor', () => {
-    it('should return response as-is for successful responses', () => {
-      const mockResponse = { data: 'test data', status: 200 };
-
-      const result = responseInterceptor(mockResponse);
-
-      expect(result).toBe(mockResponse);
-    });
-
-    it('should call signoutRedirect when response status is 401', async () => {
-      const mockError = {
-        response: {
-          status: 401,
-        },
-      };
-
-      (userManager.signoutRedirect as any).mockResolvedValue(undefined);
-
-      await expect(responseErrorHandler(mockError)).rejects.toBe(mockError);
-
-      expect(userManager.signoutRedirect).toHaveBeenCalledTimes(1);
-    });
-
-    it('should not call signoutRedirect when response status is not 401', async () => {
-      const mockError = {
-        response: {
-          status: 500,
-        },
-      };
-
-      await expect(responseErrorHandler(mockError)).rejects.toBe(mockError);
-
-      expect(userManager.signoutRedirect).not.toHaveBeenCalled();
-    });
-
-    it('should not call signoutRedirect when error has no response', async () => {
-      const mockError = {
-        message: 'Network error',
-      };
-
-      await expect(responseErrorHandler(mockError)).rejects.toBe(mockError);
-
-      expect(userManager.signoutRedirect).not.toHaveBeenCalled();
-    });
-
-    it('should not call signoutRedirect when error response has no status', async () => {
-      const mockError = {
-        response: {},
-      };
-
-      await expect(responseErrorHandler(mockError)).rejects.toBe(mockError);
-
-      expect(userManager.signoutRedirect).not.toHaveBeenCalled();
-    });
-  });
-
-  describe('configureAxios', () => {
-    it('should register both request and response interceptors', () => {
-      expect(axios.interceptors.request.use).toHaveBeenCalledTimes(1);
-      expect(axios.interceptors.response.use).toHaveBeenCalledTimes(1);
-      expect(typeof requestInterceptor).toBe('function');
-      expect(typeof responseInterceptor).toBe('function');
-      expect(typeof requestErrorHandler).toBe('function');
-      expect(typeof responseErrorHandler).toBe('function');
-    });
-  });
 });
