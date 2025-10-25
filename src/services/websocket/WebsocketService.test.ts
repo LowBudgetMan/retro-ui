@@ -11,6 +11,13 @@ interface MockFrame {
     [key: string]: unknown;
 }
 
+interface MockWebsocketSubscription {
+    destination: string;
+    id: string;
+    handler: (event: unknown) => void;
+    subscription?: MockSubscription;
+}
+
 interface MockClient {
     connected: boolean;
     active: boolean;
@@ -43,6 +50,10 @@ vi.mock('@stomp/stompjs', () => ({
                 return Promise.resolve();
             }),
             subscribe: vi.fn().mockImplementation((destination: string, callback: (message: unknown) => void, headers?: Record<string, string>) => {
+                // Parameters are intentionally unused in this mock implementation
+                void destination;
+                void callback;
+
                 // Create a mock subscription that matches the expected interface
                 const subscription = {
                     unsubscribe: vi.fn()
@@ -51,8 +62,8 @@ vi.mock('@stomp/stompjs', () => ({
                 // Find the subscription in the internal array and update it with the subscription object
                 // This simulates what happens in the real subscribeToClient function
                 // Access the subscriptions array directly since it's a module-level variable
-                const subscriptions = (WebsocketService as any).subscriptions || [];
-                const index = subscriptions.findIndex((sub: any) => sub.id === headers?.id);
+                const subscriptions = (WebsocketService as unknown as { subscriptions: MockWebsocketSubscription[] }).subscriptions || [];
+                const index = subscriptions.findIndex((sub: MockWebsocketSubscription) => sub.id === headers?.id);
                 if (index !== -1) {
                     subscriptions[index] = {
                         ...subscriptions[index],
@@ -231,8 +242,8 @@ describe('WebsocketService', () => {
             }
 
             // Get the subscription object that was actually stored in the subscriptions array
-            const subscriptions = (WebsocketService as any).subscriptions || [];
-            const storedSubscription = subscriptions.find((sub: any) => sub.id === id);
+            const subscriptions = (WebsocketService as unknown as { subscriptions: MockWebsocketSubscription[] }).subscriptions || [];
+            const storedSubscription = subscriptions.find((sub: MockWebsocketSubscription) => sub.id === id);
             const actualSubscription = storedSubscription?.subscription;
 
             // Unsubscribe and verify
