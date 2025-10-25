@@ -4,39 +4,39 @@ import { userManager } from '../../pages/user/UserContext.ts';
 import { Theme } from '../../context/theme/ThemeContextTypes.ts';
 import '@testing-library/jest-dom';
 import {useTheme} from "../../context/hooks.tsx";
+import type { User } from 'oidc-client-ts';
+
+const mockedUseTheme = vi.mocked(useTheme);
+const mockedUserManager = vi.mocked(userManager);
+const mockedAddUserLoaded = vi.mocked(mockedUserManager.events.addUserLoaded);
+const mockedAddUserUnloaded = vi.mocked(mockedUserManager.events.addUserUnloaded);
 
 vi.mock('../../pages/user/UserContext.ts', () => ({
-    userManager: {
-        events: {
+  userManager: {
+    events: {
       addUserLoaded: vi.fn(),
       removeUserLoaded: vi.fn(),
       addUserUnloaded: vi.fn(),
       removeUserUnloaded: vi.fn(),
     },
-    getUser: vi.fn().mockResolvedValue(null),
+    getUser: vi.fn().mockReturnValue(Promise.resolve(null)),
     signinRedirect: vi.fn(),
     signoutRedirect: vi.fn(),
   }
 }));
 
-vi.mock('../../context/hooks.tsx', () => {
-  const mockUseTheme = vi.fn().mockReturnValue({
-    theme: 'dark',
-    setTheme: vi.fn(),
-  });
-
-  return {
-    Theme: { DARK: 'dark', LIGHT: 'light', SYSTEM: 'system' },
-    useTheme: mockUseTheme
-  };
-});
+vi.mock('../../context/hooks.tsx', () => ({
+  Theme: { DARK: 'dark', LIGHT: 'light', SYSTEM: 'system' },
+  useTheme: vi.fn()
+}));
 
 describe('Header', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    (useTheme as any).mockReturnValue({
+    mockedUseTheme.mockReturnValue({
       theme: Theme.DARK,
       setTheme: vi.fn(),
+      getEffectiveTheme: vi.fn(() => Theme.DARK),
     });
   });
 
@@ -50,7 +50,7 @@ describe('Header', () => {
     });
 
     it('should render login button by default', async () => {
-      (userManager.getUser as any).mockResolvedValue(null);
+      mockedUserManager.getUser.mockResolvedValue(null);
 
       await act(async () => {
         render(<Header />);
@@ -59,11 +59,11 @@ describe('Header', () => {
       await waitFor(() => {
         expect(screen.getByText('Login')).toBeInTheDocument();
       });
-      expect(userManager.getUser).toHaveBeenCalled();
+      expect(mockedUserManager.getUser).toHaveBeenCalled();
     });
 
     it('should render logout button when user is loaded', async () => {
-      (userManager.getUser as any).mockResolvedValue({ profile: { name: 'Test User' } });
+      mockedUserManager.getUser.mockResolvedValue({ profile: { name: 'Test User' } } as User);
 
       await act(async () => {
         render(<Header />);
@@ -72,13 +72,14 @@ describe('Header', () => {
       await waitFor(() => {
         expect(screen.getByText('Logout')).toBeInTheDocument();
       });
-      expect(userManager.getUser).toHaveBeenCalled();
+      expect(mockedUserManager.getUser).toHaveBeenCalled();
     });
 
     it('should display different theme icons based on current theme', async () => {
-      (useTheme as any).mockReturnValue({
+      mockedUseTheme.mockReturnValue({
         theme: Theme.LIGHT,
         setTheme: vi.fn(),
+        getEffectiveTheme: vi.fn(() => Theme.LIGHT),
       });
 
       let rerender: (component: React.ReactElement) => void;
@@ -89,9 +90,10 @@ describe('Header', () => {
 
       expect(screen.getByText('☀️')).toBeInTheDocument(); // Light theme icon
 
-      (useTheme as any).mockReturnValue({
+      mockedUseTheme.mockReturnValue({
         theme: Theme.SYSTEM,
         setTheme: vi.fn(),
+        getEffectiveTheme: vi.fn(() => Theme.SYSTEM),
       });
 
       await act(async () => {
@@ -107,14 +109,14 @@ describe('Header', () => {
       await act(async () => {
         render(<Header />);
       });
-      expect(userManager.events.addUserLoaded).toHaveBeenCalled();
+      expect(mockedAddUserLoaded).toHaveBeenCalled();
     });
 
     it('should add userUnloaded event listener on mount', async () => {
       await act(async () => {
         render(<Header />);
       });
-      expect(userManager.events.addUserUnloaded).toHaveBeenCalled();
+      expect(mockedAddUserUnloaded).toHaveBeenCalled();
     });
 
     it('should remove event listeners on unmount', async () => {
@@ -128,16 +130,16 @@ describe('Header', () => {
         unmount();
       });
 
-      expect(userManager.events.removeUserLoaded).toHaveBeenCalled();
-      expect(userManager.events.removeUserUnloaded).toHaveBeenCalled();
+      expect(mockedUserManager.events.removeUserLoaded).toHaveBeenCalled();
+      expect(mockedUserManager.events.removeUserUnloaded).toHaveBeenCalled();
     });
 
     it('should set logout button when user is loaded', async () => {
       await act(async () => {
         render(<Header />);
       });
-      
-      const userLoadedCallback = (userManager.events.addUserLoaded as any).mock.calls[0][0];
+
+      const userLoadedCallback = mockedAddUserLoaded.mock.calls[0][0] as () => void;
 
       act(() => {
         userLoadedCallback();
@@ -153,7 +155,7 @@ describe('Header', () => {
         render(<Header />);
       });
 
-      const userUnloadedCallback = (userManager.events.addUserUnloaded as any).mock.calls[0][0];
+      const userUnloadedCallback = mockedAddUserUnloaded.mock.calls[0][0] as () => void;
 
       act(() => {
         userUnloadedCallback();
@@ -169,9 +171,10 @@ describe('Header', () => {
     it('should toggle theme when theme button is clicked', async () => {
       const setTheme = vi.fn();
 
-      (useTheme as any).mockReturnValue({
+      mockedUseTheme.mockReturnValue({
         theme: Theme.DARK,
         setTheme,
+        getEffectiveTheme: vi.fn(() => Theme.DARK),
       });
 
       await act(async () => {
@@ -182,9 +185,10 @@ describe('Header', () => {
 
       expect(setTheme).toHaveBeenCalledWith(Theme.LIGHT);
 
-      (useTheme as any).mockReturnValue({
+      mockedUseTheme.mockReturnValue({
         theme: Theme.LIGHT,
         setTheme,
+        getEffectiveTheme: vi.fn(() => Theme.LIGHT),
       });
 
       await act(async () => {
@@ -195,9 +199,10 @@ describe('Header', () => {
 
       expect(setTheme).toHaveBeenCalledWith(Theme.SYSTEM);
 
-      (useTheme as any).mockReturnValue({
+      mockedUseTheme.mockReturnValue({
         theme: Theme.SYSTEM,
         setTheme,
+        getEffectiveTheme: vi.fn(() => Theme.DARK),
       });
 
       await act(async () => {
@@ -210,7 +215,7 @@ describe('Header', () => {
     });
 
     it('should call signinRedirect when login button is clicked', async () => {
-      (userManager.getUser as any).mockResolvedValue(null);
+      mockedUserManager.getUser.mockResolvedValue(null);
 
       await act(async () => {
         render(<Header />);
@@ -222,11 +227,11 @@ describe('Header', () => {
 
       fireEvent.click(screen.getByText('Login'));
 
-      expect(userManager.signinRedirect).toHaveBeenCalled();
+      expect(mockedUserManager.signinRedirect).toHaveBeenCalled();
     });
 
     it('should call signoutRedirect when logout button is clicked', async () => {
-      (userManager.getUser as any).mockResolvedValue({ profile: { name: 'Test User' } });
+      mockedUserManager.getUser.mockResolvedValue({ profile: { name: 'Test User' } } as User);
 
       await act(async () => {
         render(<Header />);
@@ -238,7 +243,7 @@ describe('Header', () => {
 
       fireEvent.click(screen.getByText('Logout'));
 
-      expect(userManager.signoutRedirect).toHaveBeenCalled();
+      expect(mockedUserManager.signoutRedirect).toHaveBeenCalled();
     });
   });
 });
