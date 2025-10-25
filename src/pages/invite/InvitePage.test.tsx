@@ -4,6 +4,7 @@ import { useLoaderData, useNavigate } from 'react-router-dom';
 import { TeamService } from '../../services/team-service/TeamService';
 import { InvitePageData } from './inviteLoader';
 import '@testing-library/jest-dom';
+import {Mock} from "vitest";
 
 vi.mock('react-router-dom', () => ({
   useLoaderData: vi.fn(),
@@ -24,9 +25,9 @@ describe('InvitePage', () => {
 
     beforeEach(() => {
         vi.clearAllMocks();
-        (useLoaderData as any).mockReturnValue(mockInviteData);
-        (useNavigate as any).mockReturnValue(mockNavigate);
-        (TeamService.addUserToTeam as any).mockImplementation(mockAddUserToTeam);
+        (useLoaderData as Mock).mockReturnValue(mockInviteData);
+        (useNavigate as Mock).mockReturnValue(mockNavigate);
+        (TeamService.addUserToTeam as Mock).mockImplementation(mockAddUserToTeam);
     });
 
     it('should display the team name', () => {
