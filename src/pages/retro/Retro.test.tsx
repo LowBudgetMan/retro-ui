@@ -5,6 +5,7 @@ import {RetroColumn} from "./components/retro-column/RetroColumn.tsx";
 import { DateTime } from "luxon";
 import {PropsWithChildren} from "react";
 import {useActionItems, useRetro} from "../../context/hooks.tsx";
+import {Mock} from "vitest";
 
 vi.mock('react-router-dom', () => ({
   useLoaderData: vi.fn(),
@@ -86,8 +87,8 @@ describe('RetroComponent', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    (useRetro as any).mockReturnValue({ retro: mockRetro });
-    (useActionItems as any).mockReturnValue({ actionItems: [] });
+    (useRetro as Mock).mockReturnValue({ retro: mockRetro });
+    (useActionItems as Mock).mockReturnValue({ actionItems: [] });
   });
 
   it('renders retro component with correct categories', () => {
@@ -117,7 +118,7 @@ describe('RetroComponent', () => {
       retroId: 'retro-123',
       createdAt: DateTime.fromISO('2025-01-01'),
     };
-    (useRetro as any).mockReturnValue({
+    (useRetro as Mock).mockReturnValue({
       retro: {
         ...mockRetro,
         thoughts: [thought1, thought2],
