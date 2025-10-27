@@ -1,9 +1,9 @@
 import { useEffect } from 'react';
-import { userManager } from '../user/UserContext';
+import { getUserManager } from '../user/UserContext';
 
 export function SilentRedirectPage() {
   useEffect(() => {
-    userManager.signinSilentCallback()
+    getUserManager().signinSilentCallback()
       .then(() => {
         console.log('Silent sign-in callback completed');
       })

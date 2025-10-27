@@ -1,4 +1,4 @@
-import {waitForAuthInitialization} from "../user/UserContext.ts";
+import {ensureAuthenticatedApi} from "../../utils/authSetup.ts";
 
 export interface InvitePageData {
     teamId: string,
@@ -17,7 +17,7 @@ function throwNotNull(field: string): string {
 }
 
 export async function loader({request}: {request: {url: string}}): Promise<InvitePageData> {
-    await waitForAuthInitialization();
+    await ensureAuthenticatedApi();
     const searchParams = new URL(request.url).searchParams;
     const invitePackageParam: string = searchParams.get('package') || throwNotNull('package');
 

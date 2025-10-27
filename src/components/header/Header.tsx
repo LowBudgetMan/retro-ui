@@ -1,5 +1,5 @@
 import {ReactElement, useEffect, useState} from "react";
-import {userManager} from "../../pages/user/UserContext.ts";
+import {getUserManager} from "../../pages/user/UserContext.ts";
 import {Theme} from "../../context/theme/ThemeContextTypes.ts";
 import {useTheme} from "../../context/hooks.tsx";
 
@@ -7,27 +7,27 @@ export function Header() {
     const { theme, setTheme } = useTheme();
     const [authAction, setAuthAction] = useState<ReactElement>(loginButton);
     useEffect(() => {
-        userManager.events.addUserLoaded(() => {
+        getUserManager().events.addUserLoaded(() => {
             setAuthAction(logoutButton);
         });
         
         return () => {
-            userManager.events.removeUserLoaded(() => {});
+            getUserManager().events.removeUserLoaded(() => {});
         };
     }, [setAuthAction]);
 
     useEffect(() => {
-        userManager.events.addUserUnloaded(() => {
+        getUserManager().events.addUserUnloaded(() => {
             setAuthAction(loginButton);
         });
 
         return () => {
-            userManager.events.removeUserUnloaded(() => {});
+            getUserManager().events.removeUserUnloaded(() => {});
         };
     }, [setAuthAction]);
 
     useEffect(() => {
-        userManager.getUser()
+        getUserManager().getUser()
             .then((result) => {
                 return result ? setAuthAction(logoutButton) : setAuthAction(loginButton)
             })
@@ -67,7 +67,7 @@ export function Header() {
 function loginButton() {
     return (
         <button onClick={() => {
-            userManager?.signinRedirect()
+            getUserManager()?.signinRedirect()
         }}>
             Login
         </button>
@@ -77,7 +77,7 @@ function loginButton() {
 function logoutButton() {
     return (
         <button onClick={() => {
-            userManager?.signoutRedirect()
+            getUserManager()?.signoutRedirect()
         }}>
             Logout
         </button>

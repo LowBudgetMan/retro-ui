@@ -2,7 +2,7 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { CreateTeamForm } from './CreateTeamForm';
 import { TeamService } from '../../../services/team-service/TeamService.ts';
 import '@testing-library/jest-dom';
-import { vi, describe, it, beforeEach, expect } from 'vitest';
+import {vi, describe, it, beforeEach, expect, Mock} from 'vitest';
 
 vi.mock('../../../services/team-service/TeamService.ts', () => ({
   TeamService: {
@@ -81,7 +81,7 @@ describe('CreateTeamForm', () => {
 
     it('should handle error when team creation fails', async () => {
       const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-      (TeamService.createTeam as jest.MockedFunction<typeof TeamService.createTeam>).mockRejectedValueOnce(new Error('API error'));
+      (TeamService.createTeam as Mock).mockRejectedValueOnce(new Error('API error'));
 
       render(<CreateTeamForm {...defaultProps} />);
 

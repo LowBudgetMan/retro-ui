@@ -9,14 +9,11 @@ import {loader as retroLoader} from "./pages/retro/retroLoader.ts";
 import {loader as templatesLoader} from "./pages/templates/templatesLoader.ts";
 import {loader as inviteLoader} from "./pages/invite/inviteLoader.ts";
 import {AuthRedirectPage} from "./pages/auth-redirect/AuthRedirectPage.tsx";
-import {configureAxios} from "./config/AxiosConfig.ts";
 import {Header} from "./components/header/Header.tsx";
 import {ThemeProvider} from "./context/theme/ThemeContext.tsx";
 import {TemplatesPage} from "./pages/templates/TemplatesPage.tsx";
 import {SilentRedirectPage} from "./pages/auth-redirect/SilentRedirectPage.tsx";
 import {InvitePage} from "./pages/invite/InvitePage.tsx";
-
-configureAxios();
 
 const router = createBrowserRouter([
     {

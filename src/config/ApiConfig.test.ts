@@ -1,7 +1,7 @@
 import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { RemoteConfig } from './ApiConfigTypes.ts';
 
-// Mock axios before importing ApiConfig since it has top-level await
+// Mock axios before importing ApiConfig
 vi.mock('axios', async () => {
   const actual = await vi.importActual('axios');
   return {
@@ -14,6 +14,7 @@ vi.mock('axios', async () => {
 
 // Import axios after mocking
 import axios from 'axios';
+import { initializeConfig } from './ApiConfig';
 
 describe('ApiConfig', () => {
   const mockRemoteConfig: RemoteConfig = {
@@ -38,13 +39,16 @@ describe('ApiConfig', () => {
     vi.resetAllMocks();
   });
 
-  describe('Module Initialization with Remote Config', () => {
+  describe('Configuration Initialization', () => {
     it('should initialize successfully with valid remote config', async () => {
       mockAxiosGet.mockResolvedValue({
         data: mockRemoteConfig,
       } as { data: RemoteConfig });
 
-      // Import the module to trigger the top-level await and axios call
+      // Initialize configuration using the new function
+      await initializeConfig();
+
+      // Import the module to access ApiConfig
       const { ApiConfig } = await import('./ApiConfig.ts');
 
       // Verify the axios call was made correctly
@@ -69,10 +73,8 @@ describe('ApiConfig', () => {
       const error = new Error('Network error');
       mockAxiosGet.mockRejectedValue(error);
 
-      // The module should throw during import when axios fails
-      await expect(async () => {
-        await import('./ApiConfig.ts');
-      }).rejects.toThrow('Network error');
+      // The initializeConfig function should throw when axios fails
+      await expect(initializeConfig()).rejects.toThrow('Network error');
     });
 
     it('should handle invalid response data', async () => {
@@ -80,9 +82,7 @@ describe('ApiConfig', () => {
         data: null,
       } as { data: null });
 
-      await expect(async () => {
-        await import('./ApiConfig.ts');
-      }).rejects.toThrow();
+      await expect(initializeConfig()).rejects.toThrow();
     });
 
     it('should handle missing websocket config in remote response', async () => {
@@ -99,6 +99,8 @@ describe('ApiConfig', () => {
       mockAxiosGet.mockResolvedValue({
         data: incompleteConfig,
       } as { data: RemoteConfig });
+
+      await initializeConfig();
 
       const { ApiConfig } = await import('./ApiConfig.ts');
 
@@ -124,6 +126,8 @@ describe('ApiConfig', () => {
       mockAxiosGet.mockResolvedValue({
         data: incompleteConfig,
       } as { data: RemoteConfig });
+
+      await initializeConfig();
 
       const { ApiConfig } = await import('./ApiConfig.ts');
 
@@ -152,6 +156,8 @@ describe('ApiConfig', () => {
         data: differentConfig,
       } as { data: RemoteConfig });
 
+      await initializeConfig();
+
       const { ApiConfig } = await import('./ApiConfig.ts');
 
       expect(ApiConfig.baseApiUrl()).toBe('http://localhost:8080');
@@ -171,8 +177,8 @@ describe('ApiConfig', () => {
         data: mockRemoteConfig,
       } as { data: RemoteConfig });
 
-      // Import fresh instance for each test
-      await import('./ApiConfig.ts');
+      // Initialize config before each test
+      await initializeConfig();
     });
 
     describe('baseApiUrl', () => {
@@ -251,7 +257,7 @@ describe('ApiConfig', () => {
         data: mockRemoteConfig,
       } as { data: RemoteConfig });
 
-      await import('./ApiConfig.ts');
+      await initializeConfig();
 
       expect(mockAxiosGet).toHaveBeenCalledTimes(1);
       expect(mockAxiosGet).toHaveBeenCalledWith(
@@ -265,9 +271,7 @@ describe('ApiConfig', () => {
       timeoutError.name = 'TimeoutError';
       mockAxiosGet.mockRejectedValue(timeoutError);
 
-      await expect(async () => {
-        await import('./ApiConfig.ts');
-      }).rejects.toThrow('Timeout');
+      await expect(initializeConfig()).rejects.toThrow('Timeout');
     });
 
     it('should handle network errors', async () => {
@@ -275,9 +279,7 @@ describe('ApiConfig', () => {
       networkError.name = 'NetworkError';
       mockAxiosGet.mockRejectedValue(networkError);
 
-      await expect(async () => {
-        await import('./ApiConfig.ts');
-      }).rejects.toThrow('Network Error');
+      await expect(initializeConfig()).rejects.toThrow('Network Error');
     });
   });
 });

@@ -1,15 +1,20 @@
 import axios from "axios";
-import {userManager} from "../pages/user/UserContext.ts";
+import {getUserManager} from "../pages/user/UserContext.ts";
+import {waitForAppConfiguration} from "./ApiConfig";
 
-export function configureAxios() {
+export async function configureAxios() {
+    await waitForAppConfiguration();
+
     axios.interceptors.request.use(async function (config) {
-            await userManager.getUser()
-                .then(user => {
-                    if(user?.access_token) {
-                        config.headers.setAuthorization(`Bearer ${user.access_token}`);
-                    }
-                })
-                .catch(error => {console.log('Error getting user token for request:', error)});
+        await getUserManager()?.getUser()
+            .then(user => {
+                if (user?.access_token) {
+                    config.headers.setAuthorization(`Bearer ${user.access_token}`);
+                }
+            })
+            .catch(error => {
+                console.log('Error getting user token for request:', error)
+            });
         return config;
     }, function (error) {
         return Promise.reject(error);
@@ -19,7 +24,7 @@ export function configureAxios() {
         return response;
     }, error => {
         if (error.response?.status === 401) {
-            userManager.signoutRedirect().then();
+            getUserManager()?.signoutRedirect().then();
         }
         return Promise.reject(error);
     });
