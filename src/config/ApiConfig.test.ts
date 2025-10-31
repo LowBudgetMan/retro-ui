@@ -1,285 +1,212 @@
-import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { RemoteConfig } from './ApiConfigTypes.ts';
-
-// Mock axios before importing ApiConfig
-vi.mock('axios', async () => {
-  const actual = await vi.importActual('axios');
-  return {
-    ...actual,
-    default: {
-      get: vi.fn(),
-    },
-  };
-});
-
-// Import axios after mocking
+import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 import axios from 'axios';
-import { initializeConfig } from './ApiConfig';
+import MockAdapter from 'axios-mock-adapter';
+import {AuthConfig, RemoteConfig} from './ApiConfigTypes';
 
 describe('ApiConfig', () => {
-  const mockRemoteConfig: RemoteConfig = {
-    websocketEnvironmentConfig: {
-      baseUrl: 'wss://test-websocket.example.com',
-    },
-    webAuthentication: {
-      authority: 'https://auth.example.com',
-      clientId: 'test-client-id',
-    },
-  };
+    let mock: MockAdapter;
 
-  const mockAxiosGet = vi.mocked(axios.get);
-
-  beforeEach(() => {
-    vi.clearAllMocks();
-    // Reset modules to ensure fresh import for each test
-    vi.resetModules();
-  });
-
-  afterEach(() => {
-    vi.resetAllMocks();
-  });
-
-  describe('Configuration Initialization', () => {
-    it('should initialize successfully with valid remote config', async () => {
-      mockAxiosGet.mockResolvedValue({
-        data: mockRemoteConfig,
-      } as { data: RemoteConfig });
-
-      // Initialize configuration using the new function
-      await initializeConfig();
-
-      // Import the module to access ApiConfig
-      const { ApiConfig } = await import('./ApiConfig.ts');
-
-      // Verify the axios call was made correctly
-      expect(mockAxiosGet).toHaveBeenCalledTimes(1);
-      expect(mockAxiosGet).toHaveBeenCalledWith(
-        'http://localhost:8080/api/configuration',
-        {}
-      );
-
-      // Verify the module exports work correctly
-      expect(ApiConfig.baseApiUrl()).toBe('http://localhost:8080');
-      expect(ApiConfig.websocketUrl()).toBe(
-        'wss://test-websocket.example.com/websocket/websocket'
-      );
-      expect(ApiConfig.authConfig()).toEqual({
-        authority: 'https://auth.example.com',
-        clientId: 'test-client-id',
-      });
+    beforeEach(() => {
+        vi.resetModules();
+        mock = new MockAdapter(axios);
     });
 
-    it('should handle axios error during initialization', async () => {
-      const error = new Error('Network error');
-      mockAxiosGet.mockRejectedValue(error);
-
-      // The initializeConfig function should throw when axios fails
-      await expect(initializeConfig()).rejects.toThrow('Network error');
+    afterEach(() => {
+        mock.restore();
+        vi.clearAllMocks();
     });
 
-    it('should handle invalid response data', async () => {
-      mockAxiosGet.mockResolvedValue({
-        data: null,
-      } as { data: null });
-
-      await expect(initializeConfig()).rejects.toThrow();
-    });
-
-    it('should handle missing websocket config in remote response', async () => {
-      const incompleteConfig: RemoteConfig = {
-        websocketEnvironmentConfig: {
-          baseUrl: '',
-        },
-        webAuthentication: {
-          authority: 'https://auth.example.com',
-          clientId: 'test-client-id',
-        },
-      };
-
-      mockAxiosGet.mockResolvedValue({
-        data: incompleteConfig,
-      } as { data: RemoteConfig });
-
-      await initializeConfig();
-
-      const { ApiConfig } = await import('./ApiConfig.ts');
-
-      expect(ApiConfig.baseApiUrl()).toBe('http://localhost:8080');
-      expect(ApiConfig.websocketUrl()).toBe('/websocket/websocket');
-      expect(ApiConfig.authConfig()).toEqual({
-        authority: 'https://auth.example.com',
-        clientId: 'test-client-id',
-      });
-    });
-
-    it('should handle missing auth config in remote response', async () => {
-      const incompleteConfig: RemoteConfig = {
-        websocketEnvironmentConfig: {
-          baseUrl: 'wss://test-websocket.example.com',
-        },
-        webAuthentication: {
-          authority: '',
-          clientId: '',
-        },
-      };
-
-      mockAxiosGet.mockResolvedValue({
-        data: incompleteConfig,
-      } as { data: RemoteConfig });
-
-      await initializeConfig();
-
-      const { ApiConfig } = await import('./ApiConfig.ts');
-
-      expect(ApiConfig.baseApiUrl()).toBe('http://localhost:8080');
-      expect(ApiConfig.websocketUrl()).toBe(
-        'wss://test-websocket.example.com/websocket/websocket'
-      );
-      expect(ApiConfig.authConfig()).toEqual({
-        authority: '',
-        clientId: '',
-      });
-    });
-
-    it('should work with different remote configurations', async () => {
-      const differentConfig: RemoteConfig = {
-        websocketEnvironmentConfig: {
-          baseUrl: 'wss://prod-websocket.example.com',
-        },
-        webAuthentication: {
-          authority: 'https://prod-auth.example.com',
-          clientId: 'prod-client-id',
-        },
-      };
-
-      mockAxiosGet.mockResolvedValue({
-        data: differentConfig,
-      } as { data: RemoteConfig });
-
-      await initializeConfig();
-
-      const { ApiConfig } = await import('./ApiConfig.ts');
-
-      expect(ApiConfig.baseApiUrl()).toBe('http://localhost:8080');
-      expect(ApiConfig.websocketUrl()).toBe(
-        'wss://prod-websocket.example.com/websocket/websocket'
-      );
-      expect(ApiConfig.authConfig()).toEqual({
-        authority: 'https://prod-auth.example.com',
-        clientId: 'prod-client-id',
-      });
-    });
-  });
-
-  describe('Exported Functions', () => {
-    beforeEach(async () => {
-      mockAxiosGet.mockResolvedValue({
-        data: mockRemoteConfig,
-      } as { data: RemoteConfig });
-
-      // Initialize config before each test
-      await initializeConfig();
-    });
-
-    describe('baseApiUrl', () => {
-      it('should return the correct base API URL', async () => {
-        const { ApiConfig } = await import('./ApiConfig.ts');
-        expect(ApiConfig.baseApiUrl()).toBe('http://localhost:8080');
-      });
-
-      it('should return a string', async () => {
-        const { ApiConfig } = await import('./ApiConfig.ts');
-        expect(typeof ApiConfig.baseApiUrl()).toBe('string');
-      });
-
-      it('should be a function', async () => {
-        const { ApiConfig } = await import('./ApiConfig.ts');
-        expect(typeof ApiConfig.baseApiUrl).toBe('function');
-      });
-    });
-
-    describe('websocketUrl', () => {
-      it('should return the correct websocket URL', async () => {
-        const { ApiConfig } = await import('./ApiConfig.ts');
-        expect(ApiConfig.websocketUrl()).toBe(
-          'wss://test-websocket.example.com/websocket/websocket'
-        );
-      });
-
-      it('should return a string', async () => {
-        const { ApiConfig } = await import('./ApiConfig.ts');
-        expect(typeof ApiConfig.websocketUrl()).toBe('string');
-      });
-
-      it('should be a function', async () => {
-        const { ApiConfig } = await import('./ApiConfig.ts');
-        expect(typeof ApiConfig.websocketUrl).toBe('function');
-      });
-    });
-
-    describe('authConfig', () => {
-      it('should return the correct auth configuration', async () => {
-        const { ApiConfig } = await import('./ApiConfig.ts');
-        const authConfig = ApiConfig.authConfig();
-        expect(authConfig).toEqual({
-          authority: 'https://auth.example.com',
-          clientId: 'test-client-id',
+    describe('ApiConfig.baseApiUrl', () => {
+        it('should return the base API URL', async () => {
+            const { ApiConfig } = await import('./ApiConfig');
+            expect(ApiConfig.baseApiUrl()).toBe('http://localhost:8080');
         });
-      });
-
-      it('should return an AuthConfig object', async () => {
-        const { ApiConfig } = await import('./ApiConfig.ts');
-        const authConfig = ApiConfig.authConfig();
-        expect(authConfig).toHaveProperty('authority');
-        expect(authConfig).toHaveProperty('clientId');
-        expect(typeof authConfig.authority).toBe('string');
-        expect(typeof authConfig.clientId).toBe('string');
-      });
-
-      it('should be a function', async () => {
-        const { ApiConfig } = await import('./ApiConfig.ts');
-        expect(typeof ApiConfig.authConfig).toBe('function');
-      });
-
-      it('should return the same object instance each time', async () => {
-        const { ApiConfig } = await import('./ApiConfig.ts');
-        const authConfig1 = ApiConfig.authConfig();
-        const authConfig2 = ApiConfig.authConfig();
-        expect(authConfig1).toEqual(authConfig2);
-        expect(authConfig1).toBe(authConfig2);
-      });
-    });
-  });
-
-  describe('Axios Call Details', () => {
-    it('should make axios call with correct URL and options', async () => {
-      mockAxiosGet.mockResolvedValue({
-        data: mockRemoteConfig,
-      } as { data: RemoteConfig });
-
-      await initializeConfig();
-
-      expect(mockAxiosGet).toHaveBeenCalledTimes(1);
-      expect(mockAxiosGet).toHaveBeenCalledWith(
-        'http://localhost:8080/api/configuration',
-        {}
-      );
     });
 
-    it('should handle axios timeout', async () => {
-      const timeoutError = new Error('Timeout');
-      timeoutError.name = 'TimeoutError';
-      mockAxiosGet.mockRejectedValue(timeoutError);
+    describe('ApiConfig.websocketUrl', () => {
+        it('should throw error when configuration is not initialized', async () => {
+            const { ApiConfig } = await import('./ApiConfig');
+            expect(() => ApiConfig.websocketUrl()).toThrow('Configuration not initialized. Call initializeConfig() first.');
+        });
 
-      await expect(initializeConfig()).rejects.toThrow('Timeout');
+        it('should return websocket URL when configuration is initialized', async () => {
+            const { ApiConfig, initializeConfig } = await import('./ApiConfig');
+
+            const mockConfig: RemoteConfig = {
+                websocketEnvironmentConfig: { baseUrl: 'ws://test.com' },
+                webAuthentication: { authority: 'auth.com', clientId: 'client1' }
+            };
+
+            mock.onGet('http://localhost:8080/api/configuration').reply(200, mockConfig);
+
+            await initializeConfig();
+            expect(ApiConfig.websocketUrl()).toBe('ws://test.com/websocket/websocket');
+        });
     });
 
-    it('should handle network errors', async () => {
-      const networkError = new Error('Network Error');
-      networkError.name = 'NetworkError';
-      mockAxiosGet.mockRejectedValue(networkError);
+    describe('ApiConfig.authConfig', () => {
+        it('should throw error when configuration is not initialized', async () => {
+            const { ApiConfig } = await import('./ApiConfig');
+            expect(() => ApiConfig.authConfig()).toThrow('Configuration not initialized. Call initializeConfig() first.');
+        });
 
-      await expect(initializeConfig()).rejects.toThrow('Network Error');
+        it('should return auth config when configuration is initialized', async () => {
+            const { ApiConfig, initializeConfig } = await import('./ApiConfig');
+
+            const mockConfig: RemoteConfig = {
+                websocketEnvironmentConfig: { baseUrl: 'ws://test.com' },
+                webAuthentication: { authority: 'auth.com', clientId: 'client1' }
+            };
+
+            mock.onGet('http://localhost:8080/api/configuration').reply(200, mockConfig);
+
+            await initializeConfig();
+            const expectedConfig: AuthConfig = { authority: 'auth.com', clientId: 'client1' };
+            expect(ApiConfig.authConfig()).toEqual(expectedConfig);
+        });
     });
-  });
+
+    describe('initializeConfig', () => {
+        it('should successfully initialize configuration', async () => {
+            const { ApiConfig, initializeConfig } = await import('./ApiConfig');
+
+            const mockConfig: RemoteConfig = {
+                websocketEnvironmentConfig: { baseUrl: 'ws://test.com' },
+                webAuthentication: { authority: 'auth.com', clientId: 'client1' }
+            };
+
+            mock.onGet('http://localhost:8080/api/configuration').reply(200, mockConfig);
+
+            await expect(initializeConfig()).resolves.toBeUndefined();
+
+            expect(ApiConfig.websocketUrl()).toBe('ws://test.com/websocket/websocket');
+            expect(ApiConfig.authConfig()).toEqual({ authority: 'auth.com', clientId: 'client1' });
+
+            expect(mock.history.get[0].url).toBe('http://localhost:8080/api/configuration');
+        });
+
+        it('should throw error when HTTP request fails', async () => {
+            const { initializeConfig } = await import('./ApiConfig');
+
+            const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+            mock.onGet('http://localhost:8080/api/configuration').networkError();
+
+            await expect(initializeConfig()).rejects.toThrow();
+
+            expect(consoleSpy).toHaveBeenCalledWith(
+                'Failed to initialize configuration:',
+                expect.any(Error)
+            );
+
+            consoleSpy.mockRestore();
+        });
+
+        it('should handle axios errors properly', async () => {
+            const { initializeConfig } = await import('./ApiConfig');
+
+            const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+            mock.onGet('http://localhost:8080/api/configuration').reply(500, { error: 'Server error' });
+
+            await expect(initializeConfig()).rejects.toThrow();
+
+            expect(consoleSpy).toHaveBeenCalledWith(
+                'Failed to initialize configuration:',
+                expect.any(Error)
+            );
+
+            consoleSpy.mockRestore();
+        });
+    });
+
+    describe('waitForAppConfiguration', () => {
+        it('should resolve immediately when already configured', async () => {
+            const { initializeConfig, waitForAppConfiguration } = await import('./ApiConfig');
+
+            const mockConfig: RemoteConfig = {
+                websocketEnvironmentConfig: { baseUrl: 'ws://test.com' },
+                webAuthentication: { authority: 'auth.com', clientId: 'client1' }
+            };
+
+            mock.onGet('http://localhost:8080/api/configuration').reply(200, mockConfig);
+
+            // Initialize config first
+            await initializeConfig();
+
+            // Now waitForAppConfiguration should resolve immediately
+            await expect(waitForAppConfiguration()).resolves.toBeUndefined();
+
+            expect(mock.history.get).toHaveLength(1); // Only one call from initializeConfig
+        });
+
+        it('should initialize config when not configured', async () => {
+            const { waitForAppConfiguration } = await import('./ApiConfig');
+
+            const mockConfig: RemoteConfig = {
+                websocketEnvironmentConfig: { baseUrl: 'ws://test.com' },
+                webAuthentication: { authority: 'auth.com', clientId: 'client1' }
+            };
+
+            mock.onGet('http://localhost:8080/api/configuration').reply(200, mockConfig);
+
+            await expect(waitForAppConfiguration()).resolves.toBeUndefined();
+
+            expect(mock.history.get[0].url).toBe('http://localhost:8080/api/configuration');
+        });
+
+
+
+        it('should prevent duplicate initialization calls', async () => {
+            const { waitForAppConfiguration } = await import('./ApiConfig');
+
+            const mockConfig: RemoteConfig = {
+                websocketEnvironmentConfig: { baseUrl: 'ws://test.com' },
+                webAuthentication: { authority: 'auth.com', clientId: 'client1' }
+            };
+
+            mock.onGet('http://localhost:8080/api/configuration').reply(200, mockConfig);
+
+            // Call waitForAppConfiguration multiple times concurrently
+            const promises = Promise.all([
+                waitForAppConfiguration(),
+                waitForAppConfiguration(),
+                waitForAppConfiguration()
+            ]);
+
+            await expect(promises).resolves.toEqual([undefined, undefined, undefined]);
+
+            // Should only make one HTTP call despite multiple concurrent waits
+            expect(mock.history.get).toHaveLength(1);
+        });
+    });
+
+    describe('ApiConfig object interface', () => {
+        it('should export all required methods', async () => {
+            const { ApiConfig } = await import('./ApiConfig');
+            expect(typeof ApiConfig.baseApiUrl).toBe('function');
+            expect(typeof ApiConfig.websocketUrl).toBe('function');
+            expect(typeof ApiConfig.authConfig).toBe('function');
+        });
+
+        it('should provide consistent API through all methods', async () => {
+            const { ApiConfig, initializeConfig } = await import('./ApiConfig');
+
+            const mockConfig: RemoteConfig = {
+                websocketEnvironmentConfig: { baseUrl: 'ws://test.com' },
+                webAuthentication: { authority: 'auth.com', clientId: 'client1' }
+            };
+
+            mock.onGet('http://localhost:8080/api/configuration').reply(200, mockConfig);
+
+            // Base URL should work before configuration
+            expect(ApiConfig.baseApiUrl()).toBe('http://localhost:8080');
+
+            await initializeConfig();
+
+            // After configuration, all methods should work
+            expect(ApiConfig.websocketUrl()).toBe('ws://test.com/websocket/websocket');
+            expect(ApiConfig.authConfig()).toEqual({ authority: 'auth.com', clientId: 'client1' });
+        });
+    });
 });

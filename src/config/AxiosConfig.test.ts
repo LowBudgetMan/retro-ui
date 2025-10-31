@@ -1,18 +1,24 @@
-import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
+import {Mock, afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 import axios from 'axios';
 import MockAdapter from 'axios-mock-adapter';
-import {User} from 'oidc-client-ts';
+import {User, UserManager} from 'oidc-client-ts';
 import {configureAxios} from './AxiosConfig';
-import {userManager} from '../pages/user/UserContext';
+import {getUserManager} from '../pages/user/UserContext';
 
 vi.mock('../pages/user/UserContext', () => ({
-    userManager: {
-        getUser: vi.fn(),
-        signoutRedirect: vi.fn(),
-    },
+    getUserManager: vi.fn(),
 }));
 
-const mockUserManager = vi.mocked(userManager);
+vi.mock('./ApiConfig', () => ({
+    waitForAppConfiguration: vi.fn().mockResolvedValue(undefined),
+}));
+
+const mockUserManager = {
+    getUser: vi.fn(),
+    signoutRedirect: vi.fn(),
+} as unknown as UserManager;
+
+vi.mocked(getUserManager).mockReturnValue(mockUserManager);
 
 describe('AxiosConfig', () => {
     let mock: MockAdapter;
@@ -31,7 +37,8 @@ describe('AxiosConfig', () => {
 
     describe('Request Interceptor', () => {
         it('should add Authorization header when user has access token', async () => {
-            mockUserManager.getUser.mockResolvedValue({access_token: 'test-token'} as User);
+
+            (mockUserManager.getUser as Mock).mockResolvedValue({access_token: 'test-token'} as User);
             mock.onGet('/test').reply(200, {success: true});
 
             await axios.get('/test');
@@ -41,7 +48,7 @@ describe('AxiosConfig', () => {
         });
 
         it('should not add Authorization header when user has no access token', async () => {
-            mockUserManager.getUser.mockResolvedValue({access_token: ''} as User);
+            (mockUserManager.getUser as Mock).mockResolvedValue({access_token: ''} as User);
             mock.onGet('/test').reply(200, {success: true});
 
             await axios.get('/test');
@@ -51,7 +58,7 @@ describe('AxiosConfig', () => {
         });
 
         it('should not add Authorization header when user is null', async () => {
-            mockUserManager.getUser.mockResolvedValue(null);
+            (mockUserManager.getUser as Mock).mockResolvedValue(null);
             mock.onGet('/test').reply(200, {success: true});
 
             await axios.get('/test');
@@ -63,7 +70,7 @@ describe('AxiosConfig', () => {
         it('should handle errors when getting user and continue with request', async () => {
             const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {
             });
-            mockUserManager.getUser.mockRejectedValue(new Error('User fetch failed'));
+            (mockUserManager.getUser as Mock).mockRejectedValue(new Error('User fetch failed'));
             mock.onGet('/test').reply(200, {success: true});
 
             await axios.get('/test');
@@ -75,7 +82,7 @@ describe('AxiosConfig', () => {
         });
 
         it('should reject promise when request error handler is called', async () => {
-            mockUserManager.getUser.mockResolvedValue({access_token: 'test-token'} as User);
+            (mockUserManager.getUser as Mock).mockResolvedValue({access_token: 'test-token'} as User);
             mock.onGet('/test').reply(() => {
                 throw new Error('Network error');
             });
@@ -98,7 +105,7 @@ describe('AxiosConfig', () => {
         });
 
         it('should call signoutRedirect when response status is 401', async () => {
-            mockUserManager.signoutRedirect.mockResolvedValue(undefined);
+            (mockUserManager.signoutRedirect as Mock).mockResolvedValue(undefined);
             mock.onGet('/test').reply(401, {error: 'Unauthorized'});
 
             await expect(axios.get('/test')).rejects.toThrow();
