@@ -10,7 +10,7 @@ interface MockLinkProps {
   [key: string]: unknown;
 }
 
-jest.mock('react-router-dom', () => ({
+vi.mock('react-router-dom', () => ({
   Link: ({ to, children, className, ...props }: MockLinkProps) => (
     <a href={to} className={className} {...props}>
       {children}
@@ -18,7 +18,13 @@ jest.mock('react-router-dom', () => ({
   ),
 }));
 
-jest.mock('./TeamCard.module.css', () => ({
+vi.mock('./TeamCard.module.css', () => ({
+  default: {
+    link: 'mock-link-class',
+    teamCard: 'mock-team-card-class',
+    teamName: 'mock-team-name-class',
+    teamCreatedDate: 'mock-team-created-date-class',
+  },
   link: 'mock-link-class',
   teamCard: 'mock-team-card-class',
   teamName: 'mock-team-name-class',

@@ -1,5 +1,5 @@
 import axios from "axios";
-import {ApiConfig} from "../../config/ApiConfig.ts";
+import {ApiConfig} from "../../config/ApiConfig";
 
 export interface TeamListItem {
     id: string,

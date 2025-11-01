@@ -5,22 +5,25 @@ import { useLoaderData, useRevalidator } from 'react-router-dom';
 import { BrowserRouter } from 'react-router-dom';
 import '@testing-library/jest-dom';
 
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
-  useLoaderData: jest.fn(),
-  useRevalidator: jest.fn(),
+vi.mock('react-router-dom', () => ({
+  ...vi.importActual('react-router-dom'),
+  useLoaderData: vi.fn(),
+  useRevalidator: vi.fn(),
+  BrowserRouter: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
 }));
 
-jest.mock('../../../services/retro-service/RetroService.ts', () => ({
+vi.mock('../../../services/retro-service/RetroService.ts', () => ({
   RetroService: {
-    createRetro: jest.fn().mockResolvedValue(undefined),
+    createRetro: vi.fn().mockResolvedValue(undefined),
   },
 }));
 
-jest.mock('./CreateRetroForm.module.css', () => ({
-  createRetroContainer: 'mock-create-retro-container-class',
-  closeButton: 'mock-close-button-class',
-  optionsList: 'mock-options-list-class',
+vi.mock('./CreateRetroForm.module.css', () => ({
+  default: {
+    createRetroContainer: 'mock-create-retro-container-class',
+    closeButton: 'mock-close-button-class',
+    optionsList: 'mock-options-list-class',
+  },
 }));
 
 interface MockCreateRetroFormOptionProps {
@@ -28,7 +31,7 @@ interface MockCreateRetroFormOptionProps {
   selectionCallback: (templateId: string) => void;
 }
 
-jest.mock('./CreateRetroFormOption.tsx', () => ({
+vi.mock('./CreateRetroFormOption.tsx', () => ({
   CreateRetroFormOption: ({ template, selectionCallback }: MockCreateRetroFormOptionProps) => (
     <div data-testid={`option-${template.id}`}>
       <h3>{template.name}</h3>
@@ -44,7 +47,7 @@ jest.mock('./CreateRetroFormOption.tsx', () => ({
 }));
 
 describe('CreateRetroForm', () => {
-  const mockRevalidate = jest.fn().mockResolvedValue(undefined);
+  const mockRevalidate = vi.fn().mockResolvedValue(undefined);
   const mockRevalidator = {
     revalidate: mockRevalidate,
     state: 'idle'
@@ -99,8 +102,8 @@ describe('CreateRetroForm', () => {
   ];
 
   const defaultProps = {
-    onSubmitSuccess: jest.fn(),
-    onCancel: jest.fn(),
+    onSubmitSuccess: vi.fn(),
+    onCancel: vi.fn(),
     templates: mockTemplates
   };
 
@@ -113,9 +116,9 @@ describe('CreateRetroForm', () => {
   };
 
   beforeEach(() => {
-    jest.clearAllMocks();
-    (useRevalidator as jest.Mock).mockReturnValue(mockRevalidator);
-    (useLoaderData as jest.Mock).mockReturnValue(mockTeamData);
+    vi.clearAllMocks();
+    (useRevalidator as ReturnType<typeof vi.fn>).mockReturnValue(mockRevalidator);
+    (useLoaderData as ReturnType<typeof vi.fn>).mockReturnValue(mockTeamData);
   });
 
   describe('Rendering', () => {
@@ -225,8 +228,8 @@ describe('CreateRetroForm', () => {
         expect(RetroService.createRetro).toHaveBeenCalledWith('team-123', 'template-1');
       });
       
-      jest.clearAllMocks();
-      
+      vi.clearAllMocks();
+
       // Test second template
       fireEvent.click(screen.getByTestId('select-template-2'));
       
@@ -236,8 +239,8 @@ describe('CreateRetroForm', () => {
     });
 
     it('should handle error when retro creation fails', async () => {
-      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
-      (RetroService.createRetro as jest.Mock).mockRejectedValueOnce(new Error('API error'));
+      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+      (RetroService.createRetro as ReturnType<typeof vi.fn>).mockRejectedValueOnce(new Error('API error'));
       
       renderWithRouter(<CreateRetroForm {...defaultProps} />);
       
@@ -253,7 +256,7 @@ describe('CreateRetroForm', () => {
     });
 
     it('should handle error when revalidation fails', async () => {
-      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
       mockRevalidate.mockRejectedValueOnce(new Error('Revalidation error'));
       
       renderWithRouter(<CreateRetroForm {...defaultProps} />);

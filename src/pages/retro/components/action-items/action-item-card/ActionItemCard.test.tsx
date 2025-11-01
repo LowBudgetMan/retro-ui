@@ -2,9 +2,9 @@ import {act, fireEvent, render, screen} from "@testing-library/react";
 import {ActionItemCard} from "./ActionItemCard.tsx";
 import {ActionItem, ActionItemsService} from "../../../../../services/action-items-service/ActionItemsService.ts";
 import { DateTime } from "luxon";
+import { vi, describe, it, beforeEach, expect } from 'vitest';
 
-jest.mock("../../../../../services/action-items-service/ActionItemsService.ts");
-const mockedActionItemsService = ActionItemsService as jest.Mocked<typeof ActionItemsService>;
+vi.mock("../../../../../services/action-items-service/ActionItemsService.ts");
 
 const currentTime = DateTime.now();
 
@@ -54,12 +54,12 @@ describe('ActionItemCard', () => {
     });
 
     it('should call ActionItemsService.setCompleted with inverse of completed when mark complete button is clicked', () => {
-        mockedActionItemsService.setCompleted = jest.fn().mockResolvedValue(undefined);
+        ActionItemsService.setCompleted = vi.fn().mockResolvedValue(undefined);
         render(<ActionItemCard actionItem={actionItem}/>);
 
         fireEvent.click(screen.getByText('N'));
 
-        expect(mockedActionItemsService.setCompleted).toHaveBeenCalledWith(
+        expect(ActionItemsService.setCompleted).toHaveBeenCalledWith(
             actionItem.teamId,
             actionItem.id,
             !actionItem.completed
@@ -68,7 +68,7 @@ describe('ActionItemCard', () => {
 
     describe('Edit functionality', () => {
         beforeEach(() => {
-            mockedActionItemsService.setAction = jest.fn().mockResolvedValue(undefined);
+            ActionItemsService.setAction = vi.fn().mockResolvedValue(undefined);
         });
 
         it('should display paragraph element when not in edit mode', () => {
@@ -113,7 +113,7 @@ describe('ActionItemCard', () => {
                 await Promise.resolve();
             });
 
-            expect(mockedActionItemsService.setAction).toHaveBeenCalledWith(
+            expect(ActionItemsService.setAction).toHaveBeenCalledWith(
                 actionItem.teamId,
                 actionItem.id,
                 'Updated message'
@@ -129,7 +129,7 @@ describe('ActionItemCard', () => {
             fireEvent.change(textarea, { target: { value: 'Updated message' } });
             fireEvent.keyDown(textarea, { key: 'Enter', shiftKey: true });
 
-            expect(mockedActionItemsService.setAction).not.toHaveBeenCalled();
+            expect(ActionItemsService.setAction).not.toHaveBeenCalled();
             expect(screen.getByRole('textbox', {name: ''})).toBeInTheDocument();
         });
 
@@ -145,7 +145,7 @@ describe('ActionItemCard', () => {
             expect(screen.queryByRole('textbox', {name: ''})).not.toBeInTheDocument();
             expect(screen.getByText('This is a test action item')).toBeInTheDocument();
             expect(screen.getByText('This is a test action item').tagName).toBe('P');
-            expect(mockedActionItemsService.setAction).not.toHaveBeenCalled();
+            expect(ActionItemsService.setAction).not.toHaveBeenCalled();
         });
 
         it('should reset textarea value to original message when re-entering edit mode after canceling', () => {
@@ -196,7 +196,7 @@ describe('ActionItemCard', () => {
         });
 
         it('should call ActionItemsService.deleteActionItem when confirm button is clicked', async () => {
-            mockedActionItemsService.deleteActionItem = jest.fn().mockResolvedValue(undefined);
+            ActionItemsService.deleteActionItem = vi.fn().mockResolvedValue(undefined);
             render(<ActionItemCard actionItem={actionItem}/>);
 
             fireEvent.click(screen.getByText('D'));
@@ -204,7 +204,7 @@ describe('ActionItemCard', () => {
                 fireEvent.click(screen.getByText('Confirm'));
             });
 
-            expect(mockedActionItemsService.deleteActionItem).toHaveBeenCalledWith(
+            expect(ActionItemsService.deleteActionItem).toHaveBeenCalledWith(
                 actionItem.teamId,
                 actionItem.id
             );

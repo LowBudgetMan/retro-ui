@@ -3,9 +3,10 @@ import { CreateRetroButton } from './CreateRetroButton';
 import { useLoaderData } from 'react-router-dom';
 import { Template } from '../../../services/retro-service/RetroService.ts';
 import '@testing-library/jest-dom';
+import {Mock} from "vitest";
 
-jest.mock('react-router-dom', () => ({
-  useLoaderData: jest.fn(),
+vi.mock('react-router-dom', () => ({
+  useLoaderData: vi.fn(),
 }));
 
 interface MockCreateModalProps {
@@ -15,9 +16,9 @@ interface MockCreateModalProps {
   backgroundButtonAriaLabel: string;
 }
 
-jest.mock('../../../components/modal/CreateModal.tsx', () => ({
+vi.mock('../../../components/modal/CreateModal.tsx', () => ({
   CreateModal: ({ buttonContent, buttonClassName, modalContent, backgroundButtonAriaLabel }: MockCreateModalProps) => {
-    const mockSetIsOpen = jest.fn();
+    const mockSetIsOpen = vi.fn();
     return (
       <div data-testid="create-modal">
         <button
@@ -44,7 +45,7 @@ interface MockCreateRetroFormProps {
   templates: Template[];
 }
 
-jest.mock('./CreateRetroForm.tsx', () => ({
+vi.mock('./CreateRetroForm.tsx', () => ({
   CreateRetroForm: ({ onSubmitSuccess, onCancel, templates }: MockCreateRetroFormProps) => (
     <div data-testid="create-retro-form">
       <span data-testid="templates-count">{templates ? templates.length : 0}</span>
@@ -54,8 +55,10 @@ jest.mock('./CreateRetroForm.tsx', () => ({
   ),
 }));
 
-jest.mock('./CreateRetroButton.module.css', () => ({
-  createNewRetroButton: 'mock-create-new-retro-button-class',
+vi.mock('./CreateRetroButton.module.css', () => ({
+  default: {
+    createNewRetroButton: 'mock-create-new-retro-button-class',
+  },
 }));
 
 describe('CreateRetroButton', () => {
@@ -100,8 +103,8 @@ describe('CreateRetroButton', () => {
   };
 
   beforeEach(() => {
-    jest.clearAllMocks();
-    (useLoaderData as jest.Mock).mockReturnValue(mockTeamData);
+    vi.clearAllMocks();
+    (useLoaderData as Mock).mockReturnValue(mockTeamData);
   });
 
   describe('Rendering', () => {
@@ -143,7 +146,7 @@ describe('CreateRetroButton', () => {
 
   describe('Data Integration', () => {
     it('should use templates from useLoaderData', () => {
-      const customTemplates: Template[] = [
+      const templates: Template[] = [
         {
           id: 'custom-template',
           name: 'Custom Template',
@@ -152,10 +155,7 @@ describe('CreateRetroButton', () => {
         }
       ];
 
-      (useLoaderData as jest.Mock).mockReturnValue({
-        ...mockTeamData,
-        templates: customTemplates
-      });
+      (useLoaderData as Mock).mockReturnValue({...mockTeamData, templates});
 
       render(<CreateRetroButton />);
       
@@ -164,13 +164,10 @@ describe('CreateRetroButton', () => {
     });
 
     it('should handle empty templates array', () => {
-      (useLoaderData as jest.Mock).mockReturnValue({
-        ...mockTeamData,
-        templates: []
-      });
+      (useLoaderData as Mock).mockReturnValue({...mockTeamData, templates: []});
 
       render(<CreateRetroButton />);
-      
+
       const templatesCount = screen.getByTestId('templates-count');
       expect(templatesCount).toHaveTextContent('0');
     });
@@ -187,7 +184,7 @@ describe('CreateRetroButton', () => {
         extraProp: 'should be ignored'
       };
 
-      (useLoaderData as jest.Mock).mockReturnValue(teamDataWithExtraProps);
+      (useLoaderData as Mock).mockReturnValue(teamDataWithExtraProps);
 
       render(<CreateRetroButton />);
       

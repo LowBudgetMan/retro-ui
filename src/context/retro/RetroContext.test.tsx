@@ -1,19 +1,20 @@
+import { vi } from 'vitest';
 import {act, render} from '@testing-library/react';
 import {RetroContextProvider} from './RetroContext.tsx';
-import { DateTime } from 'luxon';
-import {WebsocketService} from '../../services/websocket/WebsocketService.ts';
+import {useRetro} from "../hooks.tsx";
 import {Thought} from "../../services/retro-service/RetroService.ts";
+import {DateTime} from "luxon";
+import {WebsocketService} from "../../services/websocket/WebsocketService.ts";
 import {
     createThoughtSubscriptionId,
-    deleteThoughtSubscriptionId,
-    updateThoughtSubscriptionId
-} from '../../services/websocket/constants/thoughts.ts';
-import {useRetro} from "../hooks.tsx";
+    updateThoughtSubscriptionId,
+    deleteThoughtSubscriptionId
+} from "../../services/websocket/constants/thoughts.ts";
 
-jest.mock('../../services/websocket/WebsocketService.ts', () => ({
+vi.mock('../../services/websocket/WebsocketService.ts', () => ({
     WebsocketService: {
-        subscribe: jest.fn(),
-        unsubscribe: jest.fn()
+        subscribe: vi.fn(),
+        unsubscribe: vi.fn()
     }
 }));
 
@@ -33,7 +34,7 @@ describe('RetroContextProvider', () => {
     };
 
     beforeEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
     });
 
     it('should subscribe to WebSocket events on mount', () => {

@@ -2,10 +2,11 @@ import { fireEvent, render, screen } from '@testing-library/react';
 import { AssigneeInput } from './AssigneeInput';
 import { ActionItemsService } from '../../../../../services/action-items-service/ActionItemsService';
 import { DateTime } from 'luxon';
+import {vi, describe, it, beforeEach, expect, Mock} from 'vitest';
 
-jest.mock('../../../../../services/action-items-service/ActionItemsService');
+vi.mock('../../../../../services/action-items-service/ActionItemsService');
 
-const setAssigneeMock = ActionItemsService.setAssignee as jest.Mock;
+const setAssigneeMock = ActionItemsService.setAssignee as Mock;
 
 describe('AssigneeInput', () => {
     const actionItem = {

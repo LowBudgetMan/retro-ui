@@ -5,11 +5,14 @@ import { ThemeProvider } from '../../context/theme/ThemeContext.tsx';
 import '@testing-library/jest-dom';
 import { ReactNode } from 'react';
 
-jest.mock('./CategoryPill.module.css', () => ({
-  pill: 'mock-pill-class',
+vi.mock('./CategoryPill.module.css', () => ({
+    default: {
+        pill: 'mock-pill-class',
+    },
+    pill: 'mock-pill-class',
 }));
 
-const mockMatchMedia = jest.fn();
+const mockMatchMedia = vi.fn();
 Object.defineProperty(window, 'matchMedia', {
   writable: true,
   value: mockMatchMedia,
@@ -28,15 +31,15 @@ describe('CategoryPill', () => {
   const mockMatchMediaImplementation = (matches: boolean) => {
     const mockMediaQuery = {
       matches,
-      addEventListener: jest.fn(),
-      removeEventListener: jest.fn(),
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
     };
     mockMatchMedia.mockReturnValue(mockMediaQuery);
     return mockMediaQuery;
   };
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   describe('Rendering', () => {

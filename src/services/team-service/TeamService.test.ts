@@ -1,4 +1,4 @@
-import '@jest/globals';
+import { vi } from 'vitest';
 import axios, {AxiosHeaders} from 'axios';
 import MockAdapter from 'axios-mock-adapter';
 import {Invite, TeamListItem, TeamService} from './TeamService.ts';
@@ -6,7 +6,7 @@ import {ApiConfig} from '../../config/ApiConfig.ts';
 
 const mock = new MockAdapter(axios);
 
-jest.mock('../../config/ApiConfig.ts', () => ({
+vi.mock('../../config/ApiConfig.ts', () => ({
     ApiConfig: {
         baseApiUrl: () => 'http://localhost:8080',
         websocketUrl: () => 'ws://localhost:8080/websocket/websocket'

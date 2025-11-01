@@ -4,13 +4,15 @@ import { Template } from '../../../services/retro-service/RetroService.ts';
 import { BrowserRouter } from 'react-router-dom';
 import '@testing-library/jest-dom';
 
-jest.mock('./CreateRetroFormOption.module.css', () => ({
-  option: 'mock-option-class',
-  displayContent: 'mock-display-content-class',
-  title: 'mock-title-class',
-  actionsContainer: 'mock-actions-container-class',
-  moreInfo: 'mock-more-info-class',
-  selectButton: 'mock-select-button-class',
+vi.mock('./CreateRetroFormOption.module.css', () => ({
+  default: {
+    option: 'mock-option-class',
+    displayContent: 'mock-display-content-class',
+    title: 'mock-title-class',
+    actionsContainer: 'mock-actions-container-class',
+    moreInfo: 'mock-more-info-class',
+    selectButton: 'mock-select-button-class',
+  },
 }));
 
 interface MockCategoryListProps {
@@ -24,7 +26,7 @@ interface MockCategoryListProps {
   }>;
 }
 
-jest.mock('../../../components/category-list/CategoryList.tsx', () => ({
+vi.mock('../../../components/category-list/CategoryList.tsx', () => ({
   CategoryList: ({ categories }: MockCategoryListProps) => (
     <div data-testid="category-list">
       {categories.map((category) => (
@@ -69,7 +71,7 @@ describe('CreateRetroFormOption', () => {
     ]
   };
 
-  const mockSelectionCallback = jest.fn();
+  const mockSelectionCallback = vi.fn();
 
   const defaultProps = {
     template: mockTemplate,
@@ -85,7 +87,7 @@ describe('CreateRetroFormOption', () => {
   };
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it('should render the correct title', () => {

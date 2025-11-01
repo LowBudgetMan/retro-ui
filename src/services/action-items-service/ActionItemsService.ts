@@ -1,6 +1,6 @@
 import axios from "axios";
 import { DateTime } from "luxon";
-import {ApiConfig} from '../../config/ApiConfig.ts';
+import {ApiConfig} from '../../config/ApiConfig';
 
 export interface ActionItem {
     id: string;

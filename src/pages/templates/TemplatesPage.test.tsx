@@ -5,11 +5,11 @@ import { TemplatesPageData } from './templatesLoader';
 import { Template } from '../../services/retro-service/RetroService.ts';
 import '@testing-library/jest-dom';
 
-jest.mock('react-router-dom', () => ({
-  useLoaderData: jest.fn(),
+vi.mock('react-router-dom', () => ({
+  useLoaderData: vi.fn(),
 }));
 
-jest.mock('../../context/hooks.tsx', () => ({
+vi.mock('../../context/hooks.tsx', () => ({
   useTheme: () => ({
     theme: 'light'
   }),
@@ -20,7 +20,7 @@ jest.mock('../../context/hooks.tsx', () => ({
   }
 }));
 
-const mockMatchMedia = jest.fn();
+const mockMatchMedia = vi.fn();
 Object.defineProperty(window, 'matchMedia', {
   writable: true,
   value: mockMatchMedia,
@@ -120,8 +120,8 @@ describe('TemplatesPage', () => {
   };
 
   beforeEach(() => {
-    jest.clearAllMocks();
-    (useLoaderData as jest.Mock).mockReturnValue(mockTemplatesPageData);
+    vi.clearAllMocks();
+    (useLoaderData as ReturnType<typeof vi.fn>).mockReturnValue(mockTemplatesPageData as TemplatesPageData);
   });
 
   describe('Rendering', () => {

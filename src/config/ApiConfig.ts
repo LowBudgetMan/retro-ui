@@ -1,6 +1,10 @@
-interface AuthConfig {
-    authority: string;
-    clientId: string;
+import axios from "axios";
+import {AuthConfig, RemoteConfig} from "./ApiConfigTypes";
+
+declare global {
+  interface Window {
+    __BASE_API_URL__?: string;
+  }
 }
 
 interface ApiConfig {
@@ -9,26 +13,63 @@ interface ApiConfig {
     authConfig: () => AuthConfig;
 }
 
-const baseApiUrl = 'http://localhost:8080';
-const websocketUrl = window.location.hostname.includes('localhost')
-    ? 'ws://localhost:8080/websocket/websocket'
-    : `wss://${window.location.hostname}/websocket/websocket`;
+const baseApiUrl = window.__BASE_API_URL__ || import.meta.env.VITE_BASE_API_URL || '';
 
-const localAuthConfig: AuthConfig = {
-    authority: 'http://localhost:8010/realms/myrealm',
-    clientId: 'retroquest-web',
-}
+let websocketUrl: string
+let localAuthConfig: AuthConfig
+let isLoadingConfig = false;
+let configLoadPromise: Promise<void> | null = null;
 
 const getBaseApiUrl = () => {
     return baseApiUrl;
 }
 
+const isConfigured = () => {
+    return websocketUrl != undefined && localAuthConfig != undefined;
+}
+
 const getWebsocketUrl = () => {
+    if (!websocketUrl) {
+        throw new Error('Configuration not initialized. Call initializeConfig() first.');
+    }
     return websocketUrl;
 }
 
 const getAuthConfig = (): AuthConfig => {
+    if (!localAuthConfig) {
+        throw new Error('Configuration not initialized. Call initializeConfig() first.');
+    }
     return localAuthConfig;
+}
+
+export async function initializeConfig(): Promise<void> {
+    try {
+        const remoteConfig = (await axios.get(`${getBaseApiUrl()}/api/configuration`)).data as RemoteConfig;
+        websocketUrl = `${remoteConfig.websocketEnvironmentConfig.baseUrl}/websocket/websocket`;
+        localAuthConfig = { ...remoteConfig.webAuthentication };
+    } catch (error) {
+        console.error('Failed to initialize configuration:', error);
+        throw error;
+    }
+}
+
+export async function waitForAppConfiguration(): Promise<void> {
+    if (isConfigured()) {
+        return Promise.resolve();
+    }
+
+    if (isLoadingConfig) {
+        return configLoadPromise!;
+    }
+
+    isLoadingConfig = true;
+    configLoadPromise = initializeConfig()
+        .finally(() => {
+            isLoadingConfig = false;
+            configLoadPromise = null;
+        });
+
+    return configLoadPromise;
 }
 
 export const ApiConfig: ApiConfig = {
