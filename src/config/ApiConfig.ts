@@ -7,7 +7,7 @@ interface ApiConfig {
     authConfig: () => AuthConfig;
 }
 
-const baseApiUrl = 'http://localhost:8080';
+const baseApiUrl = (window as any).__BASE_API_URL__ || import.meta.env.VITE_BASE_API_URL || '';
 
 let websocketUrl: string
 let localAuthConfig: AuthConfig
