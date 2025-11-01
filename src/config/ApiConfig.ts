@@ -1,13 +1,19 @@
 import axios from "axios";
 import {AuthConfig, RemoteConfig} from "./ApiConfigTypes";
 
+declare global {
+  interface Window {
+    __BASE_API_URL__?: string;
+  }
+}
+
 interface ApiConfig {
     baseApiUrl: () => string;
     websocketUrl: () => string;
     authConfig: () => AuthConfig;
 }
 
-const baseApiUrl = (window as any).__BASE_API_URL__ || import.meta.env.VITE_BASE_API_URL || '';
+const baseApiUrl = window.__BASE_API_URL__ || import.meta.env.VITE_BASE_API_URL || '';
 
 let websocketUrl: string
 let localAuthConfig: AuthConfig

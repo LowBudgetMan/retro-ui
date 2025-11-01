@@ -21,6 +21,16 @@ describe('ApiConfig', () => {
             const { ApiConfig } = await import('./ApiConfig');
             expect(ApiConfig.baseApiUrl()).toBe('http://localhost:8080');
         });
+
+        it('should prioritize window.__BASE_API_URL__ over environment variable', async () => {
+            // Set window property before module import
+            (globalThis.window as Window).__BASE_API_URL__ = 'http://fromwindow.com';
+            vi.resetModules();
+            const { ApiConfig } = await import('./ApiConfig');
+            expect(ApiConfig.baseApiUrl()).toBe('http://fromwindow.com');
+            // Cleanup
+            delete (globalThis.window as Window).__BASE_API_URL__;
+        });
     });
 
     describe('ApiConfig.websocketUrl', () => {
