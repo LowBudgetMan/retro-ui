@@ -45,7 +45,7 @@ const getAuthConfig = (): AuthConfig => {
 export async function initializeConfig(): Promise<void> {
     try {
         const remoteConfig = (await axios.get(`${getBaseApiUrl()}/api/configuration`)).data as RemoteConfig;
-        websocketUrl = `${remoteConfig.websocketEnvironmentConfig.baseUrl}/websocket/websocket`;
+        websocketUrl = `${remoteConfig.websocketEnvironmentConfig.baseUrl}/api/websocket`;
         localAuthConfig = { ...remoteConfig.webAuthentication };
     } catch (error) {
         console.error('Failed to initialize configuration:', error);
