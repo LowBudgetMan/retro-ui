@@ -50,7 +50,7 @@ describe('ApiConfig', () => {
             mock.onGet('http://localhost:8080/api/configuration').reply(200, mockConfig);
 
             await initializeConfig();
-            expect(ApiConfig.websocketUrl()).toBe('ws://test.com/websocket/websocket');
+            expect(ApiConfig.websocketUrl()).toBe('ws://test.com/api/websocket');
         });
     });
 
@@ -89,7 +89,7 @@ describe('ApiConfig', () => {
 
             await expect(initializeConfig()).resolves.toBeUndefined();
 
-            expect(ApiConfig.websocketUrl()).toBe('ws://test.com/websocket/websocket');
+            expect(ApiConfig.websocketUrl()).toBe('ws://test.com/api/websocket');
             expect(ApiConfig.authConfig()).toEqual({ authority: 'auth.com', clientId: 'client1' });
 
             expect(mock.history.get[0].url).toBe('http://localhost:8080/api/configuration');
@@ -215,7 +215,7 @@ describe('ApiConfig', () => {
             await initializeConfig();
 
             // After configuration, all methods should work
-            expect(ApiConfig.websocketUrl()).toBe('ws://test.com/websocket/websocket');
+            expect(ApiConfig.websocketUrl()).toBe('ws://test.com/api/websocket');
             expect(ApiConfig.authConfig()).toEqual({ authority: 'auth.com', clientId: 'client1' });
         });
     });
