@@ -13,6 +13,10 @@ function getUserManagerSettings(): UserManagerSettings {
         filterProtocolClaims: true,
         silent_redirect_uri: `${window.location.origin}/silent-redirect`,
         includeIdTokenInSilentRenew: true,
+        extraQueryParams: {
+            audience: `${ApiConfig.baseApiUrl()}/api`,
+        }
+
     };
 }
 
