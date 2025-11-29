@@ -3,6 +3,8 @@ import styles from './ThoughtCard.module.css';
 import {useCallback, useState, KeyboardEvent, useEffect} from "react";
 import {ThoughtService} from "../../../../services/thought-service/ThoughtService.ts";
 import {onKeys} from "../../../../services/key-event-handler/KeyEventHandler.ts";
+import { FaEdit, FaRegTrashAlt } from "react-icons/fa";
+import { ImCheckboxChecked, ImCheckboxUnchecked } from "react-icons/im";
 
 interface Props {
     teamId: string;
@@ -68,9 +70,9 @@ export function ThoughtCard({teamId, thought}: Props) {
                     )}
                     <div className={styles.actionsContainer}>
                         <button className={styles.action} name='vote' aria-label={'vote'} onClick={handleVote}>{thought.votes}</button>
-                        <button className={styles.action} name='edit' aria-label={'edit'} onClick={() => setEditing(!editing)}>E</button>
-                        <button className={styles.action} name='delete' aria-label={'delete'} onClick={handleDeleteClick}>D</button>
-                        <button className={styles.action} name='mark complete' aria-label={'mark complete'} onClick={handleCompleteClicked}>{thought.completed ? 'C' : 'N'}</button>
+                        <button className={styles.action} name='edit' aria-label={'edit'} onClick={() => setEditing(!editing)}><FaEdit title={'Edit'} fontSize={'1rem'}/></button>
+                        <button className={styles.action} name='delete' aria-label={'delete'} onClick={handleDeleteClick}><FaRegTrashAlt title={'Delete'} fontSize={'1rem'}/></button>
+                        <button className={styles.action} name='mark complete' aria-label={'mark complete'} onClick={handleCompleteClicked}>{thought.completed ? <ImCheckboxChecked title={'Completed'} fontSize={'1rem'}/> : <ImCheckboxUnchecked title={'Incomplete'} fontSize={'1rem'}/>}</button>
                     </div>
                 </>
             )}

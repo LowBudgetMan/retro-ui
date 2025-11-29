@@ -59,7 +59,7 @@ describe('ThoughtCard', () => {
         }
         render(<ThoughtCard teamId={teamId} thought={incompleteThought}/>);
 
-        expect(screen.getByLabelText('mark complete')).toHaveTextContent('N');
+        expect(screen.getByLabelText('mark complete')).toHaveTextContent('Incomplete');
     });
 
     it('should display "C" when thought is completed', () => {
@@ -69,7 +69,7 @@ describe('ThoughtCard', () => {
         }
         render(<ThoughtCard teamId={teamId} thought={completeThought}/>);
 
-        expect(screen.getByLabelText('mark complete')).toHaveTextContent('C');
+        expect(screen.getByLabelText('mark complete')).toHaveTextContent('Complete');
     });
 
     it('should call ThoughtService.setCompleted with inverse of completed when mark complete button is clicked', () => {
