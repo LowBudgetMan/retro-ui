@@ -17,7 +17,7 @@ export function InviteListItem({ invite, teamId, teamName }: Props) {
             teamId,
             teamName
         } as InvitePackage));
-        const inviteLink = `http://localhost:3000/invite?package=${invitePackage}`;
+        const inviteLink = `${window.location.origin}/invite?package=${invitePackage}`;
         try {
             await navigator.clipboard.writeText(inviteLink);
             // TODO: Add toast pop-up
