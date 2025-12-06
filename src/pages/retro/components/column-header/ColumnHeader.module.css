@@ -1,0 +1,19 @@
+.categoryName {
+    padding: 0.5rem 2rem;
+    text-align: center;
+    border-radius: 5px;
+    position: relative;
+}
+
+.sortButton {
+    background-color: unset;
+    border: unset;
+}
+
+.sortIcon {
+    font-size: 1.2rem;
+    position: absolute;
+    right: 1rem;
+    top: 50%;
+    transform:translateY(-50%);
+}

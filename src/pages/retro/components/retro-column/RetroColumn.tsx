@@ -4,8 +4,9 @@ import {ThoughtCard} from "../thought-card/ThoughtCard.tsx";
 import styles from "./RetroColumn.module.css";
 import {CountSeparator} from "../count-separator/CountSeparator.tsx";
 import {Theme} from "../../../../context/theme/ThemeContextTypes.ts";
-import {useMemo} from "react";
+import {useMemo, useState} from "react";
 import {useTheme} from "../../../../context/hooks.tsx";
+import {ColumnHeader} from "../column-header/ColumnHeader.tsx";
 
 interface RetroColumnProps {
     teamId: string;
@@ -14,13 +15,14 @@ interface RetroColumnProps {
     thoughts: Thought[];
 }
 
-interface CategoryStyling {
+export interface CategoryStyling {
     backgroundColor: string;
     textColor: string
 }
 
 export function RetroColumn({teamId, retroId, category, thoughts}: RetroColumnProps) {
     const {getEffectiveTheme} = useTheme();
+    const [isSorting, setSorting] = useState(false);
     const categoryStyling: CategoryStyling = useMemo(() => {
         const theme = getEffectiveTheme();
         const backgroundColor = theme === Theme.DARK ? category.darkBackgroundColor : category.lightBackgroundColor;
@@ -31,19 +33,26 @@ export function RetroColumn({teamId, retroId, category, thoughts}: RetroColumnPr
         }
     }, [getEffectiveTheme, category])
 
+    const handleSortToggle = () => {
+        setSorting((isSorting) => !isSorting);
+    }
+
     const sortedThoughts = useMemo(() => {
-        return [...thoughts].sort((a, b) => {
-            if (a.completed === b.completed) return 0;
-            return a.completed ? 1 : -1;
-        });
-    }, [thoughts]);
+        let completedThoughts = [...thoughts.filter((thought) => thought.completed)];
+        let incompleteThoughts = [...thoughts.filter((thought) => !thought.completed)];
+        if(isSorting) completedThoughts = completedThoughts.sort((a, b) => b.votes - a.votes)
+        if(isSorting) incompleteThoughts = incompleteThoughts.sort((a, b) => b.votes - a.votes)
+        return [...incompleteThoughts, ...completedThoughts];
+    }, [thoughts, isSorting]);
 
     return (
         <div key={`column${category.name}`} className={styles.retroCategory}>
-            <h2 className={styles.categoryName} style={{
-                'backgroundColor': categoryStyling.backgroundColor,
-                'color': categoryStyling.textColor
-            }}>{category.name}</h2>
+            <ColumnHeader
+                category={category}
+                styling={categoryStyling}
+                isSorting={isSorting}
+                toggleSort={handleSortToggle}
+            />
             <CreateThought
                 teamId={teamId}
                 retroId={retroId}
