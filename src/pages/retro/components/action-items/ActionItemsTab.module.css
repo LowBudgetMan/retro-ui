@@ -6,6 +6,7 @@
     background-color: #4F97A0;
     transition: right 0.5s ease-in-out;
     padding: 1rem 0;
+    z-index: 2;
 }
 
 .containerOpen {
