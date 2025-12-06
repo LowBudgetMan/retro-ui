@@ -30,7 +30,7 @@
     padding: 0.5rem;
 
     &:not(:last-child) {
-        border-right: 2px solid lightgray;
+        border-right: 1px solid lightgray;
     }
 
     &:first-child {
@@ -40,4 +40,19 @@
     &:last-child {
         border-bottom-right-radius: 6px;
     }
+}
+
+.action:disabled, .completed .action {
+    cursor: unset;
+    background-color: var(--background-secondary);
+    color: #6D6D6D;
+}
+
+.completed {
+    opacity: 0.5;
+}
+
+.completed:hover {
+    cursor: unset;
+    box-shadow: unset;
 }

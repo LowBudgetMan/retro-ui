@@ -49,7 +49,7 @@ export function ThoughtCard({teamId, thought}: Props) {
     }, [thought, editing])
 
     return (
-        <div className={styles.card}>
+        <div className={`${styles.card} ${thought.completed ? styles.completed : ''}`}>
             {showDeleteConfirmation ? (
                 <div>
                     <p className={styles.message}>Are you sure you want to delete this thought?</p>
@@ -70,10 +70,18 @@ export function ThoughtCard({teamId, thought}: Props) {
                         <p className={styles.message}>{thought.message}</p>
                     )}
                     <div className={styles.actionsContainer}>
-                        <button className={styles.action} name='vote' aria-label={'vote'} onClick={handleVote}><VoteCount votes={thought.votes} /></button>
-                        <button className={styles.action} name='edit' aria-label={'edit'} onClick={() => setEditing(!editing)}><FaEdit title={'Edit'} fontSize={'1rem'}/></button>
-                        <button className={styles.action} name='delete' aria-label={'delete'} onClick={handleDeleteClick}><FaRegTrashAlt title={'Delete'} fontSize={'1rem'}/></button>
-                        <button className={styles.action} name='mark complete' aria-label={'mark complete'} onClick={handleCompleteClicked}>{thought.completed ? <ImCheckboxChecked title={'Completed'} fontSize={'1rem'}/> : <ImCheckboxUnchecked title={'Incomplete'} fontSize={'1rem'}/>}</button>
+                        <button className={styles.action} name='vote' aria-label={'vote'} onClick={handleVote} disabled={thought.completed}>
+                            <VoteCount votes={thought.votes} />
+                        </button>
+                        <button className={styles.action} name='edit' aria-label={'edit'} onClick={() => setEditing(!editing)} disabled={thought.completed}>
+                            <FaEdit title={'Edit'} fontSize={'1rem'}/>
+                        </button>
+                        <button className={styles.action} name='delete' aria-label={'delete'} onClick={handleDeleteClick} disabled={thought.completed}>
+                            <FaRegTrashAlt title={'Delete'} fontSize={'1rem'}/>
+                        </button>
+                        <button className={styles.action} name='mark complete' aria-label={'mark complete'} style={{cursor: 'pointer'}} onClick={handleCompleteClicked}>
+                            {thought.completed ? <ImCheckboxChecked title={'Completed'} fontSize={'1rem'}/> : <ImCheckboxUnchecked title={'Incomplete'} fontSize={'1rem'}/>}
+                        </button>
                     </div>
                 </>
             )}
