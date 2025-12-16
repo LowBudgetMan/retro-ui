@@ -54,3 +54,23 @@ export async function waitForAuthInitialization(): Promise<void> {
         await attemptSilentSignIn();
     }
 }
+
+export function storeReturnUrl(url?: string): void {
+    const returnUrl = url || (window.location.pathname + window.location.search);
+    localStorage.setItem('auth_return_url', returnUrl);
+}
+
+export function getReturnUrl(): string | null {
+    const returnUrl = localStorage.getItem('auth_return_url');
+    if (returnUrl) {
+        localStorage.removeItem('auth_return_url');
+    }
+    return returnUrl;
+}
+
+export async function initiateLoginWithReturnUrl(returnUrl?: string): Promise<void> {
+    const userManager = getUserManager();
+    
+    storeReturnUrl(returnUrl);
+    await userManager.signinRedirect();
+}
