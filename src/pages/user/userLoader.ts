@@ -1,12 +1,12 @@
 import {TeamListItem, TeamService} from "../../services/team-service/TeamService.ts";
-import {ensureAuthenticatedApi} from "../../utils/authSetup.ts";
+import {ensureAuthenticatedWithReturnUrl} from "../../utils/authSetup.ts";
 
 export interface UserPageData {
     teams: TeamListItem[]
 }
 
 export async function loader(): Promise<UserPageData> {
-    await ensureAuthenticatedApi();
+    await ensureAuthenticatedWithReturnUrl();
 
     return {
         teams: await TeamService.getTeams()
