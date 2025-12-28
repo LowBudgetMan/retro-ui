@@ -1,0 +1,16 @@
+.inputContainer {
+    display: flex;
+    flex-direction: column;
+    margin-top: 1rem;
+}
+
+.assigneeLabel {
+    font-weight: bold;
+    font-size: 0.8rem;
+}
+
+.assignee {
+    border: none;
+    border-bottom: 1px solid var(--bonfire-orange);
+    padding: 0.5rem 1rem 0 0;
+}

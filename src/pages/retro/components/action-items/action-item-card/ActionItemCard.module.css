@@ -1,14 +1,57 @@
 .card {
     color: #1a1a1a;
     background-color: white;
-    border: 1px solid var(--border-color);
     border-radius: 4px;
-    margin-bottom: 1rem;
+}
+
+.content {
+    display: flex;
+    flex-direction: column;
     padding: 1rem;
+}
+
+.action {
+    margin: 0;
 }
 
 .cardBottom {
     display: flex;
     flex-direction: row;
+    border-top: 1px solid var(--border-color);
+    height: 2.5rem;
+}
+
+.bottomItem {
     flex-grow: 1;
+}
+
+.bottomButton {
+    border-radius: unset;
+    border: none;
+    background-color: transparent;
+    border-left: 1px solid var(--border-color);
+}
+
+.bottomButton:hover {
+    background-color: rgba(0, 0, 0, 0.075);
+}
+
+.createdDate {
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+    text-align: center;
+    font-size: 0.8rem;
+    align-self: center;
+}
+
+.confirmDelete {
+    /*color: #fff;*/
+    /*background-color: var(--bonfire-good);*/
+    border: none;
+}
+
+.cancelDelete {
+    /*color: #fff;*/
+    /*background-color: var(--bonfire-bad);*/
 }

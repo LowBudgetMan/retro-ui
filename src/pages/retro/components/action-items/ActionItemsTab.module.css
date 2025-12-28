@@ -1,9 +1,21 @@
+:root {
+    --action-items-tab-width: 356px;
+}
+
+:root[data-theme="light"] {
+    --tab-color: var(--bonfire-orange);
+}
+
+:root[data-theme="dark"] {
+    --tab-color: var(--bonfire-orange);
+}
+
 .container {
     position: fixed;
     /* TODO: Variablize to be header height (change header height to be a variable)*/
     top: 4.5rem;
-    width: 324px;
-    background-color: #4F97A0;
+    width: var(--action-items-tab-width);
+    background-color: var(--tab-color);
     transition: right 0.5s ease-in-out;
     padding: 1rem 0;
     z-index: 2;
@@ -14,7 +26,7 @@
 }
 
 .containerClosed {
-    right: -324px;
+    right: calc(4px - var(--action-items-tab-width));
 }
 
 .tab {
@@ -24,9 +36,10 @@
     transform-origin: top left;
     transform: rotate(-90deg) translateY(-100%) translateX(-100%);
 
-    padding: 1rem 1rem;
-    background-color: #4F97A0;
-    clip-path: polygon(15% 0%, 85% 0%, 100% 25%, 100% 100%, 0 100%, 0% 25%);
+    padding: 0.6rem 1rem;
+    background-color: var(--tab-color);
+    color: var(--text-primary);
+    border-radius: 0.5rem 0.5rem 0 0;
 
     cursor: pointer;
 
@@ -35,7 +48,7 @@
 
 .content {
     /* TODO: Variablize parts of CSS calculations*/
-    max-height: calc(100vh - 4.5rem - 2rem); /*VH - header - padding*/
+    height: calc(100vh - 4.5rem - 2rem); /*VH - header - padding*/
     overflow-y: auto;
     padding: 0 1.5rem;
     box-sizing: border-box;
@@ -57,4 +70,7 @@
     list-style: none;
     margin: 0;
     padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
 }

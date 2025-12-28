@@ -52,7 +52,7 @@ describe('ThoughtCard', () => {
         );
     });
 
-    it('should display "N" when thought is not completed', () => {
+    it('should display "Incomplete" when thought is not completed', () => {
         const incompleteThought: Thought = {
             ...thought,
             completed: false,
@@ -62,7 +62,7 @@ describe('ThoughtCard', () => {
         expect(screen.getByLabelText('mark complete')).toHaveTextContent('Incomplete');
     });
 
-    it('should display "C" when thought is completed', () => {
+    it('should display "Complete" when thought is completed', () => {
         const completeThought: Thought = {
            ...thought,
             completed: true,

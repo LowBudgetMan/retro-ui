@@ -1,6 +1,7 @@
 import {ActionItem, ActionItemsService} from "../../../../../services/action-items-service/ActionItemsService.ts";
 import {KeyboardEvent, useState} from "react";
 import {onKeys} from "../../../../../services/key-event-handler/KeyEventHandler.ts";
+import styles from './AssigneeInput.module.css';
 
 export interface AssigneeInputProps {
     actionItem: ActionItem;
@@ -24,8 +25,10 @@ export function AssigneeInput({actionItem}: AssigneeInputProps) {
     };
 
     return (
-        <label>Assigned to
+        <label className={styles.inputContainer}>
+            <span className={styles.assigneeLabel}>Assigned to</span>
             <input
+                className={styles.assignee}
                 type="text"
                 value={assignee}
                 onChange={(event) => setAssignee(event.target.value)}
