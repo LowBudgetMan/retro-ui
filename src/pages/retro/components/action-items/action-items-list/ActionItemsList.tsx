@@ -12,6 +12,10 @@ function sort(actionItems: ActionItem[]): ActionItem[] {
     actionItems.forEach(actionItem => {
         actionItem.completed ?  complete.push(actionItem) : incomplete.push(actionItem);
     });
+
+    incomplete.sort((a, b) => a.createdAt.toMillis() - b.createdAt.toMillis());
+    complete.sort((a, b) => a.createdAt.toMillis() - b.createdAt.toMillis());
+
     return [...incomplete, ...complete];
 }
 
