@@ -52,7 +52,7 @@ export function ActionItemCard({actionItem}: ActionItemCardProps) {
     }, [])
 
     return (
-        <div id={actionItem.id} className={styles.card}>
+        <div id={actionItem.id} className={`${styles.card} ${actionItem.completed ? styles.completed : ''}`}>
             {showDeleteConfirmation ? (
                 <div>
                     <p className={styles.content}>Are you sure you want to delete this action item?</p>
@@ -80,10 +80,10 @@ export function ActionItemCard({actionItem}: ActionItemCardProps) {
                             <span style={{fontWeight: 'bold'}}>Created</span>
                             <span>{actionItem.createdAt.toFormat('MMM dd')}{nthCalculator(actionItem.createdAt)}</span>
                         </p>
-                        <button className={`${styles.bottomItem} ${styles.bottomButton}`} aria-label={'edit'} onClick={() => setEditing(!editing)}>
+                        <button className={`${styles.bottomItem} ${styles.bottomButton}`} aria-label={'edit'} onClick={() => setEditing(!editing)} disabled={actionItem.completed}>
                             <FaEdit title={'Edit'} fontSize={'1rem'}/>
                         </button>
-                        <button className={`${styles.bottomItem} ${styles.bottomButton}`} aria-label={'delete'} onClick={handleDeleteClick}>
+                        <button className={`${styles.bottomItem} ${styles.bottomButton}`} aria-label={'delete'} onClick={handleDeleteClick} disabled={actionItem.completed}>
                             <FaRegTrashAlt title={'Delete'} fontSize={'1rem'}/>
                         </button>
                         <button className={`${styles.bottomItem} ${styles.bottomButton}`} aria-label={'mark complete'} onClick={handleCompleteClicked}>

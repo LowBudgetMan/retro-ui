@@ -60,4 +60,9 @@ describe('AssigneeInput', () => {
         expect(setAssigneeMock).not.toHaveBeenCalled();
         expect(input.value).toBe('Test User');
     });
+
+    it('should disable the input if the action item is completed', () => {
+        render(<AssigneeInput actionItem={{...actionItem, completed: true}} />);
+        expect(screen.getByDisplayValue('Test User') as HTMLInputElement).toBeDisabled();
+    });
 });

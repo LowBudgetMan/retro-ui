@@ -219,4 +219,17 @@ describe('ActionItemCard', () => {
             expect(screen.queryByText('Are you sure you want to delete this action item?')).not.toBeInTheDocument();
         });
     });
+
+    describe('when completed', () => {
+        const completedActionItem: ActionItem = {...actionItem, completed: true};
+        it('should disable the edit button', () => {
+            render(<ActionItemCard actionItem={completedActionItem}/>);
+            expect(screen.getByLabelText('edit')).toBeDisabled();
+        });
+
+        it('should disable the delete button', () => {
+            render(<ActionItemCard actionItem={completedActionItem}/>);
+            expect(screen.getByLabelText('delete')).toBeDisabled();
+        });
+    })
 });

@@ -4,6 +4,10 @@
     border-radius: 4px;
 }
 
+.completed {
+    opacity: 0.5;
+}
+
 .content {
     display: flex;
     flex-direction: column;
@@ -36,6 +40,11 @@
     background-color: rgba(0, 0, 0, 0.075);
 }
 
+.bottomButton:disabled {
+    background-color: unset;
+    cursor: default;
+}
+
 .createdDate {
     display: flex;
     flex-direction: column;
@@ -46,12 +55,5 @@
 }
 
 .confirmDelete {
-    /*color: #fff;*/
-    /*background-color: var(--bonfire-good);*/
     border: none;
-}
-
-.cancelDelete {
-    /*color: #fff;*/
-    /*background-color: var(--bonfire-bad);*/
 }

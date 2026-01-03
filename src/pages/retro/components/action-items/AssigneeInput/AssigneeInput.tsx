@@ -34,6 +34,7 @@ export function AssigneeInput({actionItem}: AssigneeInputProps) {
                 onChange={(event) => setAssignee(event.target.value)}
                 onKeyDown={onKeys(['Enter'], handleKeyPress)}
                 onBlur={handleUpdate}
+                disabled={actionItem.completed}
             />
         </label>
     );
