@@ -2,7 +2,6 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { ActionItemsTab } from './ActionItemsTab.tsx';
 import { useActionItems } from '../../../../context/hooks.tsx';
 import { ActionItemsService } from '../../../../services/action-items-service/ActionItemsService.ts';
-import { DateTime } from 'luxon';
 import {vi, describe, it, beforeEach, expect, Mock} from 'vitest';
 
 vi.mock('../../../../context/hooks.tsx');
@@ -44,21 +43,6 @@ describe('ActionItemsTab', () => {
         fireEvent.click(tab);
 
         expect(container.firstChild).toHaveClass('containerClosed');
-    });
-
-    it('should display action items', () => {
-        const actionItems = [
-            {id: '1', action: 'Do a thing', createdAt: DateTime.now()},
-            {id: '2', action: 'Do another thing', createdAt: DateTime.now()}
-        ];
-        useActionItemsMock.mockReturnValue({teamId: '123', actionItems});
-        render(<ActionItemsTab />);
-
-        const tab = screen.getByRole('button', { name: `Action Items`});
-        fireEvent.click(tab);
-
-        expect(screen.getByText('Do a thing')).toBeInTheDocument();
-        expect(screen.getByText('Do another thing')).toBeInTheDocument();
     });
 
     it('should close the tab on escape key press', () => {

@@ -2,9 +2,9 @@ import styles from './ActionItemsTab.module.css';
 import {FormEvent, useEffect, useState} from "react";
 import {onKeys} from "../../../../services/key-event-handler/KeyEventHandler.ts";
 import {useActionItems} from "../../../../context/hooks.tsx";
-import {ActionItemCard} from "./action-item-card/ActionItemCard.tsx";
 import {ActionItemsService} from "../../../../services/action-items-service/ActionItemsService.ts";
 import {CountSeparator} from "../count-separator/CountSeparator.tsx";
+import {ActionItemsList} from "./action-items-list/ActionItemsList.tsx";
 
 export function ActionItemsTab() {
     const {teamId, actionItems} = useActionItems();
@@ -46,9 +46,7 @@ export function ActionItemsTab() {
                     <button type={'submit'}>Add</button>
                 </form>
                 <CountSeparator count={actionItems.length} />
-                <ol className={styles.list}>
-                    {actionItems.map(item => (<li className={styles.listItem} key={item.id} ><ActionItemCard actionItem={item}/></li>))}
-                </ol>
+                <ActionItemsList actionItems={actionItems} />
             </div>
         </div>
     )
