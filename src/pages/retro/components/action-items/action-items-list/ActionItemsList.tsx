@@ -6,10 +6,19 @@ interface Props {
     actionItems: ActionItem[];
 }
 
+function sort(actionItems: ActionItem[]): ActionItem[] {
+    const complete: ActionItem[] = [];
+    const incomplete: ActionItem[] = [];
+    actionItems.forEach(actionItem => {
+        actionItem.completed ?  complete.push(actionItem) : incomplete.push(actionItem);
+    });
+    return [...incomplete, ...complete];
+}
+
 export function ActionItemsList({actionItems}: Props) {
     return (
         <ol className={styles.list}>
-            {actionItems.map(item => (<li key={item.id} ><ActionItemCard actionItem={item}/></li>))}
+            {sort(actionItems).map(item => (<li key={item.id} ><ActionItemCard actionItem={item}/></li>))}
         </ol>
     );
 }
