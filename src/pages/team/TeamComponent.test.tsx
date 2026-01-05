@@ -1,12 +1,10 @@
 import {render, screen, within} from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
-import {TeamPage} from './TeamPage';
-import {useLoaderData, useRevalidator} from 'react-router-dom';
+import {TeamComponent} from './TeamComponent.tsx';
+import {useLoaderData} from 'react-router-dom';
 import {TeamPageData} from './teamLoader';
 import {RetroListItem, Template} from '../../services/retro-service/RetroService.ts';
 import '@testing-library/jest-dom';
 import {DateTime} from 'luxon';
-import {Invite, TeamService} from "../../services/team-service/TeamService.ts";
 import React from "react";
 import {Mock} from "vitest";
 
@@ -48,13 +46,7 @@ vi.mock('./TeamPage.module.css', () => ({
     retroListItem: 'mock-retro-list-item-class',
 }));
 
-vi.mock('../../services/team-service/TeamService.ts', () => ({
-    TeamService: {
-        createInvite: vi.fn(),
-    },
-}));
-
-describe('TeamPage', () => {
+describe('TeamComponent', () => {
     const mockTemplates: Template[] = [
         {
             id: 'template-1',
@@ -105,40 +97,21 @@ describe('TeamPage', () => {
         }
     ];
 
-    const mockInvites: Invite[] = [
-        {
-            id: 'inviteId1',
-            teamId: 'teamId1',
-            createdAt: new Date('2023-01-01T00:00:00Z'),
-        },
-        {
-            id: 'inviteId2',
-            teamId: 'teamId1',
-            createdAt: new Date('2023-01-02T00:00:00Z'),
-        }
-    ]
-
     const mockTeamData: TeamPageData = {
         id: 'team-123',
         name: 'Test Team',
         createdAt: new Date('2023-01-01T00:00:00Z'),
         retros: mockRetros,
         templates: mockTemplates,
-        invites: mockInvites
+        invites: [],
+        actionItems: []
     };
 
-    beforeEach(() => {
-        vi.clearAllMocks();
-        (useLoaderData as Mock).mockReturnValue(mockTeamData);
-        (useRevalidator as Mock).mockReturnValue({
-            revalidate: vi.fn().mockResolvedValue(undefined),
-            state: 'idle'
-        } as const);
-    });
+    const teamComponent = <TeamComponent id={'team-123'} name={'Test Team'} retros={mockRetros} templates={mockTemplates} invites={[]}/>;
 
     describe('Rendering', () => {
         it('should render the home link', () => {
-            render(<TeamPage/>);
+            render(teamComponent);
 
             const homeLink = screen.getByRole('link', {name: 'Back to user home'});
             expect(homeLink).toBeInTheDocument();
@@ -146,12 +119,12 @@ describe('TeamPage', () => {
         });
 
         it('should render the team name', () => {
-            render(<TeamPage/>);
+            render(teamComponent);
             expect(screen.getByText('Test Team')).toBeInTheDocument();
         });
 
         it('should render CreateRetroButton as first list item', () => {
-            render(<TeamPage/>);
+            render(teamComponent);
 
             const createRetroButton = screen.getByTestId('create-retro-button');
             expect(createRetroButton).toBeInTheDocument();
@@ -165,14 +138,14 @@ describe('TeamPage', () => {
 
     describe('Retro Cards Rendering', () => {
         it('should render RetroCard for each retro', () => {
-            render(<TeamPage/>);
+            render(teamComponent);
 
             expect(screen.getByTestId('retro-card-retro-1')).toBeInTheDocument();
             expect(screen.getByTestId('retro-card-retro-2')).toBeInTheDocument();
         });
 
         it('should match retros with correct templates', () => {
-            render(<TeamPage/>);
+            render(teamComponent);
 
             const templateNames = screen.getAllByTestId('retro-template-name');
             expect(templateNames).toHaveLength(2);
@@ -198,14 +171,16 @@ describe('TeamPage', () => {
 
             (useLoaderData as Mock).mockReturnValue(teamDataWithMissingTemplate);
 
-            render(<TeamPage/>);
+            render(<TeamComponent id={mockTeamData.id} name={mockTeamData.name} invites={mockTeamData.invites}
+                                  retros={[...mockRetros, retroWithMissingTemplate]}
+                                  templates={mockTeamData.templates}/>);
 
             const templateNames = screen.getAllByTestId('retro-template-name');
             expect(templateNames[2]).toHaveTextContent('Retro Type Not Found');
         });
 
         it('should correctly match templates by id', () => {
-            render(<TeamPage/>);
+            render(teamComponent);
 
             const retro1TemplateId = screen.getAllByTestId('retro-id')[0];
             const retro2TemplateId = screen.getAllByTestId('retro-id')[1];
@@ -217,57 +192,10 @@ describe('TeamPage', () => {
 
     describe('Navigation', () => {
         it('should render home link with correct href', () => {
-            render(<TeamPage/>);
+            render(teamComponent);
 
             const homeLink = screen.getByRole('link', {name: 'Back to user home'});
             expect(homeLink).toHaveAttribute('href', '/user');
-        });
-    });
-
-    describe('Invites', () => {
-        it('should render the invites section with heading', () => {
-            render(<TeamPage/>);
-
-            expect(screen.getByText('Invites')).toBeInTheDocument();
-            expect(screen.getByRole('button', {name: 'Create invite link'})).toBeInTheDocument();
-        });
-
-        it('should pass correct props to InviteListItem components', () => {
-            render(<TeamPage/>);
-            expect(screen.getByText('inviteId1')).toBeInTheDocument();
-            expect(screen.getByText('inviteId2')).toBeInTheDocument();
-        });
-
-        describe('Create invite button', () => {
-            it('should call TeamService.createInvite with correct team id when create button is clicked', async () => {
-                const user = userEvent.setup();
-                (TeamService.createInvite as Mock).mockResolvedValue('new-invite-id');
-
-                render(<TeamPage/>);
-
-                const createButton = screen.getByRole('button', {name: 'Create invite link'});
-                await user.click(createButton);
-
-                expect(TeamService.createInvite).toHaveBeenCalledWith('team-123');
-                expect(TeamService.createInvite).toHaveBeenCalledTimes(1);
-            });
-
-            it('should call revalidator.revalidate when createInvite is successful', async () => {
-                const user = userEvent.setup();
-                const mockRevalidate = vi.fn().mockResolvedValue(undefined);
-                (useRevalidator as Mock).mockReturnValue({
-                    revalidate: mockRevalidate,
-                    state: 'idle'
-                });
-                (TeamService.createInvite as Mock).mockResolvedValue('new-invite-id');
-
-                render(<TeamPage/>);
-
-                const createButton = screen.getByRole('button', {name: 'Create invite link'});
-                await user.click(createButton);
-
-                expect(mockRevalidate).toHaveBeenCalledTimes(1);
-            });
         });
     });
 });
