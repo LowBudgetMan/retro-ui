@@ -1,7 +1,6 @@
 import {createBrowserRouter, RouterProvider} from "react-router-dom";
 import {LandingPage} from "./pages/landing/LandingPage.tsx";
 import {UserPage} from "./pages/user/UserPage.tsx";
-import {TeamPage} from "./pages/team/TeamPage.tsx";
 import {RetroPage} from "./pages/retro/RetroPage.tsx";
 import {loader as userLoader} from "./pages/user/userLoader.ts";
 import {loader as teamLoader} from "./pages/team/teamLoader.ts";
@@ -14,6 +13,7 @@ import {ThemeProvider} from "./context/theme/ThemeContext.tsx";
 import {TemplatesPage} from "./pages/templates/TemplatesPage.tsx";
 import {SilentRedirectPage} from "./pages/auth-redirect/SilentRedirectPage.tsx";
 import {InvitePage} from "./pages/invite/InvitePage.tsx";
+import {TeamPage} from "./pages/team/TeamPage.tsx";
 
 const router = createBrowserRouter([
     {

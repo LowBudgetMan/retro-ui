@@ -1,0 +1,5 @@
+.sidePane {
+    padding: 0;
+    width: 20rem;
+    border-right: 1px solid var(--border-color);
+}
