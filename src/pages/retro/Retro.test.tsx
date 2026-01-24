@@ -9,6 +9,7 @@ import {Mock} from "vitest";
 
 vi.mock('react-router-dom', () => ({
   useLoaderData: vi.fn(),
+  useNavigate: vi.fn(),
   Link: ({ to, children, ...props }: PropsWithChildren<{to: string}>) => (
       <a href={to} {...props}>
         {children}
@@ -32,7 +33,11 @@ vi.mock('./components/retro-column/RetroColumn.tsx', () => ({
     RetroColumn: vi.fn(() => null),
 }));
 
-
+// vi.mock('react-router-dom', async (importOriginal) => ({
+//     ...(await importOriginal()),
+//     useLoaderData: vi.fn(),
+//     useNavigate: vi.fn(),
+// }));
 
 describe('RetroComponent', () => {
   const mockRetro = {
@@ -134,4 +139,9 @@ describe('RetroComponent', () => {
         {}
     );
   });
+
+    it('should display the end retro button', () => {
+        render(<RetroComponent />);
+        expect(screen.getByText('End Retro')).toBeInTheDocument();
+    });
 });

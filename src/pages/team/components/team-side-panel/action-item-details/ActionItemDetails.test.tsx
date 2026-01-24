@@ -28,8 +28,8 @@ describe('ActionItemDetails', () => {
     it('should display action items passed from the hook', () => {
         (useActionItems as Mock).mockReturnValue({
             actionItems: [
-                {action: 'Do a thing', createdAt: DateTime.now()} as ActionItem,
-                {action: 'Do another thing', createdAt: DateTime.now()} as ActionItem,
+                {id: '1', action: 'Do a thing', createdAt: DateTime.now()} as ActionItem,
+                {id: '2', action: 'Do another thing', createdAt: DateTime.now()} as ActionItem,
             ]
         });
         render(<ActionItemDetails/>)

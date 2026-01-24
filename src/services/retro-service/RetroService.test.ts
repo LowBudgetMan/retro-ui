@@ -122,7 +122,7 @@ describe('RetroService', () => {
             mock.onPut(`${ApiConfig.baseApiUrl()}/api/teams/${teamId}/retros/${retroId}/finished`, { finished: true })
                 .reply(400);
 
-            expect(RetroService.setFinished(teamId, retroId, true)).rejects.toThrow();
+            await expect(RetroService.setFinished(teamId, retroId, true)).rejects.toThrow();
         });
     });
 

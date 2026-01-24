@@ -3,12 +3,17 @@ import {Link} from "react-router-dom";
 import {RetroColumn} from "./components/retro-column/RetroColumn.tsx";
 import {ActionItemsTab} from "./components/action-items/ActionItemsTab.tsx";
 import {useRetro} from "../../context/hooks.tsx";
+import {EndRetroButton} from "./components/end-retro-button/EndRetroButton.tsx";
 
 export function RetroComponent() {
     const {retro} = useRetro();
     return (
         <div>
-            <h1><Link to={`/teams/${retro.teamId}`} className={'breadcrumb'}>&lt;</Link>{retro.template.name}</h1>
+            <h1>
+                <Link to={`/teams/${retro.teamId}`} className={'breadcrumb'}>&lt;</Link>
+                {retro.template.name}
+                <EndRetroButton teamId={retro.teamId} retroId={retro.id} />
+            </h1>
             <div className={style.retroColumnsContainer}>
                 <div className={style.retroColumns}>
                     {retro.template.categories.map(category => (
