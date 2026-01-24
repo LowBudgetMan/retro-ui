@@ -91,6 +91,12 @@ async function createRetro(teamId: string, retroTemplateId: string) {
     });
 }
 
+async function setFinished(teamId: string, retroId: string, finished: boolean) {
+    return await axios.put(`${ApiConfig.baseApiUrl()}/api/teams/${teamId}/retros/${retroId}/finished`, {
+        finished
+    });
+}
+
 // TODO: Move thought stuff into ThoughtService
 async function createThought(teamId: string, retroId: string, message: string, categoryName: string) {
     return await axios.post(`${ApiConfig.baseApiUrl()}/api/teams/${teamId}/retros/${retroId}/thoughts`, {
@@ -109,6 +115,7 @@ export const RetroService = {
     getRetrosForTeam,
     getRetro,
     createRetro,
+    setFinished,
     createThought,
     getThoughts
 }

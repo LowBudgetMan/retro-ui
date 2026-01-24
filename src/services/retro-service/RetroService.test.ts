@@ -1,8 +1,8 @@
-import { vi } from 'vitest';
+import {vi} from 'vitest';
 import axios from 'axios';
 import MockAdapter from 'axios-mock-adapter';
-import { RetroService, Retro, Thought, RetroListItem } from './RetroService.ts';
-import { DateTime } from 'luxon';
+import {Retro, RetroListItem, RetroService, Thought} from './RetroService.ts';
+import {DateTime} from 'luxon';
 import {ApiConfig} from '../../config/ApiConfig.ts';
 
 const mock = new MockAdapter(axios);
@@ -106,6 +106,23 @@ describe('RetroService', () => {
             mock.onPost(`${ApiConfig.baseApiUrl()}/api/teams/${teamId}/retros`).reply(400);
 
             await expect(RetroService.createRetro(teamId, retroTemplateId)).rejects.toThrow();
+        });
+    });
+
+    describe('setFinished', () => {
+        it('should update the finished state of a retro', async () => {
+            mock.onPut(`${ApiConfig.baseApiUrl()}/api/teams/${teamId}/retros/${retroId}/finished`, { finished: true })
+                .reply(204);
+
+            const result = await RetroService.setFinished(teamId, retroId, true);
+            expect(result.status).toEqual(204);
+        });
+
+        it('should handle errors when updating the finished state of a retro', async () => {
+            mock.onPut(`${ApiConfig.baseApiUrl()}/api/teams/${teamId}/retros/${retroId}/finished`, { finished: true })
+                .reply(400);
+
+            expect(RetroService.setFinished(teamId, retroId, true)).rejects.toThrow();
         });
     });
 
