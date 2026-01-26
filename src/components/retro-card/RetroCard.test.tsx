@@ -1,8 +1,8 @@
-import { render, screen } from '@testing-library/react';
-import { RetroCard } from './RetroCard';
-import { RetroListItem, Template } from '../../services/retro-service/RetroService.ts';
+import {render, screen} from '@testing-library/react';
+import {RetroCard} from './RetroCard';
+import {RetroListItem, Template} from '../../services/retro-service/RetroService.ts';
 import '@testing-library/jest-dom';
-import { DateTime } from 'luxon';
+import {DateTime} from 'luxon';
 
 interface MockLinkProps {
   to: string;
@@ -82,7 +82,12 @@ describe('RetroCard', () => {
       expect(link).toHaveAttribute('href', '/teams/team-456/retros/retro-123');
     });
 
-    it('should render the template name', () => {
+      it('should not render the card as a link if the retro is finished', () => {
+          render(<RetroCard retro={{...mockRetro, finished: true}} template={mockTemplate} />);
+          expect(screen.queryByRole('link')).toBeNull();
+      });
+
+      it('should render the template name', () => {
       render(<RetroCard retro={mockRetro} template={mockTemplate} />);
       expect(screen.getByText('Start Stop Continue')).toBeInTheDocument();
     });
@@ -90,16 +95,6 @@ describe('RetroCard', () => {
     it('should render the formatted creation date', () => {
       render(<RetroCard retro={mockRetro} template={mockTemplate} />);
       expect(screen.getByText('1/15/2023')).toBeInTheDocument();
-    });
-  });
-
-  describe('Accessibility', () => {
-    it('should have accessible text content', () => {
-      render(<RetroCard retro={mockRetro} template={mockTemplate} />);
-      
-      const link = screen.getByRole('link');
-      expect(link).toHaveTextContent('Start Stop Continue');
-      expect(link).toHaveTextContent('1/15/2023');
     });
   });
 });

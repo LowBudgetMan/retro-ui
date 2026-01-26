@@ -8,12 +8,21 @@ interface RetroCardProps {
 }
 
 export function RetroCard({retro, template}: RetroCardProps) {
-    return (
-        <Link className={cardStyles.link} to={`/teams/${retro.teamId}/retros/${retro.id}`}>
-            <div className={cardStyles.retroCard}>
+    function cardContent() {
+        return (
+            <div className={`${cardStyles.retroCard} ${retro.finished ? cardStyles.finished : ''}`}>
                 <p className={cardStyles.retroName}>{template.name}</p>
                 <p className={cardStyles.retroCreatedDate}>{retro.createdAt.toLocaleString()}</p>
             </div>
-        </Link>
+        );
+    }
+
+    return (
+        <>
+            {retro.finished
+                ? <div>{cardContent()}</div>
+                : <Link className={cardStyles.link} to={`/teams/${retro.teamId}/retros/${retro.id}`}>{cardContent()}</Link>
+            }
+        </>
     )
 }

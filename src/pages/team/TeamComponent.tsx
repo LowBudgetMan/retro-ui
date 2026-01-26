@@ -20,7 +20,7 @@ export function TeamComponent(props: Props) {
         <div className={teamStyles.teamPage}>
             <TeamSidePane id={props.id} name={props.name} invites={props.invites} />
             <main className={teamStyles.mainContent}>
-                {/* This probably needs to not be directly in the h1 tag for accessibility reasons */}
+                {/* TODO: This probably needs to not be directly in the h1 tag for accessibility reasons */}
                 <h1><Link to={'/user'} className={'breadcrumb'} aria-label={"Back to user home"}>&lt;</Link> {props.name}
                 </h1>
                 <ol className={teamStyles.retrosList} data-testid="retros-list">
