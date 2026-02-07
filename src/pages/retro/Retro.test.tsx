@@ -6,6 +6,7 @@ import { DateTime } from "luxon";
 import {PropsWithChildren} from "react";
 import {useActionItems, useRetro} from "../../context/hooks.tsx";
 import {Mock} from "vitest";
+import {useNavigate} from "react-router-dom";
 
 vi.mock('react-router-dom', () => ({
   useLoaderData: vi.fn(),
@@ -32,12 +33,6 @@ vi.mock('../../context/hooks.tsx', () => ({
 vi.mock('./components/retro-column/RetroColumn.tsx', () => ({
     RetroColumn: vi.fn(() => null),
 }));
-
-// vi.mock('react-router-dom', async (importOriginal) => ({
-//     ...(await importOriginal()),
-//     useLoaderData: vi.fn(),
-//     useNavigate: vi.fn(),
-// }));
 
 describe('RetroComponent', () => {
   const mockRetro = {
@@ -143,5 +138,21 @@ describe('RetroComponent', () => {
     it('should display the end retro button', () => {
         render(<RetroComponent />);
         expect(screen.getByText('End Retro')).toBeInTheDocument();
+    });
+
+    it('should redirect back to the team page when finished is true', () => {
+        const mockNavigate = vi.fn();
+        (useNavigate as Mock).mockReturnValue(mockNavigate);
+        (useRetro as Mock).mockReturnValue({ retro: {...mockRetro, finished: true } });
+        render(<RetroComponent />);
+        expect(mockNavigate).toHaveBeenCalledWith(`/teams/${mockRetro.teamId}`);
+    });
+
+    it('should not redirect if finished is false', () => {
+        const mockNavigate = vi.fn();
+        (useNavigate as Mock).mockReturnValue(mockNavigate);
+        (useRetro as Mock).mockReturnValue({ retro: {...mockRetro, finished: false } });
+        render(<RetroComponent />);
+        expect(mockNavigate).not.toHaveBeenCalled();
     });
 });

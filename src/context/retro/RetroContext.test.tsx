@@ -10,6 +10,7 @@ import {
     updateThoughtSubscriptionId,
     deleteThoughtSubscriptionId
 } from "../../services/websocket/constants/thoughts.ts";
+import {updateRetroFinishedSubscriptionId} from "../../services/websocket/constants/retro-finished.ts";
 
 vi.mock('../../services/websocket/WebsocketService.ts', () => ({
     WebsocketService: {
@@ -60,7 +61,12 @@ describe('RetroContextProvider', () => {
             deleteThoughtSubscriptionId,
             expect.any(Function)
         );
-        expect(WebsocketService.subscribe).toHaveBeenCalledTimes(3);
+        expect(WebsocketService.subscribe).toHaveBeenCalledWith(
+            '/topic/test-retro-id.finished',
+            updateRetroFinishedSubscriptionId,
+            expect.any(Function)
+        );
+        expect(WebsocketService.subscribe).toHaveBeenCalledTimes(4);
     });
 
     it('should unsubscribe from WebSocket events on unmount', () => {
@@ -75,7 +81,8 @@ describe('RetroContextProvider', () => {
         expect(WebsocketService.unsubscribe).toHaveBeenCalledWith(createThoughtSubscriptionId);
         expect(WebsocketService.unsubscribe).toHaveBeenCalledWith(updateThoughtSubscriptionId);
         expect(WebsocketService.unsubscribe).toHaveBeenCalledWith(deleteThoughtSubscriptionId);
-        expect(WebsocketService.unsubscribe).toHaveBeenCalledTimes(3);
+        expect(WebsocketService.unsubscribe).toHaveBeenCalledWith(updateRetroFinishedSubscriptionId);
+        expect(WebsocketService.unsubscribe).toHaveBeenCalledTimes(4);
     });
 
     it('should resubscribe when retro ID changes', () => {
@@ -95,7 +102,8 @@ describe('RetroContextProvider', () => {
         expect(WebsocketService.unsubscribe).toHaveBeenCalledWith(createThoughtSubscriptionId);
         expect(WebsocketService.unsubscribe).toHaveBeenCalledWith(updateThoughtSubscriptionId);
         expect(WebsocketService.unsubscribe).toHaveBeenCalledWith(deleteThoughtSubscriptionId);
-        expect(WebsocketService.subscribe).toHaveBeenCalledTimes(6);
+        expect(WebsocketService.unsubscribe).toHaveBeenCalledWith(updateRetroFinishedSubscriptionId);
+        expect(WebsocketService.subscribe).toHaveBeenCalledTimes(8);
     });
 });
 

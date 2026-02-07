@@ -1,6 +1,6 @@
 import {Retro, Template, Thought, transformThought} from "../../services/retro-service/RetroService.ts";
 import {createContext, PropsWithChildren, useCallback, useEffect, useState} from "react";
-import { DateTime } from "luxon";
+import {DateTime} from "luxon";
 import {WebsocketService} from "../../services/websocket/WebsocketService.ts";
 import {
     createThoughtSubscriptionId,
@@ -9,6 +9,11 @@ import {
     updateThoughtSubscriptionId
 } from "../../services/websocket/constants/thoughts.ts";
 import {EventType} from "../../services/websocket/WebsocketEventHandler.ts";
+import {
+    updateRetroFinishedSubscriptionId,
+    getDestination as getRetroFinishedDestination,
+    eventHandler as finishedEventHandler
+} from "../../services/websocket/constants/retro-finished.ts";
 
 export type RetroContextProviderProps = {
     retro: Retro;
@@ -19,6 +24,7 @@ export type RetroContextValue = {
     createThought: (thought: Thought) => void;
     updateThought: (thought: Thought) => void;
     deleteThought: (thought: Thought) => void;
+    setFinished: (isFinished: boolean) => void;
 }
 
 export const RetroContext = createContext<RetroContextValue>({
@@ -32,11 +38,19 @@ export const RetroContext = createContext<RetroContextValue>({
     },
     createThought: () => {},
     updateThought: () => {},
-    deleteThought: () => {}
+    deleteThought: () => {},
+    setFinished: () => {}
 });
 
 export function RetroContextProvider({children, retro}: PropsWithChildren<RetroContextProviderProps>) {
     const [retroState, setRetroState] = useState<Retro>(retro);
+
+    const setFinished = useCallback((isFinished: boolean) => {
+        setRetroState(prevState => ({
+            ...prevState,
+            finished: isFinished,
+        }))
+    }, []);
 
     const createThought = useCallback((newThought: Thought) => {
         setRetroState(prevState => ({
@@ -52,14 +66,14 @@ export function RetroContextProvider({children, retro}: PropsWithChildren<RetroC
 
             const newThoughts = [...prevState.thoughts];
             newThoughts[index] = transformThought(updatedThought);
-            return { ...prevState, thoughts: newThoughts };
+            return {...prevState, thoughts: newThoughts};
         });
     }, []);
 
     const deleteThought = useCallback((deletedThought: Thought) => {
         setRetroState(prevState => {
             const thoughts = prevState.thoughts.filter(t => t.id !== deletedThought.id);
-            return { ...prevState, thoughts };
+            return {...prevState, thoughts};
         });
     }, []);
 
@@ -96,8 +110,19 @@ export function RetroContextProvider({children, retro}: PropsWithChildren<RetroC
         };
     }, [retro.id, deleteThought]);
 
+    useEffect(() => {
+        WebsocketService.subscribe(
+            getRetroFinishedDestination(retro.id),
+            updateRetroFinishedSubscriptionId,
+            finishedEventHandler(EventType.UPDATE, setFinished)
+        );
+        return () => {
+            WebsocketService.unsubscribe(updateRetroFinishedSubscriptionId);
+        }
+    }, [retro.id, setFinished])
+
     return (
-        <RetroContext.Provider value={{retro: retroState, createThought, updateThought, deleteThought}}>
+        <RetroContext.Provider value={{retro: retroState, createThought, updateThought, deleteThought, setFinished}}>
             {children}
         </RetroContext.Provider>
     );

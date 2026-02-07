@@ -1,12 +1,21 @@
 import style from "./RetroPage.module.css"
-import {Link} from "react-router-dom";
+import {Link, useNavigate} from "react-router-dom";
 import {RetroColumn} from "./components/retro-column/RetroColumn.tsx";
 import {ActionItemsTab} from "./components/action-items/ActionItemsTab.tsx";
 import {useRetro} from "../../context/hooks.tsx";
 import {EndRetroButton} from "./components/end-retro-button/EndRetroButton.tsx";
+import {useEffect} from "react";
 
 export function RetroComponent() {
     const {retro} = useRetro();
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        if(retro.finished) {
+            navigate(`/teams/${retro.teamId}`)
+        }
+    }, [retro.finished, retro.teamId, navigate]);
+
     return (
         <div>
             <h1>
