@@ -5,6 +5,7 @@ import {useEffect} from "react";
 import {ActionItemsContextProvider} from "../../context/action-items/ActionItemsContext.tsx";
 import {useLoaderData} from "react-router-dom";
 import {RetroPageLoaderData} from "./retroLoader.ts";
+import {isAnonymousMode} from "../../services/anonymous-auth/AnonymousAuthService.ts";
 
 export function RetroPage() {
     useEffect(() => {
@@ -13,6 +14,14 @@ export function RetroPage() {
     });
 
     const {retro, actionItems} = useLoaderData() as RetroPageLoaderData;
+
+    if (isAnonymousMode()) {
+        return (
+            <RetroContextProvider retro={retro}>
+                <RetroComponent />
+            </RetroContextProvider>
+        )
+    }
 
     return (
         <RetroContextProvider retro={retro}>

@@ -4,6 +4,7 @@ import MockAdapter from 'axios-mock-adapter';
 import {User, UserManager} from 'oidc-client-ts';
 import {configureAxios} from './AxiosConfig';
 import {getUserManager} from '../pages/user/UserContext';
+import {isAnonymousMode, getShareToken} from '../services/anonymous-auth/AnonymousAuthService';
 
 vi.mock('../pages/user/UserContext', () => ({
     getUserManager: vi.fn(),
@@ -11,6 +12,11 @@ vi.mock('../pages/user/UserContext', () => ({
 
 vi.mock('./ApiConfig', () => ({
     waitForAppConfiguration: vi.fn().mockResolvedValue(undefined),
+}));
+
+vi.mock('../services/anonymous-auth/AnonymousAuthService', () => ({
+    isAnonymousMode: vi.fn(),
+    getShareToken: vi.fn(),
 }));
 
 const mockUserManager = {
@@ -28,6 +34,7 @@ describe('AxiosConfig', () => {
         axios.interceptors.request.clear();
         axios.interceptors.response.clear();
         mock = new MockAdapter(axios);
+        (isAnonymousMode as Mock).mockReturnValue(false);
         configureAxios();
     });
 
@@ -136,6 +143,31 @@ describe('AxiosConfig', () => {
             });
 
             await expect(axios.get('/test')).rejects.toThrow('Server error');
+            expect(mockUserManager.signoutRedirect).not.toHaveBeenCalled();
+        });
+    });
+
+    describe('Anonymous Mode', () => {
+        beforeEach(() => {
+            (isAnonymousMode as Mock).mockReturnValue(true);
+            (getShareToken as Mock).mockReturnValue('share-token-123');
+        });
+
+        it('should set X-Share-Token header instead of Authorization in anonymous mode', async () => {
+            mock.onGet('/test').reply(200, {success: true});
+
+            await axios.get('/test');
+
+            expect(mock.history.get[0].headers?.['X-Share-Token']).toBe('share-token-123');
+            expect(mock.history.get[0].headers?.Authorization).toBeUndefined();
+            expect(mockUserManager.getUser).not.toHaveBeenCalled();
+        });
+
+        it('should not call signoutRedirect on 401 in anonymous mode', async () => {
+            (mockUserManager.signoutRedirect as Mock).mockResolvedValue(undefined);
+            mock.onGet('/test').reply(401, {error: 'Unauthorized'});
+
+            await expect(axios.get('/test')).rejects.toThrow();
             expect(mockUserManager.signoutRedirect).not.toHaveBeenCalled();
         });
     });

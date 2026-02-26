@@ -14,6 +14,7 @@ import {TemplatesPage} from "./pages/templates/TemplatesPage.tsx";
 import {SilentRedirectPage} from "./pages/auth-redirect/SilentRedirectPage.tsx";
 import {InvitePage} from "./pages/invite/InvitePage.tsx";
 import {TeamPage} from "./pages/team/TeamPage.tsx";
+import {SharePage} from "./pages/share/SharePage.tsx";
 
 const router = createBrowserRouter([
     {
@@ -47,6 +48,10 @@ const router = createBrowserRouter([
         path: '/teams/:teamId/retros/:retroId',
         element: <RetroPage/>,
         loader: retroLoader
+    },
+    {
+        path: '/share/:token',
+        element: <SharePage />
     },
     {
         path: '/templates',

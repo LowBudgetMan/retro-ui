@@ -7,6 +7,7 @@ import {PropsWithChildren} from "react";
 import {useActionItems, useRetro} from "../../context/hooks.tsx";
 import {Mock} from "vitest";
 import {useNavigate} from "react-router-dom";
+import {clearShareToken, isAnonymousMode} from "../../services/anonymous-auth/AnonymousAuthService.ts";
 
 vi.mock('react-router-dom', () => ({
   useLoaderData: vi.fn(),
@@ -32,6 +33,15 @@ vi.mock('../../context/hooks.tsx', () => ({
 
 vi.mock('./components/retro-column/RetroColumn.tsx', () => ({
     RetroColumn: vi.fn(() => null),
+}));
+
+vi.mock('../../services/anonymous-auth/AnonymousAuthService.ts', () => ({
+    isAnonymousMode: vi.fn(),
+    clearShareToken: vi.fn(),
+}));
+
+vi.mock('./components/share-button/ShareButton.tsx', () => ({
+    ShareButton: () => <button>Share</button>,
 }));
 
 describe('RetroComponent', () => {
@@ -89,6 +99,7 @@ describe('RetroComponent', () => {
     vi.clearAllMocks();
     (useRetro as Mock).mockReturnValue({ retro: mockRetro });
     (useActionItems as Mock).mockReturnValue({ actionItems: [] });
+    (isAnonymousMode as Mock).mockReturnValue(false);
   });
 
   it('renders retro component with correct categories', () => {
@@ -154,5 +165,56 @@ describe('RetroComponent', () => {
         (useRetro as Mock).mockReturnValue({ retro: {...mockRetro, finished: false } });
         render(<RetroComponent />);
         expect(mockNavigate).not.toHaveBeenCalled();
+    });
+
+    describe('anonymous mode', () => {
+        beforeEach(() => {
+            (isAnonymousMode as Mock).mockReturnValue(true);
+        });
+
+        it('should hide the back link in anonymous mode', () => {
+            render(<RetroComponent />);
+            expect(screen.queryByText('<')).not.toBeInTheDocument();
+        });
+
+        it('should hide the End Retro button in anonymous mode', () => {
+            render(<RetroComponent />);
+            expect(screen.queryByText('End Retro')).not.toBeInTheDocument();
+        });
+
+        it('should hide the Share button in anonymous mode', () => {
+            render(<RetroComponent />);
+            expect(screen.queryByText('Share')).not.toBeInTheDocument();
+        });
+
+        it('should hide the ActionItemsTab in anonymous mode', () => {
+            render(<RetroComponent />);
+            expect(screen.queryByText('Action Items')).not.toBeInTheDocument();
+        });
+
+        it('should redirect to / and clear share token when retro is finished in anonymous mode', () => {
+            const mockNavigate = vi.fn();
+            (useNavigate as Mock).mockReturnValue(mockNavigate);
+            (useRetro as Mock).mockReturnValue({ retro: {...mockRetro, finished: true } });
+            render(<RetroComponent />);
+            expect(clearShareToken).toHaveBeenCalled();
+            expect(mockNavigate).toHaveBeenCalledWith('/');
+        });
+    });
+
+    describe('authenticated mode', () => {
+        beforeEach(() => {
+            (isAnonymousMode as Mock).mockReturnValue(false);
+        });
+
+        it('should show the back link', () => {
+            render(<RetroComponent />);
+            expect(screen.getByText('<')).toBeInTheDocument();
+        });
+
+        it('should show the Share button', () => {
+            render(<RetroComponent />);
+            expect(screen.getByText('Share')).toBeInTheDocument();
+        });
     });
 });
