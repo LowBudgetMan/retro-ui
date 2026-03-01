@@ -4,6 +4,11 @@
 }
 
 .retroCard {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100%;
+    box-sizing: border-box;
     padding: 1rem 1.5rem;
     transition: transform 0.2s;
     background-color: var(--card-background);
@@ -12,15 +17,6 @@
 
 .retroCard {
     transition: box-shadow 0.1s;
-}
-
-.finished {
-    opacity: 0.4;
-}
-
-.finished:hover {
-    box-shadow: none !important;
-    transform: none !important;
 }
 
 .retroCard:hover {
@@ -34,6 +30,15 @@
     font-weight: 600;
 }
 
+.bottomContent {
+    display: flex;
+    justify-content: space-between;
+}
+
 .retroCreatedDate {
+    margin: 0;
+}
+
+.finished {
     margin: 0;
 }

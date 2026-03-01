@@ -3,6 +3,7 @@ import {RetroCard} from './RetroCard';
 import {RetroListItem, Template} from '../../services/retro-service/RetroService.ts';
 import '@testing-library/jest-dom';
 import {DateTime} from 'luxon';
+import React from "react";
 
 interface MockLinkProps {
   to: string;
@@ -80,14 +81,20 @@ describe('RetroCard', () => {
       const link = screen.getByRole('link');
       expect(link).toBeInTheDocument();
       expect(link).toHaveAttribute('href', '/teams/team-456/retros/retro-123');
+      expect(screen.queryByText('Finished')).toBeNull();
     });
 
-      it('should not render the card as a link if the retro is finished', () => {
-          render(<RetroCard retro={{...mockRetro, finished: true}} template={mockTemplate} />);
-          expect(screen.queryByRole('link')).toBeNull();
-      });
+    it('should not render the card as a link if the retro is finished', () => {
+      render(<RetroCard retro={{...mockRetro, finished: true}} template={mockTemplate} />);
+      expect(screen.queryByRole('link')).toBeNull();
+    });
 
-      it('should render the template name', () => {
+    it('should display finished when a retro is finished', () => {
+      render(<RetroCard retro={{...mockRetro, finished: true}} template={mockTemplate} />);
+      expect(screen.queryByText('Finished')).not.toBeNull();
+    });
+
+    it('should render the template name', () => {
       render(<RetroCard retro={mockRetro} template={mockTemplate} />);
       expect(screen.getByText('Start Stop Continue')).toBeInTheDocument();
     });
