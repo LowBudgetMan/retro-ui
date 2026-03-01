@@ -7,7 +7,7 @@ import {PropsWithChildren} from "react";
 import {useActionItems, useRetro} from "../../context/hooks.tsx";
 import {Mock} from "vitest";
 import {useNavigate} from "react-router-dom";
-import {clearShareToken, isAnonymousMode} from "../../services/anonymous-auth/AnonymousAuthService.ts";
+import {clearShareToken, hasShareToken} from "../../services/anonymous-auth/AnonymousAuthService.ts";
 
 vi.mock('react-router-dom', () => ({
   useLoaderData: vi.fn(),
@@ -36,7 +36,7 @@ vi.mock('./components/retro-column/RetroColumn.tsx', () => ({
 }));
 
 vi.mock('../../services/anonymous-auth/AnonymousAuthService.ts', () => ({
-    isAnonymousMode: vi.fn(),
+    hasShareToken: vi.fn(),
     clearShareToken: vi.fn(),
 }));
 
@@ -99,7 +99,7 @@ describe('RetroComponent', () => {
     vi.clearAllMocks();
     (useRetro as Mock).mockReturnValue({ retro: mockRetro });
     (useActionItems as Mock).mockReturnValue({ actionItems: [] });
-    (isAnonymousMode as Mock).mockReturnValue(false);
+    (hasShareToken as Mock).mockReturnValue(false);
   });
 
   it('renders retro component with correct categories', () => {
@@ -169,7 +169,7 @@ describe('RetroComponent', () => {
 
     describe('anonymous mode', () => {
         beforeEach(() => {
-            (isAnonymousMode as Mock).mockReturnValue(true);
+            (hasShareToken as Mock).mockReturnValue(true);
         });
 
         it('should hide the back link in anonymous mode', () => {
@@ -197,14 +197,14 @@ describe('RetroComponent', () => {
             (useNavigate as Mock).mockReturnValue(mockNavigate);
             (useRetro as Mock).mockReturnValue({ retro: {...mockRetro, finished: true } });
             render(<RetroComponent />);
-            expect(clearShareToken).toHaveBeenCalled();
+            expect(clearShareToken).toHaveBeenCalledWith('retro-123');
             expect(mockNavigate).toHaveBeenCalledWith('/');
         });
     });
 
     describe('authenticated mode', () => {
         beforeEach(() => {
-            (isAnonymousMode as Mock).mockReturnValue(false);
+            (hasShareToken as Mock).mockReturnValue(false);
         });
 
         it('should show the back link', () => {
