@@ -4,24 +4,33 @@ import {RetroColumn} from "./components/retro-column/RetroColumn.tsx";
 import {ActionItemsTab} from "./components/action-items/ActionItemsTab.tsx";
 import {useRetro} from "../../context/hooks.tsx";
 import {EndRetroButton} from "./components/end-retro-button/EndRetroButton.tsx";
+import {ShareButton} from "./components/share-button/ShareButton.tsx";
 import {useEffect} from "react";
+import {clearShareToken, isAnonymousMode} from "../../services/anonymous-auth/AnonymousAuthService.ts";
 
 export function RetroComponent() {
     const {retro} = useRetro();
     const navigate = useNavigate();
+    const anonymous = isAnonymousMode();
 
     useEffect(() => {
         if(retro.finished) {
-            navigate(`/teams/${retro.teamId}`)
+            if (anonymous) {
+                clearShareToken();
+                navigate('/');
+            } else {
+                navigate(`/teams/${retro.teamId}`);
+            }
         }
-    }, [retro.finished, retro.teamId, navigate]);
+    }, [retro.finished, retro.teamId, navigate, anonymous]);
 
     return (
         <div>
             <h1>
-                <Link to={`/teams/${retro.teamId}`} className={'breadcrumb'}>&lt;</Link>
+                {!anonymous && <Link to={`/teams/${retro.teamId}`} className={'breadcrumb'}>&lt;</Link>}
                 {retro.template.name}
-                <EndRetroButton teamId={retro.teamId} retroId={retro.id} />
+                {!anonymous && <ShareButton teamId={retro.teamId} retroId={retro.id} />}
+                {!anonymous && <EndRetroButton teamId={retro.teamId} retroId={retro.id} />}
             </h1>
             <div className={style.retroColumnsContainer}>
                 <div className={style.retroColumns}>
@@ -38,7 +47,7 @@ export function RetroComponent() {
                     ))}
                 </div>
             </div>
-            <ActionItemsTab />
+            {!anonymous && <ActionItemsTab />}
         </div>
     );
 }
