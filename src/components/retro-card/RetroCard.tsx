@@ -12,7 +12,10 @@ export function RetroCard({retro, template}: RetroCardProps) {
         return (
             <div className={`${cardStyles.retroCard} ${retro.finished ? cardStyles.finished : ''}`}>
                 <p className={cardStyles.retroName}>{template.name}</p>
-                <p className={cardStyles.retroCreatedDate}>{retro.createdAt.toLocaleString()}</p>
+                <div className={cardStyles.bottomContent}>
+                    <p className={cardStyles.retroCreatedDate}>{retro.createdAt.toLocaleString()}</p>
+                    {retro.finished && <p className={cardStyles.finished}>Finished</p>}
+                </div>
             </div>
         );
     }
@@ -20,7 +23,7 @@ export function RetroCard({retro, template}: RetroCardProps) {
     return (
         <>
             {retro.finished
-                ? <div>{cardContent()}</div>
+                ? <>{cardContent()}</>
                 : <Link className={cardStyles.link} to={`/teams/${retro.teamId}/retros/${retro.id}`}>{cardContent()}</Link>
             }
         </>

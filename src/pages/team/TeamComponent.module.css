@@ -1,23 +1,41 @@
 .teamPage {
     display: flex;
+    flex-direction: column;
     min-height: calc(100vh - 74px);
 }
 
 .mainContent {
     padding: 1rem 3rem;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .retrosList {
-    display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
-    gap: 2rem;
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-auto-rows: 1fr;
+    gap: 1.75rem;
     list-style: none;
-    justify-content: flex-start;
     margin: 0;
     padding: 0;
 }
 
 .retroListItem {
-    width: 14.5rem;
+    min-height: 7rem;
+}
+
+@media (min-width: 768px) {
+    .teamPage {
+        display: flex;
+        flex-direction: row;
+        min-height: calc(100vh - 74px);
+    }
+
+    .retrosList {
+        grid-template-columns: 1fr 1fr 1fr 1fr;
+    }
+
+    .retroListItem {
+        width: 14.5rem;
+    }
 }

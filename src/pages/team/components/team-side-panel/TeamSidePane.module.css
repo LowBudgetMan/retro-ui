@@ -1,5 +1,11 @@
 .sidePane {
     padding: 0;
-    width: 20rem;
+    width: 100%;
     border-right: 1px solid var(--border-color);
+}
+
+@media (min-width: 768px) {
+    .sidePane {
+        width: 20rem;
+    }
 }
