@@ -1,19 +1,25 @@
 import {StompConfig} from "@stomp/stompjs";
 import {getUserManager} from "../../pages/user/UserContext";
 import {ApiConfig} from "../../config/ApiConfig";
-import {getShareToken, isAnonymousMode} from "../anonymous-auth/AnonymousAuthService.ts";
+import {getShareToken, hasShareToken} from "../anonymous-auth/AnonymousAuthService.ts";
 
-export async function getConfig(): Promise<StompConfig> {
-    let connectHeaders: Record<string, string>;
+export async function getConfig(retroId?: string): Promise<StompConfig> {
+    const connectHeaders: Record<string, string> = {};
 
-    if (isAnonymousMode()) {
-        connectHeaders = {
-            'X-Share-Token': getShareToken()!,
-        };
-    } else {
-        connectHeaders = {
-            Authorization: `Bearer ${(await getUserManager().getUser())?.access_token}`,
-        };
+    const userManager = getUserManager();
+    if (userManager) {
+        try {
+            const user = await userManager.getUser();
+            if (user?.access_token) {
+                connectHeaders['Authorization'] = `Bearer ${user.access_token}`;
+            }
+        } catch {
+            // proceed without JWT
+        }
+    }
+
+    if (retroId && hasShareToken(retroId)) {
+        connectHeaders['X-Share-Token'] = getShareToken(retroId)!;
     }
 
     return {

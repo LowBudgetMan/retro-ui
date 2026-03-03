@@ -11,9 +11,9 @@ interface Subscription {
 let client: Client;
 const subscriptions: Subscription[] = [];
 
-async function connect(): Promise<void> {
+async function connect(retroId?: string): Promise<void> {
     if (!client?.connected) {
-        const config = await getConfig();
+        const config = await getConfig(retroId);
         client = new Client(config)
         client.onConnect = () => {
             subscriptions.forEach((subscription) => subscribeToClient(subscription));

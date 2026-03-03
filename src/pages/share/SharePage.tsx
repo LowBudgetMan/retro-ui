@@ -16,7 +16,7 @@ export function SharePage() {
 
         ShareLinkService.validateShareLink(token)
             .then(({teamId, retroId}) => {
-                setShareToken(token);
+                setShareToken(retroId, token);
                 navigate(`/teams/${teamId}/retros/${retroId}`, {replace: true});
             })
             .catch(() => {
