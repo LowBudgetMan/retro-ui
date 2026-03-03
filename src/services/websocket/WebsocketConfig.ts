@@ -22,10 +22,6 @@ export async function getConfig(retroId?: string): Promise<StompConfig> {
         connectHeaders['X-Share-Token'] = getShareToken(retroId)!;
     }
 
-    console.log(retroId);
-    console.log(hasShareToken(retroId!))
-    console.log(connectHeaders);
-
     return {
         brokerURL: ApiConfig.websocketUrl(),
         connectHeaders,
