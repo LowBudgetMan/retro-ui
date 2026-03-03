@@ -49,8 +49,6 @@ export async function waitForAuthInitialization(): Promise<void> {
     await waitForAppConfiguration();
 
     if (!await isAuthenticated()) {
-        return;
-    } else {
         await attemptSilentSignIn();
     }
 }
