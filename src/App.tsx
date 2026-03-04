@@ -1,5 +1,5 @@
 import {useMemo} from "react";
-import {createBrowserRouter, RouterProvider} from "react-router-dom";
+import {createBrowserRouter, Outlet, RouterProvider} from "react-router-dom";
 import {LandingPage} from "./pages/landing/LandingPage.tsx";
 import {UserPage} from "./pages/user/UserPage.tsx";
 import {RetroPage} from "./pages/retro/RetroPage.tsx";
@@ -8,6 +8,7 @@ import {loader as teamLoader} from "./pages/team/teamLoader.ts";
 import {loader as retroLoader} from "./pages/retro/retroLoader.ts";
 import {loader as templatesLoader} from "./pages/templates/templatesLoader.ts";
 import {loader as inviteLoader} from "./pages/invite/inviteLoader.ts";
+import {authenticatedLoader} from "./loaders/authenticatedLoader.ts";
 import {AuthRedirectPage} from "./pages/auth-redirect/AuthRedirectPage.tsx";
 import {Header} from "./components/header/Header.tsx";
 import {ThemeProvider} from "./context/theme/ThemeContext.tsx";
@@ -32,33 +33,39 @@ function AppContent() {
             element: <SilentRedirectPage/>
         },
         {
-            path: '/invite',
-            element: <InvitePage/>,
-            loader: inviteLoader
-        },
-        {
-            path: '/user',
-            element: <UserPage/>,
-            loader: userLoader
-        },
-        {
-            path: '/teams/:teamId',
-            element: <TeamPage/>,
-            loader: teamLoader
-        },
-        {
-            path: '/teams/:teamId/retros/:retroId',
-            element: <RetroPage/>,
-            loader: retroLoader
-        },
-        {
             path: '/share/:token',
             element: <SharePage />
         },
         {
-            path: '/templates',
-            element: <TemplatesPage />,
-            loader: templatesLoader
+            loader: authenticatedLoader,
+            element: <Outlet />,
+            children: [
+                {
+                    path: '/invite',
+                    element: <InvitePage/>,
+                    loader: inviteLoader
+                },
+                {
+                    path: '/user',
+                    element: <UserPage/>,
+                    loader: userLoader
+                },
+                {
+                    path: '/teams/:teamId',
+                    element: <TeamPage/>,
+                    loader: teamLoader
+                },
+                {
+                    path: '/teams/:teamId/retros/:retroId',
+                    element: <RetroPage/>,
+                    loader: retroLoader
+                },
+                {
+                    path: '/templates',
+                    element: <TemplatesPage />,
+                    loader: templatesLoader
+                }
+            ]
         }
     ]), []);
 
