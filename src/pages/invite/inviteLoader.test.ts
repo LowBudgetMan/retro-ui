@@ -1,11 +1,12 @@
 import {loader, InvitePageData, InvitePackage} from './inviteLoader';
-import {waitForAuthInitialization} from '../user/UserContext';
+import {waitForAuthInitialization, isAuthenticated} from '../user/UserContext';
 import '@testing-library/jest-dom';
 import {Mock} from "vitest";
 
 vi.mock('../user/UserContext');
 
 const mockWaitForAuthInitialization = waitForAuthInitialization as Mock;
+const mockIsAuthenticated = isAuthenticated as Mock;
 
 describe('inviteLoader', () => {
     const mockInvitePackage: InvitePackage = {
@@ -19,6 +20,7 @@ describe('inviteLoader', () => {
     beforeEach(() => {
         vi.clearAllMocks();
         mockWaitForAuthInitialization.mockResolvedValue({});
+        mockIsAuthenticated.mockResolvedValue(true);
     });
 
     describe('Authentication', () => {

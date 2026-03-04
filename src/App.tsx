@@ -1,3 +1,4 @@
+import {useMemo} from "react";
 import {createBrowserRouter, RouterProvider} from "react-router-dom";
 import {LandingPage} from "./pages/landing/LandingPage.tsx";
 import {UserPage} from "./pages/user/UserPage.tsx";
@@ -16,51 +17,51 @@ import {InvitePage} from "./pages/invite/InvitePage.tsx";
 import {TeamPage} from "./pages/team/TeamPage.tsx";
 import {SharePage} from "./pages/share/SharePage.tsx";
 
-const router = createBrowserRouter([
-    {
-        path: '/',
-        element: <LandingPage/>,
-    },
-    {
-        path: '/auth-redirect',
-        element: <AuthRedirectPage/>
-    },
-    {
-        path: '/silent-redirect',
-        element: <SilentRedirectPage/>
-    },
-    {
-        path: '/invite',
-        element: <InvitePage/>,
-        loader: inviteLoader
-    },
-    {
-        path: '/user',
-        element: <UserPage/>,
-        loader: userLoader
-    },
-    {
-        path: '/teams/:teamId',
-        element: <TeamPage/>,
-        loader: teamLoader
-    },
-    {
-        path: '/teams/:teamId/retros/:retroId',
-        element: <RetroPage/>,
-        loader: retroLoader
-    },
-    {
-        path: '/share/:token',
-        element: <SharePage />
-    },
-    {
-        path: '/templates',
-        element: <TemplatesPage />,
-        loader: templatesLoader
-    }
-]);
-
 function AppContent() {
+    const router = useMemo(() => createBrowserRouter([
+        {
+            path: '/',
+            element: <LandingPage/>,
+        },
+        {
+            path: '/auth-redirect',
+            element: <AuthRedirectPage/>
+        },
+        {
+            path: '/silent-redirect',
+            element: <SilentRedirectPage/>
+        },
+        {
+            path: '/invite',
+            element: <InvitePage/>,
+            loader: inviteLoader
+        },
+        {
+            path: '/user',
+            element: <UserPage/>,
+            loader: userLoader
+        },
+        {
+            path: '/teams/:teamId',
+            element: <TeamPage/>,
+            loader: teamLoader
+        },
+        {
+            path: '/teams/:teamId/retros/:retroId',
+            element: <RetroPage/>,
+            loader: retroLoader
+        },
+        {
+            path: '/share/:token',
+            element: <SharePage />
+        },
+        {
+            path: '/templates',
+            element: <TemplatesPage />,
+            loader: templatesLoader
+        }
+    ]), []);
+
     return (
         <div className="app">
             <Header/>
