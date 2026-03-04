@@ -41,9 +41,9 @@ export function ActionItemsTab() {
             <div className={styles.content}>
                 <h2 className={styles.paneHeader}>Action Items</h2>
                 <form className={styles.actionItemForm} onSubmit={handleSubmit}>
-                    <input type={'text'} name={'actionItem'} placeholder={'Enter Action Item'} required={true}/>
-                    <input type={'text'} name={'assignee'} placeholder={'Enter Assignee'} required={true}/>
-                    <button type={'submit'}>Add</button>
+                    <input type={'text'} name={'actionItem'} placeholder={'Enter Action Item'} required={true} className={styles.itemInput}/>
+                    <input type={'text'} name={'assignee'} placeholder={'Enter Assignee'} required={true} className={styles.assignInput}/>
+                    <button type={'submit'} className={styles.addButton}>Add</button>
                 </form>
                 <CountSeparator count={actionItems.length} />
                 <ActionItemsList actionItems={actionItems} />
