@@ -139,6 +139,22 @@ button {
     transition: all 0.2s ease;
 }
 
+button.auth-button {
+    background-color: var(--background-secondary);
+    border: 2px solid var(--border-color);
+    border-radius: 4px;
+    padding: .5rem .8rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+button.auth-button:hover {
+    background-color: var(--border-color);
+    border-color: var(--text-secondary);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px var(--shadow-color);
+}
+
 .breadcrumb {
     text-decoration: none;
     color: var(--bonfire-lavender);
