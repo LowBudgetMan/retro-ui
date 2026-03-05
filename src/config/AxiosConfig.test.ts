@@ -8,6 +8,7 @@ import {getShareTokenForUrl} from '../services/anonymous-auth/AnonymousAuthServi
 
 vi.mock('../pages/user/UserContext', () => ({
     getUserManager: vi.fn(),
+    waitForAuthInitialization: vi.fn().mockResolvedValue(undefined),
 }));
 
 vi.mock('./ApiConfig', () => ({
