@@ -5,17 +5,17 @@ import {useEffect} from "react";
 import {ActionItemsContextProvider} from "../../context/action-items/ActionItemsContext.tsx";
 import {useLoaderData} from "react-router-dom";
 import {RetroPageLoaderData} from "./retroLoader.ts";
-import {isAnonymousMode} from "../../services/anonymous-auth/AnonymousAuthService.ts";
+import {hasShareToken} from "../../services/anonymous-auth/AnonymousAuthService.ts";
 
 export function RetroPage() {
-    useEffect(() => {
-        WebsocketService.connect().catch();
-        return () => {WebsocketService.disconnect()};
-    });
-
     const {retro, actionItems} = useLoaderData() as RetroPageLoaderData;
 
-    if (isAnonymousMode()) {
+    useEffect(() => {
+        WebsocketService.connect(retro.id).catch();
+        return () => {WebsocketService.disconnect()};
+    }, [retro.id]);
+
+    if (hasShareToken(retro.id)) {
         return (
             <RetroContextProvider retro={retro}>
                 <RetroComponent />

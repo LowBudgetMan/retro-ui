@@ -6,23 +6,23 @@ import {useRetro} from "../../context/hooks.tsx";
 import {EndRetroButton} from "./components/end-retro-button/EndRetroButton.tsx";
 import {ShareButton} from "./components/share-button/ShareButton.tsx";
 import {useEffect} from "react";
-import {clearShareToken, isAnonymousMode} from "../../services/anonymous-auth/AnonymousAuthService.ts";
+import {clearShareToken, hasShareToken} from "../../services/anonymous-auth/AnonymousAuthService.ts";
 
 export function RetroComponent() {
     const {retro} = useRetro();
     const navigate = useNavigate();
-    const anonymous = isAnonymousMode();
+    const anonymous = hasShareToken(retro.id);
 
     useEffect(() => {
         if(retro.finished) {
             if (anonymous) {
-                clearShareToken();
+                clearShareToken(retro.id);
                 navigate('/');
             } else {
                 navigate(`/teams/${retro.teamId}`);
             }
         }
-    }, [retro.finished, retro.teamId, navigate, anonymous]);
+    }, [retro.finished, retro.teamId, retro.id, navigate, anonymous]);
 
     return (
         <div>

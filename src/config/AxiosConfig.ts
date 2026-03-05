@@ -1,16 +1,16 @@
 import axios from "axios";
-import {getUserManager} from "../pages/user/UserContext.ts";
+import {getUserManager, waitForAuthInitialization} from "../pages/user/UserContext.ts";
 import {waitForAppConfiguration} from "./ApiConfig";
-import {getShareToken, isAnonymousMode} from "../services/anonymous-auth/AnonymousAuthService.ts";
+import {getShareTokenForUrl} from "../services/anonymous-auth/AnonymousAuthService.ts";
 
 export async function configureAxios() {
     await waitForAppConfiguration();
 
     axios.interceptors.request.use(async function (config) {
-        if (isAnonymousMode()) {
-            config.headers.set('X-Share-Token', getShareToken());
-        } else {
-            await getUserManager()?.getUser()
+        await waitForAuthInitialization();
+        const userManager = getUserManager();
+        if (userManager) {
+            await userManager.getUser()
                 .then(user => {
                     if (user?.access_token) {
                         config.headers.setAuthorization(`Bearer ${user.access_token}`);
@@ -20,6 +20,12 @@ export async function configureAxios() {
                     console.log('Error getting user token for request:', error)
                 });
         }
+
+        const shareToken = getShareTokenForUrl(config.url);
+        if (shareToken) {
+            config.headers.set('X-Share-Token', shareToken);
+        }
+
         return config;
     }, function (error) {
         return Promise.reject(error);
@@ -28,7 +34,7 @@ export async function configureAxios() {
     axios.interceptors.response.use(response => {
         return response;
     }, error => {
-        if (error.response?.status === 401 && !isAnonymousMode()) {
+        if (error.response?.status === 401 && !getShareTokenForUrl(error.config?.url)) {
             getUserManager()?.signoutRedirect().then();
         }
         return Promise.reject(error);

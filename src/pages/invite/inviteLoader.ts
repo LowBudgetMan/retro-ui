@@ -1,5 +1,3 @@
-import {ensureAuthenticatedWithReturnUrl} from "../../utils/authSetup.ts";
-
 export interface InvitePageData {
     teamId: string,
     inviteId: string,
@@ -17,7 +15,6 @@ function throwNotNull(field: string): string {
 }
 
 export async function loader({request}: {request: {url: string}}): Promise<InvitePageData> {
-    await ensureAuthenticatedWithReturnUrl();
     const searchParams = new URL(request.url).searchParams;
     const invitePackageParam: string = searchParams.get('package') || throwNotNull('package');
 

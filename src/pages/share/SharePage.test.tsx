@@ -40,7 +40,7 @@ describe('SharePage', () => {
 
         await waitFor(() => {
             expect(ShareLinkService.validateShareLink).toHaveBeenCalledWith('valid-token');
-            expect(setShareToken).toHaveBeenCalledWith('valid-token');
+            expect(setShareToken).toHaveBeenCalledWith('retro-456', 'valid-token');
             expect(mockNavigate).toHaveBeenCalledWith('/teams/team-123/retros/retro-456', {replace: true});
         });
     });

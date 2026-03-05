@@ -1,7 +1,6 @@
 import {Invite, TeamListItem, TeamService} from "../../services/team-service/TeamService.ts";
 import {RetroListItem, RetroService, Template} from "../../services/retro-service/RetroService.ts";
 import {RetroTemplateService} from "../../services/retro-template-service/RetroTemplateService.ts";
-import {ensureAuthenticatedApi} from "../../utils/authSetup.ts";
 import {LoaderFunctionArgs} from "react-router-dom";
 import {ActionItem, ActionItemsService} from "../../services/action-items-service/ActionItemsService.ts";
 
@@ -13,8 +12,6 @@ export interface TeamPageData extends TeamListItem {
 }
 
 export async function loader({params}: LoaderFunctionArgs<{teamId: string}>): Promise<TeamPageData> {
-    await ensureAuthenticatedApi();
-
     return {
         ...await TeamService.getTeam(params.teamId!),
         templates: await RetroTemplateService.getTemplates(),

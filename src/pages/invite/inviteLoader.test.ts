@@ -1,11 +1,5 @@
 import {loader, InvitePageData, InvitePackage} from './inviteLoader';
-import {waitForAuthInitialization} from '../user/UserContext';
 import '@testing-library/jest-dom';
-import {Mock} from "vitest";
-
-vi.mock('../user/UserContext');
-
-const mockWaitForAuthInitialization = waitForAuthInitialization as Mock;
 
 describe('inviteLoader', () => {
     const mockInvitePackage: InvitePackage = {
@@ -15,25 +9,6 @@ describe('inviteLoader', () => {
     };
 
     const validPackageParam = btoa(JSON.stringify(mockInvitePackage));
-
-    beforeEach(() => {
-        vi.clearAllMocks();
-        mockWaitForAuthInitialization.mockResolvedValue({});
-    });
-
-    describe('Authentication', () => {
-        it('should call waitForAuthInitialization', async () => {
-            const request = {url: `http://localhost:3000/invite?package=${validPackageParam}`};
-            await loader({request});
-            expect(mockWaitForAuthInitialization).toHaveBeenCalledTimes(1);
-        });
-
-        it('should propagate authentication errors', async () => {
-            mockWaitForAuthInitialization.mockRejectedValue(new Error('Auth failed'));
-            const request = {url: `http://localhost:3000/invite?package=${validPackageParam}`};
-            await expect(loader({request})).rejects.toThrow('Auth failed');
-        });
-    });
 
     it('should throw error when package parameter is missing or empty', async () => {
         const requestMissing = {url: 'http://localhost:3000/invite'};
