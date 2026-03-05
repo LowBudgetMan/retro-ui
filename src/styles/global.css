@@ -186,7 +186,10 @@ button.share-btn:hover {
     padding: .1rem .1rem .9rem .9rem;
     border-radius: 20rem;
     height: 1.8rem;
-    width: 2rem;
+    width: 1.8rem;
+    line-height: 2.4rem;
+    font-size: 2rem;
+    font-weight: 600;
 }
 
 [data-theme="dark"] .breadcrumb {

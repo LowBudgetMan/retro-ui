@@ -51,7 +51,7 @@ describe('Header', () => {
             await act(async () => {
                 render(<Header/>);
             });
-            expect(screen.getByText('Retro UI')).toBeInTheDocument();
+            expect(screen.getByText('Bonfire')).toBeInTheDocument();
             expect(screen.getByTitle('Current theme: dark')).toBeInTheDocument();
         });
 

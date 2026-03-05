@@ -10,6 +10,13 @@
     box-sizing: border-box;
 }
 
+.headerContainer {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    align-items: center;
+    gap: 1rem;
+}
+
 .retrosList {
     display: grid;
     grid-template-columns: 1fr;
