@@ -26,7 +26,7 @@ export function ShareButton({teamId, retroId}: Props) {
     };
 
     return (
-        <button onClick={handleClick}>
+        <button className="share-btn" onClick={handleClick}>
             {copied ? "Copied!" : "Share"}
         </button>
     );

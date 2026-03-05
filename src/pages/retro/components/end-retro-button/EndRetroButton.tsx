@@ -14,6 +14,6 @@ export function EndRetroButton({teamId, retroId}: Props) {
     }
 
     return (
-        <button onClick={handleClick}>End Retro</button>
+        <button className="end-retro-btn" onClick={handleClick}>End Retro</button>
     )
 }

@@ -48,7 +48,7 @@ export function Header() {
     return (
         <header className="header">
             <div className="header-content">
-                <h1>Retro UI</h1>
+                <h1>Bonfire</h1>
                 <div className="header-actions">
                     <button 
                         onClick={toggleTheme}
@@ -66,7 +66,7 @@ export function Header() {
 
 function loginButton() {
     return (
-        <button onClick={() => {
+        <button className="auth-btn" onClick={() => {
             getUserManager()?.signinRedirect()
         }}>
             Login
@@ -76,7 +76,7 @@ function loginButton() {
 
 function logoutButton() {
     return (
-        <button onClick={() => {
+        <button className="auth-btn" onClick={() => {
             getUserManager()?.signoutRedirect()
         }}>
             Logout

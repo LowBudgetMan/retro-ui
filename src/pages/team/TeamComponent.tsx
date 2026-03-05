@@ -21,8 +21,10 @@ export function TeamComponent(props: Props) {
             <TeamSidePane id={props.id} name={props.name} invites={props.invites} />
             <main className={teamStyles.mainContent}>
                 {/* TODO: This probably needs to not be directly in the h1 tag for accessibility reasons */}
-                <h1><Link to={'/user'} className={'breadcrumb'} aria-label={"Back to user home"}>&lt;</Link> {props.name}
-                </h1>
+                <div className={teamStyles.headerContainer}>
+                    <Link to={'/user'} className={'breadcrumb'} aria-label={"Back to user home"}>&lt;</Link>
+                    <h1>{props.name}</h1>
+                </div>
                 <ol className={teamStyles.retrosList} data-testid="retros-list">
                     <li className={teamStyles.retroListItem}><CreateRetroButton/></li>
                     {props.retros.map(retro => <li key={retro.id + retro.teamId} className={teamStyles.retroListItem}>
