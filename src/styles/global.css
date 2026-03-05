@@ -139,7 +139,7 @@ button {
     transition: all 0.2s ease;
 }
 
-button.auth-button {
+button.auth-btn {
     background-color: var(--background-secondary);
     border: 2px solid var(--border-color);
     border-radius: 4px;
@@ -148,8 +148,32 @@ button.auth-button {
     color: var(--text-primary);
 }
 
-button.auth-button:hover {
+button.auth-btn:hover {
     background-color: var(--border-color);
+    border-color: var(--text-secondary);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px var(--shadow-color);
+}
+
+button.end-retro-btn, button.share-btn {
+    background-color: var(--border-color);
+    border: none;
+    border-radius: 5px;
+    font-size: 1.2rem;
+    padding: .5rem .9rem;
+    font-weight: 500;
+    color: var(--text-primary);
+}
+
+button.end-retro-btn:hover {
+    background-color: var(--bonfire-red);
+    border-color: var(--text-secondary);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px var(--shadow-color);
+}
+
+button.share-btn:hover {
+    background-color: var(--bonfire-good);
     border-color: var(--text-secondary);
     transform: translateY(-1px);
     box-shadow: 0 2px 4px var(--shadow-color);
@@ -159,9 +183,10 @@ button.auth-button:hover {
     text-decoration: none;
     color: var(--bonfire-lavender);
     border: 2px solid var(--bonfire-lavender);
-    padding: .5rem 1rem;
+    padding: .1rem .1rem .9rem .9rem;
     border-radius: 20rem;
-    margin-right: 1rem;
+    height: 1.8rem;
+    width: 2rem;
 }
 
 [data-theme="dark"] .breadcrumb {

@@ -66,7 +66,7 @@ export function Header() {
 
 function loginButton() {
     return (
-        <button className="auth-button" onClick={() => {
+        <button className="auth-btn" onClick={() => {
             getUserManager()?.signinRedirect()
         }}>
             Login
@@ -76,7 +76,7 @@ function loginButton() {
 
 function logoutButton() {
     return (
-        <button className="auth-button" onClick={() => {
+        <button className="auth-btn" onClick={() => {
             getUserManager()?.signoutRedirect()
         }}>
             Logout

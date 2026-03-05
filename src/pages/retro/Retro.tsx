@@ -26,7 +26,7 @@ export function RetroComponent() {
 
     return (
         <div>
-            <h1>
+            <h1 className={style.retroHeaderContainer}>
                 {!anonymous && <Link to={`/teams/${retro.teamId}`} className={'breadcrumb'}>&lt;</Link>}
                 {retro.template.name}
                 {!anonymous && <ShareButton teamId={retro.teamId} retroId={retro.id} />}
