@@ -1,5 +1,5 @@
 import axios from "axios";
-import {getUserManager} from "../pages/user/UserContext.ts";
+import {getUserManager, waitForAuthInitialization} from "../pages/user/UserContext.ts";
 import {waitForAppConfiguration} from "./ApiConfig";
 import {getShareTokenForUrl} from "../services/anonymous-auth/AnonymousAuthService.ts";
 
@@ -7,6 +7,7 @@ export async function configureAxios() {
     await waitForAppConfiguration();
 
     axios.interceptors.request.use(async function (config) {
+        await waitForAuthInitialization();
         const userManager = getUserManager();
         if (userManager) {
             await userManager.getUser()

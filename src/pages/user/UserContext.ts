@@ -45,12 +45,19 @@ export async function isAuthenticated(): Promise<boolean> {
         .catch(() => false);
 }
 
-export async function waitForAuthInitialization(): Promise<void> {
-    await waitForAppConfiguration();
+let authInitPromise: Promise<void> | null = null;
 
-    if (!await isAuthenticated()) {
-        await attemptSilentSignIn();
+export function waitForAuthInitialization(): Promise<void> {
+    if (!authInitPromise) {
+        authInitPromise = (async () => {
+            await waitForAppConfiguration();
+
+            if (!await isAuthenticated()) {
+                await attemptSilentSignIn();
+            }
+        })();
     }
+    return authInitPromise;
 }
 
 export function storeReturnUrl(url?: string): void {
