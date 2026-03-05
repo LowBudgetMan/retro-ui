@@ -6,6 +6,7 @@
 }
 
 .hero {
+    box-sizing: border-box;
     background: var(--theme-gradient);
     width: 100%;
     height: 40vh;
