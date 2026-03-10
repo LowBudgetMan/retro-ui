@@ -26,7 +26,7 @@
     --shadow-color: rgba(0, 0, 0, 0.1);
     --header-bg: #ffffff;
 
-    --theme-gradient: linear-gradient(-45deg, var(--bonfire-violet) 20%, var(--bonfire-lavender) 36%, var(--bonfire-red) 52%, var(--bonfire-orange) 68%, var(--bonfire-yellow) 84%, var(--bonfire-cream) 100%);
+    --theme-gradient: linear-gradient(45deg, var(--bonfire-cream) 20%, var(--bonfire-yellow) 36%, var(--bonfire-orange) 52%, var(--bonfire-red) 68%, var(--bonfire-lavender) 84%, var(--bonfire-violet) 100%);
     --card-background: #FEFEF0;
     --breadcrumb-color: var(--bonfire-lavender);
 }
