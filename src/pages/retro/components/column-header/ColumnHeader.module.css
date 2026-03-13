@@ -17,3 +17,29 @@
     top: 50%;
     transform:translateY(-50%);
 }
+
+.tooltipBase {
+    background-color: var(--background-secondary);
+    color: var(--text-primary);
+    padding: 0.4rem 0.8rem;
+    border-radius: 4px;
+    font-size: .8rem;
+    white-space: nowrap;
+    position: absolute;
+    bottom: 80%;
+    right: 1rem;
+    transform: translateX(50%);
+    transition: opacity 0.15s ease-in-out;
+    z-index: 1;
+}
+
+.tooltipHidden {
+    composes: tooltipBase;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.tooltip {
+    composes: tooltipBase;
+    opacity: 1;
+}
