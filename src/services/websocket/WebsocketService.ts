@@ -1,67 +1,90 @@
 import {Client, IMessage} from '@stomp/stompjs';
 import {getConfig} from "./WebsocketConfig.ts";
 
-interface Subscription {
-    destination: string;
-    id: string;
-    handler: (event: IMessage) => void;
-    subscription?: { unsubscribe: () => void };
+interface WebsocketEvent {
+    eventType: string;
+    payload: unknown;
 }
 
-let client: Client;
-const subscriptions: Subscription[] = [];
+type HandlerMap = {
+    transform?: (raw: unknown) => unknown;
+    [eventType: string]: ((payload: unknown) => void) | ((raw: unknown) => unknown) | undefined;
+};
 
-async function connect(retroId?: string): Promise<void> {
-    if (!client?.connected) {
-        const config = await getConfig(retroId);
-        client = new Client(config)
-        client.onConnect = () => {
-            subscriptions.forEach((subscription) => subscribeToClient(subscription));
-        };
-        client.activate();
-    }
+interface DestinationEntry {
+    stompSubscription?: { unsubscribe: () => void };
+    handlers: Set<HandlerMap>;
 }
 
-function disconnect(): void {
-    if (client && client.active) {
-        client.deactivate().catch();
-    }
-}
+let client: Client | null = null;
+const destinations = new Map<string, DestinationEntry>();
 
-function subscribe(destination: string, id: string, handler: (event: IMessage) => void): void {
-    if (!subscriptions.some(subscription => subscription.id == id)) {
-        subscriptions.push({destination, id, handler});
-        if (client && client.connected) {
-            subscribeToClient({destination, id, handler});
+function handleMessage(destination: string, message: IMessage): void {
+    const event: WebsocketEvent = JSON.parse(message.body);
+    const entry = destinations.get(destination);
+    if (!entry) return;
+    entry.handlers.forEach((handlerMap) => {
+        const handler = handlerMap[event.eventType];
+        if (typeof handler === 'function' && event.eventType !== 'transform') {
+            const payload = handlerMap.transform
+                ? handlerMap.transform(event.payload)
+                : event.payload;
+            handler(payload);
         }
+    });
+}
+
+function subscribeToDestination(destination: string): void {
+    const entry = destinations.get(destination);
+    if (entry && !entry.stompSubscription && client?.connected) {
+        entry.stompSubscription = client.subscribe(destination, (message: IMessage) => {
+            handleMessage(destination, message);
+        });
     }
 }
 
-function subscribeToClient({destination, id, handler}: Subscription): void {
-    const subscription = client.subscribe(destination, handler, {id});
-    // Store the subscription object for later use
-    const index = subscriptions.findIndex(sub => sub.id === id);
-    if (index !== -1) {
-        // TODO: Can this be combined with the storage call in the above method?
-        subscriptions[index] = { ...subscriptions[index], subscription };
+function ensureConnected(retroId?: string): void {
+    if (!client || !client.active) {
+        getConfig(retroId).then(config => {
+            client = new Client(config);
+            client.onConnect = () => {
+                destinations.forEach((_entry, destination) => {
+                    subscribeToDestination(destination);
+                });
+            };
+            client.activate();
+        });
     }
 }
 
-function unsubscribe(id: string): void {
-    //TODO: This has to be able to be refactored, look how close the two sections are
-    const subscription = subscriptions.find(sub => sub.id === id);
-    if (subscription?.subscription) {
-        subscription.subscription.unsubscribe();
+function subscribe(destination: string, handlerMap: HandlerMap, retroId?: string): () => void {
+    let entry = destinations.get(destination);
+    if (!entry) {
+        entry = { handlers: new Set() };
+        destinations.set(destination, entry);
     }
-    const index = subscriptions.findIndex(sub => sub.id === id);
-    if (index !== -1) {
-        subscriptions.splice(index, 1);
+    entry.handlers.add(handlerMap);
+
+    subscribeToDestination(destination);
+
+    if (!client || !client.active) {
+        ensureConnected(retroId);
     }
+
+    return () => {
+        const currentEntry = destinations.get(destination);
+        if (!currentEntry) return;
+        currentEntry.handlers.delete(handlerMap);
+        if (currentEntry.handlers.size === 0) {
+            currentEntry.stompSubscription?.unsubscribe();
+            destinations.delete(destination);
+            if (destinations.size === 0 && client?.active) {
+                client.deactivate().catch();
+                client = null;
+            }
+        }
+    };
 }
 
-export const WebsocketService = {
-    connect,
-    disconnect,
-    subscribe,
-    unsubscribe
-}
+export type { HandlerMap, WebsocketEvent };
+export const WebsocketService = { subscribe };
