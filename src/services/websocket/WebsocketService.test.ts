@@ -5,7 +5,7 @@ const mockSubscribe = vi.fn().mockReturnValue({unsubscribe: mockStompUnsubscribe
 const mockActivate = vi.fn();
 const mockDeactivate = vi.fn().mockResolvedValue(undefined);
 
-let mockOnConnect: (() => void) | null = null;
+let mockOnConnect: (() => void) | undefined = undefined;
 let mockConnected = false;
 let mockActive = false;
 
@@ -15,8 +15,8 @@ vi.mock('@stomp/stompjs', () => ({
         return {
             get connected() { return mockConnected; },
             get active() { return mockActive; },
-            set onConnect(fn: () => void) { mockOnConnect = fn; },
-            get onConnect() { return mockOnConnect; },
+            set onConnect(fn: (() => void) | undefined) { mockOnConnect = fn; },
+            get onConnect(): (() => void) | undefined { return mockOnConnect; },
             subscribe: mockSubscribe,
             activate: mockActivate,
             deactivate: mockDeactivate,
@@ -41,7 +41,7 @@ describe('WebsocketService', () => {
     beforeEach(async () => {
         mockConnected = false;
         mockActive = false;
-        mockOnConnect = null;
+        mockOnConnect = undefined;
         mockSubscribe.mockClear();
         mockSubscribe.mockReturnValue({unsubscribe: mockStompUnsubscribe});
         mockStompUnsubscribe.mockClear();

@@ -7,8 +7,10 @@ interface WebsocketEvent {
 }
 
 type HandlerMap = {
-    transform?: (raw: unknown) => unknown;
-    [eventType: string]: ((payload: unknown) => void) | ((raw: unknown) => unknown) | undefined;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    transform?: (raw: any) => any;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    [eventType: string]: ((payload: any) => void) | ((raw: any) => any) | undefined;
 };
 
 interface DestinationEntry {
