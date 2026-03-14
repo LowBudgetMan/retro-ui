@@ -5,16 +5,10 @@ import { useActionItems } from '../hooks.tsx';
 import { ActionItem } from '../../services/action-items-service/ActionItemsService.ts';
 import { WebsocketService } from '../../services/websocket/WebsocketService.ts';
 import { DateTime } from 'luxon';
-import {
-    createActionItemSubscriptionId,
-    deleteActionItemSubscriptionId,
-    updateActionItemSubscriptionId
-} from "../../services/websocket/constants/action-items.ts";
 
 vi.mock('../../services/websocket/WebsocketService.ts', () => ({
     WebsocketService: {
-        subscribe: vi.fn(),
-        unsubscribe: vi.fn()
+        subscribe: vi.fn().mockReturnValue(vi.fn()),
     }
 }));
 
@@ -58,26 +52,22 @@ describe('ActionItemsContextProvider', () => {
             </ActionItemsContextProvider>
         );
 
-        // TODO: These should probably check to make sure that the callbacks are set up to track the right events
+        expect(WebsocketService.subscribe).toHaveBeenCalledTimes(1);
         expect(WebsocketService.subscribe).toHaveBeenCalledWith(
-            '/topic/team-1.action-items',
-            createActionItemSubscriptionId,
-            expect.any(Function)
+            '/topic/teams.team-1.action-items',
+            expect.objectContaining({
+                transform: expect.any(Function),
+                CREATE: expect.any(Function),
+                UPDATE: expect.any(Function),
+                DELETE: expect.any(Function),
+            })
         );
-        expect(WebsocketService.subscribe).toHaveBeenCalledWith(
-            '/topic/team-1.action-items',
-            updateActionItemSubscriptionId,
-            expect.any(Function)
-        );
-        expect(WebsocketService.subscribe).toHaveBeenCalledWith(
-            '/topic/team-1.action-items',
-            deleteActionItemSubscriptionId,
-            expect.any(Function)
-        );
-        expect(WebsocketService.subscribe).toHaveBeenCalledTimes(3);
     });
 
     it('should unsubscribe from websocket events on unmount', () => {
+        const unsubscribe = vi.fn();
+        vi.mocked(WebsocketService.subscribe).mockReturnValue(unsubscribe);
+
         const { unmount } = render(
             <ActionItemsContextProvider teamId={teamId} actionItems={mockActionItems}>
                 <div>Test Child</div>
@@ -86,10 +76,7 @@ describe('ActionItemsContextProvider', () => {
 
         unmount();
 
-        expect(WebsocketService.unsubscribe).toHaveBeenCalledWith(createActionItemSubscriptionId);
-        expect(WebsocketService.unsubscribe).toHaveBeenCalledWith(updateActionItemSubscriptionId);
-        expect(WebsocketService.unsubscribe).toHaveBeenCalledWith(deleteActionItemSubscriptionId);
-        expect(WebsocketService.unsubscribe).toHaveBeenCalledTimes(3);
+        expect(unsubscribe).toHaveBeenCalled();
     });
 
     describe('useActionItems state updates', () => {
