@@ -2,18 +2,8 @@ import {Retro, Template, Thought, transformThought} from "../../services/retro-s
 import {createContext, PropsWithChildren, useCallback, useEffect, useState} from "react";
 import {DateTime} from "luxon";
 import {WebsocketService} from "../../services/websocket/WebsocketService.ts";
-import {
-    createThoughtSubscriptionId,
-    deleteThoughtSubscriptionId, eventHandler,
-    getDestination,
-    updateThoughtSubscriptionId
-} from "../../services/websocket/constants/thoughts.ts";
-import {EventType} from "../../services/websocket/WebsocketEventHandler.ts";
-import {
-    updateRetroFinishedSubscriptionId,
-    getDestination as getRetroFinishedDestination,
-    eventHandler as finishedEventHandler
-} from "../../services/websocket/constants/retro-finished.ts";
+import {retroDestination} from "../../services/websocket/destinations.ts";
+import {CrudEventTypes, RetroEventTypes} from "../../services/websocket/EventTypes.ts";
 
 export type RetroContextProviderProps = {
     retro: Retro;
@@ -78,48 +68,29 @@ export function RetroContextProvider({children, retro}: PropsWithChildren<RetroC
     }, []);
 
     useEffect(() => {
-        WebsocketService.subscribe(
-            getDestination(retro.id),
-            createThoughtSubscriptionId,
-            eventHandler(EventType.CREATE, createThought)
+        const unsubscribe = WebsocketService.subscribe(
+            retroDestination(retro.id, 'thoughts'),
+            {
+                transform: transformThought,
+                [CrudEventTypes.CREATE]: createThought,
+                [CrudEventTypes.UPDATE]: updateThought,
+                [CrudEventTypes.DELETE]: deleteThought,
+            },
+            retro.id
         );
-        return () => {
-            WebsocketService.unsubscribe(createThoughtSubscriptionId);
-        };
-    }, [retro.id, createThought]);
+        return unsubscribe;
+    }, [retro.id, createThought, updateThought, deleteThought]);
 
     useEffect(() => {
-        WebsocketService.subscribe(
-            getDestination(retro.id),
-            updateThoughtSubscriptionId,
-            eventHandler(EventType.UPDATE, updateThought)
+        const unsubscribe = WebsocketService.subscribe(
+            retroDestination(retro.id, 'events'),
+            {
+                [RetroEventTypes.RETRO_FINISHED]: setFinished,
+            },
+            retro.id
         );
-        return () => {
-            WebsocketService.unsubscribe(updateThoughtSubscriptionId);
-        };
-    }, [retro.id, updateThought]);
-
-    useEffect(() => {
-        WebsocketService.subscribe(
-            getDestination(retro.id),
-            deleteThoughtSubscriptionId,
-            eventHandler(EventType.DELETE, deleteThought)
-        );
-        return () => {
-            WebsocketService.unsubscribe(deleteThoughtSubscriptionId);
-        };
-    }, [retro.id, deleteThought]);
-
-    useEffect(() => {
-        WebsocketService.subscribe(
-            getRetroFinishedDestination(retro.id),
-            updateRetroFinishedSubscriptionId,
-            finishedEventHandler(EventType.UPDATE, setFinished)
-        );
-        return () => {
-            WebsocketService.unsubscribe(updateRetroFinishedSubscriptionId);
-        }
-    }, [retro.id, setFinished])
+        return unsubscribe;
+    }, [retro.id, setFinished]);
 
     return (
         <RetroContext.Provider value={{retro: retroState, createThought, updateThought, deleteThought, setFinished}}>
