@@ -1,284 +1,199 @@
-import { vi } from 'vitest';
-import { Client } from '@stomp/stompjs';
-import { WebsocketService } from './WebsocketService';
-import { getConfig } from './WebsocketConfig';
+import {describe, it, expect, vi, beforeEach} from 'vitest';
 
-interface MockSubscription {
-    unsubscribe: () => void;
-}
+const mockStompUnsubscribe = vi.fn();
+const mockSubscribe = vi.fn().mockReturnValue({unsubscribe: mockStompUnsubscribe});
+const mockActivate = vi.fn();
+const mockDeactivate = vi.fn().mockResolvedValue(undefined);
 
-interface MockFrame {
-    [key: string]: unknown;
-}
-
-interface MockWebsocketSubscription {
-    destination: string;
-    id: string;
-    handler: (event: unknown) => void;
-    subscription?: MockSubscription;
-}
-
-interface MockClient {
-    connected: boolean;
-    active: boolean;
-    onConnect: ((frame: MockFrame) => void) | null;
-    activate: () => void;
-    deactivate: () => Promise<void>;
-    subscribe: (destination: string, callback: (message: unknown) => void, headers?: Record<string, string>) => MockSubscription;
-}
-
-// Create a mock client that will be returned by the Client constructor
-let mockClientInstance: MockClient;
+let mockOnConnect: (() => void) | undefined = undefined;
+let mockConnected = false;
+let mockActive = false;
 
 vi.mock('@stomp/stompjs', () => ({
-    Client: vi.fn().mockImplementation(function(this: MockClient) {
-        // Return the shared mock client instance
-        mockClientInstance = {
-            connected: false,
-            active: false,
-            onConnect: null,
-            activate: vi.fn().mockImplementation(function(this: MockClient) {
-                // Simulate client connection
-                this.connected = true;
-                this.active = true;
-                if (this.onConnect) {
-                    this.onConnect({});
-                }
-            }),
-            deactivate: vi.fn().mockImplementation(function(this: MockClient) {
-                this.active = false;
-                return Promise.resolve();
-            }),
-            subscribe: vi.fn().mockImplementation((destination: string, callback: (message: unknown) => void, headers?: Record<string, string>) => {
-                // Parameters are intentionally unused in this mock implementation
-                void destination;
-                void callback;
-
-                // Create a mock subscription that matches the expected interface
-                const subscription = {
-                    unsubscribe: vi.fn()
-                };
-
-                // Find the subscription in the internal array and update it with the subscription object
-                // This simulates what happens in the real subscribeToClient function
-                // Access the subscriptions array directly since it's a module-level variable
-                const subscriptions = (WebsocketService as unknown as { subscriptions: MockWebsocketSubscription[] }).subscriptions || [];
-                const index = subscriptions.findIndex((sub: MockWebsocketSubscription) => sub.id === headers?.id);
-                if (index !== -1) {
-                    subscriptions[index] = {
-                        ...subscriptions[index],
-                        subscription
-                    };
-                }
-
-                return subscription;
-            })
+    Client: vi.fn().mockImplementation(function () {
+        mockActive = true;
+        return {
+            get connected() { return mockConnected; },
+            get active() { return mockActive; },
+            set onConnect(fn: (() => void) | undefined) { mockOnConnect = fn; },
+            get onConnect(): (() => void) | undefined { return mockOnConnect; },
+            subscribe: mockSubscribe,
+            activate: mockActivate,
+            deactivate: mockDeactivate,
         };
-        return mockClientInstance;
     }),
-    IMessage: {}
 }));
 
-// Mock the WebsocketConfig
-vi.mock('./WebsocketConfig', () => ({
-    getConfig: vi.fn()
+vi.mock('./WebsocketConfig.ts', () => ({
+    getConfig: vi.fn().mockResolvedValue({brokerURL: 'ws://localhost:8080/ws'}),
 }));
+
+async function flushPromises() {
+    await new Promise(resolve => setTimeout(resolve, 0));
+}
+
+function simulateConnect() {
+    mockConnected = true;
+    mockOnConnect?.();
+}
 
 describe('WebsocketService', () => {
-    const mockConfig = {
-        brokerURL: `ws://this-is-a-websocket-url/websocket/websocket`,
-        connectHeaders: {
-            Authorization: 'Bearer test-token'
-        },
-        reconnectDelay: 3000,
-        heartbeatIncoming: 4000,
-        heartbeatOutgoing: 4000
-    };
-
-    beforeEach(() => {
-        // Clear all mocks before each test
-        vi.clearAllMocks();
-
-        // Reset mock client state
-        if (mockClientInstance) {
-            mockClientInstance.connected = false;
-            mockClientInstance.active = false;
-            mockClientInstance.onConnect = null;
-        }
-
-        // Setup mock config
-        vi.mocked(getConfig).mockResolvedValue(mockConfig);
+    beforeEach(async () => {
+        mockConnected = false;
+        mockActive = false;
+        mockOnConnect = undefined;
+        mockSubscribe.mockClear();
+        mockSubscribe.mockReturnValue({unsubscribe: mockStompUnsubscribe});
+        mockStompUnsubscribe.mockClear();
+        mockActivate.mockClear();
+        mockDeactivate.mockClear();
+        vi.mocked((await import('@stomp/stompjs')).Client).mockClear();
+        vi.resetModules();
     });
 
-    describe('connect', () => {
-        it('should create a new client and connect when not already connected', async () => {
-            await WebsocketService.connect();
+    async function getService() {
+        const mod = await import('./WebsocketService.ts');
+        return mod.WebsocketService;
+    }
 
-            expect(getConfig).toHaveBeenCalled();
-            expect(Client).toHaveBeenCalledWith(mockConfig);
-            expect(mockClientInstance.activate).toHaveBeenCalled();
+    it('subscribe returns an unsubscribe function', async () => {
+        const service = await getService();
+        const unsub = service.subscribe('/topic/test', {
+            SOME_EVENT: vi.fn(),
         });
-
-        it('should not create a new client if already connected', async () => {
-            mockClientInstance.connected = true;
-
-            await WebsocketService.connect();
-
-            expect(Client).not.toHaveBeenCalled();
-            expect(mockClientInstance.activate).not.toHaveBeenCalled();
-        });
-
-        it('should set up onConnect handler', async () => {
-            await WebsocketService.connect();
-
-            expect(mockClientInstance.onConnect).toBeDefined();
-        });
+        expect(typeof unsub).toBe('function');
     });
 
-    describe('disconnect', () => {
-        it('should deactivate client if active', async () => {
-            mockClientInstance.active = true;
+    it('multiple subscribers to same destination create only one STOMP subscription', async () => {
+        const service = await getService();
+        service.subscribe('/topic/test', {EVENT_A: vi.fn()});
+        service.subscribe('/topic/test', {EVENT_B: vi.fn()});
 
-            WebsocketService.disconnect();
+        await flushPromises();
+        simulateConnect();
 
-            expect(mockClientInstance.deactivate).toHaveBeenCalled();
-        });
-
-        it('should not deactivate client if not active', () => {
-            mockClientInstance.active = false;
-
-            WebsocketService.disconnect();
-
-            expect(mockClientInstance.deactivate).not.toHaveBeenCalled();
-        });
+        expect(mockSubscribe).toHaveBeenCalledTimes(1);
+        expect(mockSubscribe).toHaveBeenCalledWith(
+            '/topic/test',
+            expect.any(Function),
+        );
     });
 
-    describe('subscribe', () => {
-        const mockHandler = vi.fn();
-        const destination = '/test/destination';
-        const id = 'test-subscription';
+    it('last unsubscribe removes the STOMP subscription', async () => {
+        const stompUnsub = vi.fn();
+        mockSubscribe.mockReturnValueOnce({unsubscribe: stompUnsub});
 
-        beforeEach(() => {
-            // Reset subscriptions by disconnecting
-            WebsocketService.disconnect();
-        });
+        const service = await getService();
+        const unsub1 = service.subscribe('/topic/test', {EVENT_A: vi.fn()});
+        const unsub2 = service.subscribe('/topic/test', {EVENT_B: vi.fn()});
 
-        it('should add subscription to list when client is not connected', () => {
-            WebsocketService.subscribe(destination, id, mockHandler);
+        await flushPromises();
+        simulateConnect();
 
-            // Verify subscription was added but not activated
-            expect(mockClientInstance.subscribe).not.toHaveBeenCalled();
-        });
+        unsub1();
+        expect(stompUnsub).not.toHaveBeenCalled();
 
-        it('should immediately subscribe when client is connected', async () => {
-            // Connect first to ensure client is available
-            await WebsocketService.connect();
-
-            WebsocketService.subscribe(destination, id, mockHandler);
-
-            expect(mockClientInstance.subscribe).toHaveBeenCalledWith(
-                destination,
-                mockHandler,
-                { id }
-            );
-        });
-
-        it('should not add duplicate subscriptions with same id', async () => {
-            // Connect first to ensure client is available
-            await WebsocketService.connect();
-
-            WebsocketService.subscribe(destination, id, mockHandler);
-            WebsocketService.subscribe(destination, id, mockHandler);
-
-            expect(mockClientInstance.subscribe).toHaveBeenCalledTimes(1);
-        });
-
-        it('should handle subscription when client connects after subscribe is called', async () => {
-            // Subscribe before connecting
-            WebsocketService.subscribe(destination, id, mockHandler);
-
-            // Connect the client
-            await WebsocketService.connect();
-
-            // Trigger the onConnect handler
-            if (mockClientInstance.onConnect) {
-                mockClientInstance.onConnect({});
-            }
-
-            expect(mockClientInstance.subscribe).toHaveBeenCalledWith(
-                destination,
-                mockHandler,
-                { id }
-            );
-        });
+        unsub2();
+        expect(stompUnsub).toHaveBeenCalledTimes(1);
     });
 
-    describe('unsubscribe', () => {
-        const id = 'test-subscription';
-        const destination = '/test/destination';
-        const mockHandler = vi.fn();
-        let mockSubscription: MockSubscription;
+    it('fan-out: message dispatches to all handler maps for a destination', async () => {
+        const service = await getService();
+        const handler1 = vi.fn();
+        const handler2 = vi.fn();
 
-        beforeEach(() => {
-            mockSubscription = { unsubscribe: vi.fn() };
-            mockClientInstance.subscribe = vi.fn().mockReturnValue(mockSubscription);
+        service.subscribe('/topic/test', {MY_EVENT: handler1});
+        service.subscribe('/topic/test', {MY_EVENT: handler2});
+
+        await flushPromises();
+        simulateConnect();
+
+        const messageCallback = mockSubscribe.mock.calls[0][1];
+        messageCallback({body: JSON.stringify({eventType: 'MY_EVENT', payload: {data: 42}})});
+
+        expect(handler1).toHaveBeenCalledWith({data: 42});
+        expect(handler2).toHaveBeenCalledWith({data: 42});
+    });
+
+    it('transform function is applied before handlers', async () => {
+        const service = await getService();
+        const handler = vi.fn();
+
+        service.subscribe('/topic/test', {
+            transform: (raw: unknown) => (raw as { value: number }).value * 2,
+            MY_EVENT: handler,
         });
 
-        it('should unsubscribe when connected and subscription exists', async () => {
-            // Connect first to ensure client is available
-            await WebsocketService.connect();
+        await flushPromises();
+        simulateConnect();
 
-            // Subscribe and verify subscription was created
-            WebsocketService.subscribe(destination, id, mockHandler);
-            expect(mockClientInstance.subscribe).toHaveBeenCalledWith(
-                destination,
-                expect.any(Function),
-                { id }
-            );
+        const messageCallback = mockSubscribe.mock.calls[0][1];
+        messageCallback({body: JSON.stringify({eventType: 'MY_EVENT', payload: {value: 5}})});
 
-            // Manually trigger the onConnect to simulate subscription creation
-            if (mockClientInstance.onConnect) {
-                mockClientInstance.onConnect({});
-            }
+        expect(handler).toHaveBeenCalledWith(10);
+    });
 
-            // Get the subscription object that was actually stored in the subscriptions array
-            const subscriptions = (WebsocketService as unknown as { subscriptions: MockWebsocketSubscription[] }).subscriptions || [];
-            const storedSubscription = subscriptions.find((sub: MockWebsocketSubscription) => sub.id === id);
-            const actualSubscription = storedSubscription?.subscription;
+    it('handlers only fire for matching eventType', async () => {
+        const service = await getService();
+        const handlerA = vi.fn();
+        const handlerB = vi.fn();
 
-            // Unsubscribe and verify
-            WebsocketService.unsubscribe(id);
-            if (actualSubscription?.unsubscribe) {
-                expect(actualSubscription.unsubscribe).toHaveBeenCalled();
-            } else {
-                // If no subscription object, at least verify unsubscribe was called without error
-                expect(true).toBe(true); // Test passes if no error is thrown
-            }
+        service.subscribe('/topic/test', {
+            EVENT_A: handlerA,
+            EVENT_B: handlerB,
         });
 
-        it('should not unsubscribe when not connected', () => {
-            mockClientInstance.connected = false;
-            WebsocketService.subscribe(destination, id, mockHandler);
-            WebsocketService.unsubscribe(id);
-            expect(mockSubscription.unsubscribe).not.toHaveBeenCalled();
-        });
+        await flushPromises();
+        simulateConnect();
 
-        it('should remove subscription from internal array', async () => {
-            // Connect and subscribe
-            await WebsocketService.connect();
-            WebsocketService.subscribe(destination, id, mockHandler);
+        const messageCallback = mockSubscribe.mock.calls[0][1];
+        messageCallback({body: JSON.stringify({eventType: 'EVENT_A', payload: 'hello'})});
 
-            // Unsubscribe
-            WebsocketService.unsubscribe(id);
+        expect(handlerA).toHaveBeenCalledWith('hello');
+        expect(handlerB).not.toHaveBeenCalled();
+    });
 
-            // Simulate reconnection
-            mockClientInstance.connected = true;
-            if (mockClientInstance.onConnect) {
-                mockClientInstance.onConnect({});
-            }
+    it('auto-connect on first subscribe', async () => {
+        const {Client} = await import('@stomp/stompjs');
+        const service = await getService();
 
-            // Verify no resubscription occurred
-            expect(mockClientInstance.subscribe).toHaveBeenCalledTimes(1);
-        });
+        service.subscribe('/topic/test', {EVENT: vi.fn()});
+        await flushPromises();
+
+        expect(Client).toHaveBeenCalledTimes(1);
+        expect(mockActivate).toHaveBeenCalledTimes(1);
+    });
+
+    it('auto-disconnect when last subscription removed', async () => {
+        const service = await getService();
+
+        const unsub1 = service.subscribe('/topic/a', {EVENT: vi.fn()});
+        const unsub2 = service.subscribe('/topic/b', {EVENT: vi.fn()});
+
+        await flushPromises();
+        simulateConnect();
+
+        unsub1();
+        expect(mockDeactivate).not.toHaveBeenCalled();
+
+        unsub2();
+        expect(mockDeactivate).toHaveBeenCalledTimes(1);
+    });
+
+    it('queued subscriptions are created on connect', async () => {
+        const service = await getService();
+
+        service.subscribe('/topic/a', {EVENT: vi.fn()});
+        service.subscribe('/topic/b', {EVENT: vi.fn()});
+
+        await flushPromises();
+
+        expect(mockSubscribe).not.toHaveBeenCalled();
+
+        simulateConnect();
+
+        expect(mockSubscribe).toHaveBeenCalledTimes(2);
+        expect(mockSubscribe).toHaveBeenCalledWith('/topic/a', expect.any(Function));
+        expect(mockSubscribe).toHaveBeenCalledWith('/topic/b', expect.any(Function));
     });
 });

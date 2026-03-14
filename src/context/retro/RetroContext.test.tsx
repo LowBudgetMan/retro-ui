@@ -5,17 +5,11 @@ import {useRetro} from "../hooks.tsx";
 import {Thought} from "../../services/retro-service/RetroService.ts";
 import {DateTime} from "luxon";
 import {WebsocketService} from "../../services/websocket/WebsocketService.ts";
-import {
-    createThoughtSubscriptionId,
-    updateThoughtSubscriptionId,
-    deleteThoughtSubscriptionId
-} from "../../services/websocket/constants/thoughts.ts";
-import {updateRetroFinishedSubscriptionId} from "../../services/websocket/constants/retro-finished.ts";
+import {CrudEventTypes, RetroEventTypes} from "../../services/websocket/EventTypes.ts";
 
 vi.mock('../../services/websocket/WebsocketService.ts', () => ({
     WebsocketService: {
-        subscribe: vi.fn(),
-        unsubscribe: vi.fn()
+        subscribe: vi.fn().mockReturnValue(vi.fn()),
     }
 }));
 
@@ -45,31 +39,33 @@ describe('RetroContextProvider', () => {
             </RetroContextProvider>
         );
 
-        // TODO: These should probably check to make sure that the callbacks are set up to track the right events
+        expect(WebsocketService.subscribe).toHaveBeenCalledTimes(2);
         expect(WebsocketService.subscribe).toHaveBeenCalledWith(
-            '/topic/test-retro-id.thoughts',
-            createThoughtSubscriptionId,
-            expect.any(Function)
+            '/topic/retros.test-retro-id.thoughts',
+            expect.objectContaining({
+                transform: expect.any(Function),
+                [CrudEventTypes.CREATE]: expect.any(Function),
+                [CrudEventTypes.UPDATE]: expect.any(Function),
+                [CrudEventTypes.DELETE]: expect.any(Function),
+            }),
+            'test-retro-id'
         );
         expect(WebsocketService.subscribe).toHaveBeenCalledWith(
-            '/topic/test-retro-id.thoughts',
-            updateThoughtSubscriptionId,
-            expect.any(Function)
+            '/topic/retros.test-retro-id.events',
+            expect.objectContaining({
+                [RetroEventTypes.RETRO_FINISHED]: expect.any(Function),
+            }),
+            'test-retro-id'
         );
-        expect(WebsocketService.subscribe).toHaveBeenCalledWith(
-            '/topic/test-retro-id.thoughts',
-            deleteThoughtSubscriptionId,
-            expect.any(Function)
-        );
-        expect(WebsocketService.subscribe).toHaveBeenCalledWith(
-            '/topic/test-retro-id.finished',
-            updateRetroFinishedSubscriptionId,
-            expect.any(Function)
-        );
-        expect(WebsocketService.subscribe).toHaveBeenCalledTimes(4);
     });
 
     it('should unsubscribe from WebSocket events on unmount', () => {
+        const unsubscribeThoughts = vi.fn();
+        const unsubscribeEvents = vi.fn();
+        vi.mocked(WebsocketService.subscribe)
+            .mockReturnValueOnce(unsubscribeThoughts)
+            .mockReturnValueOnce(unsubscribeEvents);
+
         const { unmount } = render(
             <RetroContextProvider retro={mockRetro}>
                 <div>Test Child</div>
@@ -78,32 +74,33 @@ describe('RetroContextProvider', () => {
 
         unmount();
 
-        expect(WebsocketService.unsubscribe).toHaveBeenCalledWith(createThoughtSubscriptionId);
-        expect(WebsocketService.unsubscribe).toHaveBeenCalledWith(updateThoughtSubscriptionId);
-        expect(WebsocketService.unsubscribe).toHaveBeenCalledWith(deleteThoughtSubscriptionId);
-        expect(WebsocketService.unsubscribe).toHaveBeenCalledWith(updateRetroFinishedSubscriptionId);
-        expect(WebsocketService.unsubscribe).toHaveBeenCalledTimes(4);
+        expect(unsubscribeThoughts).toHaveBeenCalled();
+        expect(unsubscribeEvents).toHaveBeenCalled();
     });
 
     it('should resubscribe when retro ID changes', () => {
+        const unsubscribeThoughts = vi.fn();
+        const unsubscribeEvents = vi.fn();
+        vi.mocked(WebsocketService.subscribe)
+            .mockReturnValueOnce(unsubscribeThoughts)
+            .mockReturnValueOnce(unsubscribeEvents)
+            .mockReturnValue(vi.fn());
+
         const { rerender } = render(
             <RetroContextProvider retro={mockRetro}>
                 <div>Test Child</div>
             </RetroContextProvider>
         );
 
-        // Change the retro ID by rerendering with different loader data
         rerender(
             <RetroContextProvider retro={{...mockRetro, id: 'new-retro-id'}}>
                 <div>Test Child</div>
             </RetroContextProvider>
         );
 
-        expect(WebsocketService.unsubscribe).toHaveBeenCalledWith(createThoughtSubscriptionId);
-        expect(WebsocketService.unsubscribe).toHaveBeenCalledWith(updateThoughtSubscriptionId);
-        expect(WebsocketService.unsubscribe).toHaveBeenCalledWith(deleteThoughtSubscriptionId);
-        expect(WebsocketService.unsubscribe).toHaveBeenCalledWith(updateRetroFinishedSubscriptionId);
-        expect(WebsocketService.subscribe).toHaveBeenCalledTimes(8);
+        expect(unsubscribeThoughts).toHaveBeenCalled();
+        expect(unsubscribeEvents).toHaveBeenCalled();
+        expect(WebsocketService.subscribe).toHaveBeenCalledTimes(4);
     });
 });
 
