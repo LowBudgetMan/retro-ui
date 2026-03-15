@@ -1,12 +1,8 @@
 import {createContext, PropsWithChildren, useCallback, useEffect, useState} from "react";
-import {ActionItem} from "../../services/action-items-service/ActionItemsService.ts";
+import {ActionItem, transformActionItem} from "../../services/action-items-service/ActionItemsService.ts";
 import {WebsocketService} from "../../services/websocket/WebsocketService.ts";
-import {EventType} from "../../services/websocket/WebsocketEventHandler.ts";
-import {
-    getDestination,
-    createActionItemSubscriptionId,
-    updateActionItemSubscriptionId, eventHandler, deleteActionItemSubscriptionId
-} from "../../services/websocket/constants/action-items.ts";
+import {teamDestination} from "../../services/websocket/destinations.ts";
+import {CrudEventTypes} from "../../services/websocket/EventTypes.ts";
 
 export type ActionItemsContextValue = {
     teamId: string;
@@ -52,19 +48,17 @@ export function ActionItemsContextProvider({teamId, actionItems, children}: Prop
     }, [setActionItemsState]);
 
     useEffect(() => {
-        WebsocketService.subscribe(getDestination(teamId), createActionItemSubscriptionId, eventHandler(EventType.CREATE, createActionItem));
-        return () => {WebsocketService.unsubscribe(createActionItemSubscriptionId);};
-    }, [teamId, createActionItem]);
-
-    useEffect(() => {
-        WebsocketService.subscribe(getDestination(teamId), updateActionItemSubscriptionId, eventHandler(EventType.UPDATE, updateActionItem));
-        return () => {WebsocketService.unsubscribe(updateActionItemSubscriptionId);};
-    }, [teamId, updateActionItem]);
-
-    useEffect(() => {
-        WebsocketService.subscribe(getDestination(teamId), deleteActionItemSubscriptionId, eventHandler(EventType.DELETE, deleteActionItem));
-        return () => {WebsocketService.unsubscribe(deleteActionItemSubscriptionId);};
-    }, [teamId, deleteActionItem]);
+        const unsubscribe = WebsocketService.subscribe(
+            teamDestination(teamId, 'action-items'),
+            {
+                transform: transformActionItem,
+                [CrudEventTypes.CREATE]: createActionItem,
+                [CrudEventTypes.UPDATE]: updateActionItem,
+                [CrudEventTypes.DELETE]: deleteActionItem,
+            }
+        );
+        return unsubscribe;
+    }, [teamId, createActionItem, updateActionItem, deleteActionItem]);
 
     return (
         <ActionItemsContext.Provider value={{teamId, actionItems: actionItemsState, createActionItem, updateActionItem, deleteActionItem}}>
