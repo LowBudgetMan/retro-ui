@@ -10,6 +10,7 @@ function getUserManagerSettings(): UserManagerSettings {
         redirect_uri: `${window.location.origin}/auth-redirect`,
         post_logout_redirect_uri: `${window.location.origin}/`,
         automaticSilentRenew: true,
+        monitorSession: true,
         filterProtocolClaims: true,
         silent_redirect_uri: `${window.location.origin}/silent-redirect`,
         includeIdTokenInSilentRenew: true,
@@ -78,4 +79,12 @@ export async function initiateLoginWithReturnUrl(returnUrl?: string): Promise<vo
     
     storeReturnUrl(returnUrl);
     await userManager.signinRedirect();
+}
+
+export function registerCrossTabLogoutListener(): void {
+    getUserManager().events.addUserSignedOut(() => {
+        getUserManager().removeUser().then(() => {
+            window.location.href = '/'
+        })
+    })
 }
