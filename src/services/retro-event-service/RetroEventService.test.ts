@@ -1,7 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import axios from 'axios';
 import { RetroEventService } from './RetroEventService';
-import { ApiConfig } from '../../config/ApiConfig';
 
 vi.mock('axios');
 vi.mock('../../config/ApiConfig', () => ({

@@ -39,7 +39,7 @@ describe('FocusThoughtModal', () => {
         },
     ];
 
-    let capturedHandlers: Record<string, (payload: any) => void> = {};
+    let capturedHandlers: Record<string, (payload?: unknown) => void> = {};
 
     beforeEach(() => {
         vi.clearAllMocks();
@@ -52,8 +52,8 @@ describe('FocusThoughtModal', () => {
             });
             return vi.fn();
         });
-        vi.mocked(ThoughtService.setCompleted).mockResolvedValue(undefined as any);
-        vi.mocked(RetroEventService.clearFocus).mockResolvedValue(undefined as any);
+        vi.mocked(ThoughtService.setCompleted).mockResolvedValue(undefined as never);
+        vi.mocked(RetroEventService.clearFocus).mockResolvedValue(undefined as never);
     });
 
     it('should not display modal when no thought is focused', () => {

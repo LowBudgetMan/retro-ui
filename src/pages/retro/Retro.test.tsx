@@ -44,6 +44,10 @@ vi.mock('./components/share-button/ShareButton.tsx', () => ({
     ShareButton: () => <button>Share</button>,
 }));
 
+vi.mock('./components/focus-thought-modal/FocusThoughtModal.tsx', () => ({
+    FocusThoughtModal: () => null,
+}));
+
 describe('RetroComponent', () => {
   const mockRetro = {
     id: 'retro-123',
