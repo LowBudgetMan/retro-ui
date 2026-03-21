@@ -2,6 +2,8 @@ import {describe, it, expect, vi, beforeEach} from 'vitest';
 
 const mockSigninSilent = vi.fn();
 const mockGetUser = vi.fn();
+const mockRemoveUser = vi.fn().mockResolvedValue(undefined);
+const mockUserSignedOut = vi.fn();
 
 vi.mock('../../config/ApiConfig', () => ({
     waitForAppConfiguration: vi.fn().mockResolvedValue(undefined),
@@ -19,6 +21,10 @@ vi.mock('oidc-client-ts', () => {
         UserManager: class MockUserManager {
             signinSilent = mockSigninSilent;
             getUser = mockGetUser;
+            removeUser = mockRemoveUser;
+            events = {
+                addUserSignedOut: mockUserSignedOut,
+            };
         },
     };
 });
@@ -65,5 +71,32 @@ describe('waitForAuthInitialization', () => {
         mockSigninSilent.mockRejectedValue(new Error('Silent sign-in failed'));
 
         await expect(callWaitForAuthInitialization()).resolves.not.toThrow();
+    });
+});
+
+describe('registerCrossTabLogoutListener', () => {
+    beforeEach(() => {
+        vi.clearAllMocks();
+        vi.resetModules();
+    });
+
+    async function registerAndFireSignedOutEvent() {
+        const {registerCrossTabLogoutListener} = await import('./UserContext');
+        registerCrossTabLogoutListener();
+
+        const signedOutCallback = mockUserSignedOut.mock.calls[0][0];
+        await signedOutCallback();
+    }
+
+    it('should remove user when signed out event fires', async () => {
+        await registerAndFireSignedOutEvent();
+
+        expect(mockRemoveUser).toHaveBeenCalledTimes(1);
+    });
+
+    it('should redirect to root when signed out event fires', async () => {
+        await registerAndFireSignedOutEvent();
+
+        expect(window.location.href).toContain('/');
     });
 });
