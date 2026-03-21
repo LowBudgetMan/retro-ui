@@ -4,8 +4,10 @@ import {Thought} from "../../../../services/retro-service/RetroService.ts";
 import {ThoughtService} from "../../../../services/thought-service/ThoughtService.ts";
 import {DateTime} from "luxon";
 import { vi, describe, it, beforeEach, expect } from 'vitest';
+import {RetroEventService} from "../../../../services/retro-event-service/RetroEventService.ts";
 
 vi.mock("../../../../services/thought-service/ThoughtService.ts");
+vi.mock("../../../../services/retro-event-service/RetroEventService.ts");
 
 const currentTime = DateTime.now();
 
@@ -205,6 +207,28 @@ describe('ThoughtCard', () => {
             
             expect(screen.getByText('Updated message from server')).toBeInTheDocument();
         });
+    });
+
+    it('should call RetroEventService.focus when thought message is clicked', () => {
+        render(<ThoughtCard teamId={teamId} thought={thought} />);
+
+        fireEvent.click(screen.getByText('This is a test thought'));
+        expect(RetroEventService.focus).toHaveBeenCalledWith(
+            teamId,
+            thought.retroId,
+            thought.id
+        );
+    });
+
+    it('should not call RetroEventService.focus when a completed thought message is clicked', () => {
+        const completedThought: Thought = {
+            ...thought,
+            completed: true,
+        };
+        render(<ThoughtCard teamId={teamId} thought={completedThought} />);
+
+        fireEvent.click(screen.getByText('This is a test thought'));
+        expect(RetroEventService.focus).not.toHaveBeenCalled();
     });
 
     describe('Delete thought', () => {
