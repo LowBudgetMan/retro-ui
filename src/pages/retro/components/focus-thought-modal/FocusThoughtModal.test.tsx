@@ -65,7 +65,7 @@ describe('FocusThoughtModal', () => {
         render(<FocusThoughtModal teamId={teamId} retroId={retroId} thoughts={thoughts} />);
 
         act(() => {
-            capturedHandlers[RetroEventTypes.FOCUS]('thought1');
+            capturedHandlers[RetroEventTypes.FOCUS]({ thoughtId: 'thought1' });
         });
 
         expect(screen.getByText('First thought')).toBeInTheDocument();
@@ -75,7 +75,7 @@ describe('FocusThoughtModal', () => {
         render(<FocusThoughtModal teamId={teamId} retroId={retroId} thoughts={thoughts} />);
 
         act(() => {
-            capturedHandlers[RetroEventTypes.FOCUS]('thought1');
+            capturedHandlers[RetroEventTypes.FOCUS]({ thoughtId: 'thought1' });
         });
 
         expect(screen.getByText('3')).toBeInTheDocument();
@@ -85,7 +85,7 @@ describe('FocusThoughtModal', () => {
         render(<FocusThoughtModal teamId={teamId} retroId={retroId} thoughts={thoughts} />);
 
         act(() => {
-            capturedHandlers[RetroEventTypes.FOCUS]('thought1');
+            capturedHandlers[RetroEventTypes.FOCUS]({ thoughtId: 'thought1' });
         });
         expect(screen.getByText('First thought')).toBeInTheDocument();
 
@@ -99,7 +99,7 @@ describe('FocusThoughtModal', () => {
         render(<FocusThoughtModal teamId={teamId} retroId={retroId} thoughts={thoughts} />);
 
         act(() => {
-            capturedHandlers[RetroEventTypes.FOCUS]('thought1');
+            capturedHandlers[RetroEventTypes.FOCUS]({ thoughtId: 'thought1' });
         });
 
         fireEvent.click(screen.getByLabelText('Close modal'));
@@ -110,7 +110,7 @@ describe('FocusThoughtModal', () => {
         render(<FocusThoughtModal teamId={teamId} retroId={retroId} thoughts={thoughts} />);
 
         act(() => {
-            capturedHandlers[RetroEventTypes.FOCUS]('thought1');
+            capturedHandlers[RetroEventTypes.FOCUS]({ thoughtId: 'thought1' });
         });
 
         fireEvent.click(screen.getByLabelText('Close focused thought'));
@@ -121,7 +121,7 @@ describe('FocusThoughtModal', () => {
         render(<FocusThoughtModal teamId={teamId} retroId={retroId} thoughts={thoughts} />);
 
         act(() => {
-            capturedHandlers[RetroEventTypes.FOCUS]('thought1');
+            capturedHandlers[RetroEventTypes.FOCUS]({ thoughtId: 'thought1' });
         });
 
         fireEvent.keyDown(document, { key: 'Escape' });
@@ -132,7 +132,7 @@ describe('FocusThoughtModal', () => {
         render(<FocusThoughtModal teamId={teamId} retroId={retroId} thoughts={thoughts} />);
 
         act(() => {
-            capturedHandlers[RetroEventTypes.FOCUS]('thought1');
+            capturedHandlers[RetroEventTypes.FOCUS]({ thoughtId: 'thought1' });
         });
 
         await act(async () => {
@@ -147,7 +147,7 @@ describe('FocusThoughtModal', () => {
         render(<FocusThoughtModal teamId={teamId} retroId={retroId} thoughts={thoughts} />);
 
         act(() => {
-            capturedHandlers[RetroEventTypes.FOCUS]('nonexistent');
+            capturedHandlers[RetroEventTypes.FOCUS]({ thoughtId: 'nonexistent' });
         });
 
         expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
@@ -157,7 +157,7 @@ describe('FocusThoughtModal', () => {
         const { rerender } = render(<FocusThoughtModal teamId={teamId} retroId={retroId} thoughts={thoughts} />);
 
         act(() => {
-            capturedHandlers[RetroEventTypes.FOCUS]('thought1');
+            capturedHandlers[RetroEventTypes.FOCUS]({ thoughtId: 'thought1' });
         });
         expect(screen.getByText('First thought')).toBeInTheDocument();
 
@@ -186,12 +186,12 @@ describe('FocusThoughtModal', () => {
         render(<FocusThoughtModal teamId={teamId} retroId={retroId} thoughts={allIncompleteThoughts} />);
 
         act(() => {
-            capturedHandlers[RetroEventTypes.FOCUS]('thought1');
+            capturedHandlers[RetroEventTypes.FOCUS]({ thoughtId: 'thought1' });
         });
         expect(screen.getByText('First thought')).toBeInTheDocument();
 
         act(() => {
-            capturedHandlers[RetroEventTypes.FOCUS]('thought3');
+            capturedHandlers[RetroEventTypes.FOCUS]({ thoughtId: 'thought3' });
         });
         expect(screen.queryByText('First thought')).not.toBeInTheDocument();
         expect(screen.getByText('Third thought')).toBeInTheDocument();

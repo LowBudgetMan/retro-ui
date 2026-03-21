@@ -19,8 +19,8 @@ interface Props {
 export function FocusThoughtModal({ teamId, retroId, thoughts }: Props) {
     const [focusedThoughtId, setFocusedThoughtId] = useState<string | null>(null);
 
-    const handleFocus = useCallback((thoughtId: string) => {
-        setFocusedThoughtId(thoughtId);
+    const handleFocus = useCallback((payload: { thoughtId: string }) => {
+        setFocusedThoughtId(payload.thoughtId);
     }, []);
 
     const handleFocusClear = useCallback(() => {
