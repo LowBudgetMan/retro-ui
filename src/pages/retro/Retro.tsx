@@ -7,6 +7,7 @@ import {EndRetroButton} from "./components/end-retro-button/EndRetroButton.tsx";
 import {ShareButton} from "./components/share-button/ShareButton.tsx";
 import {useEffect} from "react";
 import {clearShareToken, hasShareToken} from "../../services/anonymous-auth/AnonymousAuthService.ts";
+import {FocusThoughtModal} from "./components/focus-thought-modal/FocusThoughtModal.tsx";
 
 export function RetroComponent() {
     const {retro} = useRetro();
@@ -48,6 +49,7 @@ export function RetroComponent() {
                 </div>
             </div>
             {!anonymous && <ActionItemsTab />}
+            <FocusThoughtModal teamId={retro.teamId} retroId={retro.id} thoughts={retro.thoughts} />
         </div>
     );
 }

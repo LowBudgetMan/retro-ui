@@ -2,6 +2,7 @@ import {Thought} from "../../../../services/retro-service/RetroService.ts";
 import styles from './ThoughtCard.module.css';
 import {useCallback, useState, KeyboardEvent, useEffect} from "react";
 import {ThoughtService} from "../../../../services/thought-service/ThoughtService.ts";
+import {RetroEventService} from "../../../../services/retro-event-service/RetroEventService.ts";
 import {onKeys} from "../../../../services/key-event-handler/KeyEventHandler.ts";
 import { FaEdit, FaRegTrashAlt } from "react-icons/fa";
 import { ImCheckboxChecked, ImCheckboxUnchecked } from "react-icons/im";
@@ -35,6 +36,11 @@ export function ThoughtCard({teamId, thought}: Props) {
         setShowDeleteConfirmation(true);
     }, [])
 
+    const handleFocusClick = useCallback(async () => {
+        if (thought.completed) return;
+        await RetroEventService.focus(teamId, thought.retroId, thought.id);
+    }, [teamId, thought]);
+
     const [editing, setEditing] = useState<boolean>(false);
     const [showDeleteConfirmation, setShowDeleteConfirmation] = useState<boolean>(false);
 
@@ -67,7 +73,7 @@ export function ThoughtCard({teamId, thought}: Props) {
                             onKeyDown={onKeys(['Enter'], handleKeyPress)}
                         >{thought.message}</textarea>
                     ) : (
-                        <p className={styles.message}>{thought.message}</p>
+                        <p className={styles.message} onClick={handleFocusClick}>{thought.message}</p>
                     )}
                     <div className={styles.actionsContainer}>
                         <button className={styles.action} name='vote' aria-label={'vote'} onClick={handleVote} disabled={thought.completed}>

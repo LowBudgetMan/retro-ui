@@ -1,0 +1,37 @@
+.container {
+    display: flex;
+    flex-direction: column;
+    padding: 1.5rem;
+    gap: 1rem;
+    position: relative;
+}
+
+.closeButton {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: inherit;
+}
+
+.message {
+    font-size: 1.25rem;
+    margin: 0;
+    padding-right: 1.5rem;
+}
+
+.footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.completeButton {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: inherit;
+}
