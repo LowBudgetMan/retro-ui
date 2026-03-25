@@ -22,3 +22,27 @@
     gap: 3rem;
     padding: 0 4rem;
 }
+
+.mobileColumnsContainer {
+    padding-bottom: 48px;
+}
+
+@media (max-width: 767px) {
+    .retroColumnsContainer {
+        justify-content: flex-start;
+    }
+
+    .retroColumns {
+        gap: 0;
+        padding: 0;
+        flex-direction: column;
+    }
+}
+
+.mobileHidden {
+    display: none;
+}
+
+.mobileActionItems {
+    padding: 0 1rem 48px 1rem;
+}
