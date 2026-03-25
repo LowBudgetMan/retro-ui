@@ -8,3 +8,12 @@
     list-style: none;
     padding: 0;
 }
+
+@media (max-width: 767px) {
+    .retroCategory {
+        display: block;
+        width: 100%;
+        min-width: unset;
+        box-sizing: border-box;
+    }
+}

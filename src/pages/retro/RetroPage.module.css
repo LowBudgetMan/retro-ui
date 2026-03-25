@@ -22,3 +22,35 @@
     gap: 3rem;
     padding: 0 4rem;
 }
+
+.mobileColumnsContainer {
+    padding-bottom: 48px;
+}
+
+@media (max-width: 767px) {
+    .retroHeaderContainer {
+        grid-template-columns: auto 1fr;
+        gap: 0.75rem;
+    }
+
+    .retroColumnsContainer {
+        justify-content: flex-start;
+    }
+
+    .retroColumns {
+        gap: 0;
+        padding: 0 1rem;
+        flex-direction: column;
+        overflow-x: hidden;
+        width: 100%;
+        box-sizing: border-box;
+    }
+}
+
+.mobileHidden {
+    display: none;
+}
+
+.mobileActionItems {
+    padding: 0 1rem 48px 1rem;
+}
