@@ -8,6 +8,8 @@ import {useActionItems, useRetro} from "../../context/hooks.tsx";
 import {Mock} from "vitest";
 import {useNavigate} from "react-router-dom";
 import {clearShareToken, hasShareToken} from "../../services/anonymous-auth/AnonymousAuthService.ts";
+import {MobileTabBar} from "./components/mobile-tab-bar/MobileTabBar.tsx";
+import {useIsMobile} from "../../hooks/useIsMobile";
 
 vi.mock('react-router-dom', () => ({
   useLoaderData: vi.fn(),
@@ -22,8 +24,21 @@ vi.mock('react-router-dom', () => ({
 vi.mock('./RetroPage.module.css', () => ({
   default: {
     retroColumns: 'mock-retro-columns-class',
+    retroColumnsContainer: 'mock-retro-columns-container-class',
+    retroHeaderContainer: 'mock-retro-header-container-class',
+    mobileColumnsContainer: 'mock-mobile-columns-container-class',
+    mobileHidden: 'mock-mobile-hidden-class',
+    mobileActionItems: 'mock-mobile-action-items-class',
   },
-  retroColumns: 'mock-retro-columns-class',
+}));
+
+vi.mock('../../hooks/useIsMobile', () => ({
+    useIsMobile: vi.fn().mockReturnValue(false),
+}));
+
+vi.mock('./components/mobile-tab-bar/MobileTabBar.tsx', () => ({
+    MobileTabBar: vi.fn(() => null),
+    ACTION_ITEMS_TAB: 'ACTION_ITEMS',
 }));
 
 vi.mock('../../context/hooks.tsx', () => ({
@@ -219,6 +234,57 @@ describe('RetroComponent', () => {
         it('should show the Share button', () => {
             render(<RetroComponent />);
             expect(screen.getByText('Share')).toBeInTheDocument();
+        });
+    });
+
+    describe('mobile mode', () => {
+        beforeEach(() => {
+            (useIsMobile as Mock).mockReturnValue(true);
+            (hasShareToken as Mock).mockReturnValue(false);
+        });
+
+        it('should render MobileTabBar on mobile', () => {
+            render(<RetroComponent />);
+            expect(MobileTabBar).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    categories: mockRetro.template.categories,
+                    activeTab: 'Went Well',
+                    showActionItems: true,
+                }),
+                {}
+            );
+        });
+
+        it('should not render MobileTabBar on desktop', () => {
+            (useIsMobile as Mock).mockReturnValue(false);
+            render(<RetroComponent />);
+            expect(MobileTabBar).not.toHaveBeenCalled();
+        });
+
+        it('should hide Action Items tab for anonymous users on mobile', () => {
+            (hasShareToken as Mock).mockReturnValue(true);
+            render(<RetroComponent />);
+            expect(MobileTabBar).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    showActionItems: false,
+                }),
+                {}
+            );
+        });
+
+        it('should default active tab to first category', () => {
+            render(<RetroComponent />);
+            expect(MobileTabBar).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    activeTab: 'Went Well',
+                }),
+                {}
+            );
+        });
+
+        it('should always render all RetroColumns on mobile (all stay mounted)', () => {
+            render(<RetroComponent />);
+            expect(RetroColumn).toHaveBeenCalledTimes(2);
         });
     });
 });
