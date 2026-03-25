@@ -28,14 +28,22 @@
 }
 
 @media (max-width: 767px) {
+    .retroHeaderContainer {
+        grid-template-columns: auto 1fr;
+        gap: 0.75rem;
+    }
+
     .retroColumnsContainer {
         justify-content: flex-start;
     }
 
     .retroColumns {
         gap: 0;
-        padding: 0;
+        padding: 0 1rem;
         flex-direction: column;
+        overflow-x: hidden;
+        width: 100%;
+        box-sizing: border-box;
     }
 }
 
