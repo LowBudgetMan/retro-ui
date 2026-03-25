@@ -1,9 +1,18 @@
+.dialog {
+    border-radius: 12px;
+    overflow: hidden;
+}
+
 .container {
     display: flex;
     flex-direction: column;
-    padding: 1.5rem;
+
     gap: 1rem;
     position: relative;
+    width: 50vw;
+    border: 8px solid transparent;
+    background-color: var(--background-primary);
+    color: var(--text-primary);
 }
 
 .closeButton {
@@ -18,15 +27,18 @@
 }
 
 .message {
-    font-size: 1.25rem;
+    font-size: 1.75rem;
+    font-weight: 600;
     margin: 0;
-    padding-right: 1.5rem;
+    padding: 1.5rem;
 }
 
 .footer {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    border-top: 3px solid var(--border-color);
+    padding: 1rem 1.5rem;
 }
 
 .completeButton {

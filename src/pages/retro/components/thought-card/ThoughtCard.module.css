@@ -56,3 +56,20 @@
     cursor: unset;
     box-shadow: unset;
 }
+
+.editThoughtInput {
+    background-color: inherit;
+    color: var(--text-primary);
+    font-family: inherit;
+    font-size: inherit;
+    padding: 1rem;
+    margin: 0;
+    width: 100%;
+    box-sizing: border-box;
+    outline: none;
+    resize: none;
+    border: 3px solid var(--text-secondary);
+    border-top-right-radius: inherit;
+    border-top-left-radius: inherit;
+
+}

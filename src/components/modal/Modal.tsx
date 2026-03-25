@@ -7,9 +7,10 @@ interface ModalProps {
     setIsOpen: (isOpen: boolean) => void;
     children: ReactNode;
     backgroundButtonAriaLabel?: string;
+    className?: string;
 }
 
-export function Modal({ isOpen, setIsOpen, children, backgroundButtonAriaLabel = 'Close modal' }: ModalProps) {
+export function Modal({ isOpen, setIsOpen, children, backgroundButtonAriaLabel = 'Close modal', className }: ModalProps) {
     useEffect(() => {
         const handleEscapeKey = onKeys(['Escape'], () => setIsOpen(false));
 
@@ -31,7 +32,7 @@ export function Modal({ isOpen, setIsOpen, children, backgroundButtonAriaLabel =
                     aria-label={backgroundButtonAriaLabel}
                 ></button>
             </div>}
-            <dialog open={isOpen} className={modalStyle.modalContainer}>
+            <dialog open={isOpen} className={`${modalStyle.modalContainer}${className ? ` ${className}` : ''}`}>
                 {children}
             </dialog>
         </>

@@ -1,6 +1,6 @@
 import {Thought} from "../../../../services/retro-service/RetroService.ts";
 import styles from './ThoughtCard.module.css';
-import {useCallback, useState, KeyboardEvent, useEffect} from "react";
+import {useCallback, useRef, useState, KeyboardEvent, useEffect} from "react";
 import {ThoughtService} from "../../../../services/thought-service/ThoughtService.ts";
 import {RetroEventService} from "../../../../services/retro-event-service/RetroEventService.ts";
 import {onKeys} from "../../../../services/key-event-handler/KeyEventHandler.ts";
@@ -43,6 +43,7 @@ export function ThoughtCard({teamId, thought}: Props) {
 
     const [editing, setEditing] = useState<boolean>(false);
     const [showDeleteConfirmation, setShowDeleteConfirmation] = useState<boolean>(false);
+    const editRef = useRef<HTMLTextAreaElement>(null);
 
     const [editValue, setEditValue] = useState(thought.message ?? '');
 
@@ -53,6 +54,14 @@ export function ThoughtCard({teamId, thought}: Props) {
     useEffect(() => {
         setEditValue(thought.message ?? '');
     }, [thought, editing])
+
+    useEffect(() => {
+        if (editing && editRef.current) {
+            const el = editRef.current;
+            el.focus();
+            el.setSelectionRange(el.value.length, el.value.length);
+        }
+    }, [editing]);
 
     return (
         <div className={`${styles.card} ${thought.completed ? styles.completed : ''}`}>
@@ -68,10 +77,12 @@ export function ThoughtCard({teamId, thought}: Props) {
                 <>
                     {editing ? (
                         <textarea
+                            ref={editRef}
                             value={editValue}
+                            className={styles.editThoughtInput}
                             onChange={(event) => {setEditValue(event.target.value);}}
                             onKeyDown={onKeys(['Enter'], handleKeyPress)}
-                        >{thought.message}</textarea>
+                        />
                     ) : (
                         <p className={styles.message} onClick={handleFocusClick}>{thought.message}</p>
                     )}
