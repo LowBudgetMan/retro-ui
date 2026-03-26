@@ -5,9 +5,11 @@ import {useActionItems} from "../../../../context/hooks.tsx";
 import {ActionItemsService} from "../../../../services/action-items-service/ActionItemsService.ts";
 import {CountSeparator} from "../count-separator/CountSeparator.tsx";
 import {ActionItemsList} from "./action-items-list/ActionItemsList.tsx";
+import {useIsMobile} from "../../../../hooks/useIsMobile.ts";
 
 export function ActionItemsTab() {
     const {teamId, actionItems} = useActionItems();
+    const mobile = useIsMobile();
     const [isOpen, setIsOpen] = useState<boolean>(false);
 
     const toggleActionItemsPane = () => setIsOpen(!isOpen);
@@ -35,10 +37,14 @@ export function ActionItemsTab() {
             .catch((error) => console.error('Error creating team:', error));
     };
 
+    const containerClass = mobile
+        ? styles.mobileContainer
+        : `${styles.container} ${isOpen ? styles.containerOpen : styles.containerClosed}`;
+
     return (
-        <div className={`${styles.container} ${isOpen ? styles.containerOpen : styles.containerClosed}`}>
-            <button className={styles.tab} onClick={toggleActionItemsPane}>Action Items</button>
-            <div className={styles.content}>
+        <div className={containerClass}>
+            {!mobile && <button className={styles.tab} onClick={toggleActionItemsPane}>Action Items</button>}
+            <div className={mobile ? '' : styles.content}>
                 <h2 className={styles.paneHeader}>Action Items</h2>
                 <form className={styles.actionItemForm} onSubmit={handleSubmit}>
                     <input type={'text'} name={'actionItem'} placeholder={'Enter Action Item'} required={true} className={styles.itemInput}/>
