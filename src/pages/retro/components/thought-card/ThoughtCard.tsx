@@ -55,13 +55,19 @@ export function ThoughtCard({teamId, thought}: Props) {
         setEditValue(thought.message ?? '');
     }, [thought, editing])
 
+    const resizeTextarea = useCallback(() => {
+        if (editRef.current) {
+            editRef.current.style.height = 'auto';
+            editRef.current.style.height = `${editRef.current.scrollHeight}px`;
+        }
+    }, []);
+
     useEffect(() => {
         if (editing && editRef.current) {
-            const el = editRef.current;
-            el.focus();
-            el.setSelectionRange(el.value.length, el.value.length);
+            editRef.current.focus();
+            resizeTextarea();
         }
-    }, [editing]);
+    }, [editing, resizeTextarea]);
 
     return (
         <div className={`${styles.card} ${thought.completed ? styles.completed : ''}`}>
@@ -80,7 +86,7 @@ export function ThoughtCard({teamId, thought}: Props) {
                             ref={editRef}
                             value={editValue}
                             className={styles.editThoughtInput}
-                            onChange={(event) => {setEditValue(event.target.value);}}
+                            onChange={(event) => {setEditValue(event.target.value); resizeTextarea();}}
                             onKeyDown={onKeys(['Enter'], handleKeyPress)}
                         />
                     ) : (
