@@ -1,6 +1,6 @@
 import {Thought} from "../../../../services/retro-service/RetroService.ts";
 import styles from './ThoughtCard.module.css';
-import {useCallback, useState, KeyboardEvent, useEffect} from "react";
+import {useCallback, useRef, useState, KeyboardEvent, useEffect} from "react";
 import {ThoughtService} from "../../../../services/thought-service/ThoughtService.ts";
 import {RetroEventService} from "../../../../services/retro-event-service/RetroEventService.ts";
 import {onKeys} from "../../../../services/key-event-handler/KeyEventHandler.ts";
@@ -43,6 +43,7 @@ export function ThoughtCard({teamId, thought}: Props) {
 
     const [editing, setEditing] = useState<boolean>(false);
     const [showDeleteConfirmation, setShowDeleteConfirmation] = useState<boolean>(false);
+    const editRef = useRef<HTMLTextAreaElement>(null);
 
     const [editValue, setEditValue] = useState(thought.message ?? '');
 
@@ -53,6 +54,20 @@ export function ThoughtCard({teamId, thought}: Props) {
     useEffect(() => {
         setEditValue(thought.message ?? '');
     }, [thought, editing])
+
+    const resizeTextarea = useCallback(() => {
+        if (editRef.current) {
+            editRef.current.style.height = 'auto';
+            editRef.current.style.height = `${editRef.current.scrollHeight}px`;
+        }
+    }, []);
+
+    useEffect(() => {
+        if (editing && editRef.current) {
+            editRef.current.focus();
+            resizeTextarea();
+        }
+    }, [editing, resizeTextarea]);
 
     return (
         <div className={`${styles.card} ${thought.completed ? styles.completed : ''}`}>
@@ -68,10 +83,12 @@ export function ThoughtCard({teamId, thought}: Props) {
                 <>
                     {editing ? (
                         <textarea
+                            ref={editRef}
                             value={editValue}
-                            onChange={(event) => {setEditValue(event.target.value);}}
+                            className={styles.editThoughtInput}
+                            onChange={(event) => {setEditValue(event.target.value); resizeTextarea();}}
                             onKeyDown={onKeys(['Enter'], handleKeyPress)}
-                        >{thought.message}</textarea>
+                        />
                     ) : (
                         <p className={styles.message} onClick={handleFocusClick}>{thought.message}</p>
                     )}

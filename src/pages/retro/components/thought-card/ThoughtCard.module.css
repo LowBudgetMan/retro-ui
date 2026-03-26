@@ -2,6 +2,7 @@
     border-radius: 6px;
     background-color: var(--background-secondary);
     margin-bottom: 2rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .card:hover {
@@ -28,9 +29,12 @@
     box-sizing: border-box;
     border: none;
     padding: 0.5rem;
+    background-color: var(--background-tertiary);
+    color: var(--text-primary);
+    cursor: pointer;
 
     &:not(:last-child) {
-        border-right: 1px solid lightgray;
+        border-right: 1px solid var(--border-secondary);
     }
 
     &:first-child {
@@ -55,4 +59,19 @@
 .completed:hover {
     cursor: unset;
     box-shadow: unset;
+}
+
+.editThoughtInput {
+    background-color: var(--border-color);
+    color: var(--text-primary);
+    font-family: inherit;
+    font-size: inherit;
+    padding: 1rem;
+    margin: 0;
+    width: 100%;
+    box-sizing: border-box;
+    outline: none;
+    border: none;
+    resize: none;
+
 }

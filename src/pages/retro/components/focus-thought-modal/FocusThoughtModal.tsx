@@ -1,5 +1,6 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Thought } from "../../../../services/retro-service/RetroService";
+import { useCategoryBackgroundColor, useRetro } from "../../../../context/hooks";
 import { WebsocketService } from "../../../../services/websocket/WebsocketService";
 import { retroDestination } from "../../../../services/websocket/destinations";
 import { RetroEventTypes } from "../../../../services/websocket/EventTypes";
@@ -17,6 +18,7 @@ interface Props {
 }
 
 export function FocusThoughtModal({ teamId, retroId, thoughts }: Props) {
+    const { retro } = useRetro();
     const [focusedThoughtId, setFocusedThoughtId] = useState<string | null>(null);
 
     const handleFocus = useCallback((payload: { thoughtId: string }) => {
@@ -43,6 +45,13 @@ export function FocusThoughtModal({ teamId, retroId, thoughts }: Props) {
         ? thoughts.find(t => t.id === focusedThoughtId)
         : null;
 
+    const focusedCategory = useMemo(() => {
+        if (!focusedThought) return undefined;
+        return retro.template.categories?.find(c => c.name === focusedThought.category);
+    }, [focusedThought, retro.template.categories]);
+
+    const borderColor = useCategoryBackgroundColor(focusedCategory);
+
     const isOpen = focusedThought !== null && focusedThought !== undefined && !focusedThought.completed;
 
     useEffect(() => {
@@ -63,9 +72,9 @@ export function FocusThoughtModal({ teamId, retroId, thoughts }: Props) {
     }, [teamId, retroId, focusedThoughtId]);
 
     return (
-        <Modal isOpen={isOpen} setIsOpen={handleClose} backgroundButtonAriaLabel="Close focused thought">
+        <Modal isOpen={isOpen} setIsOpen={handleClose} backgroundButtonAriaLabel="Close focused thought" className={styles.dialog}>
             {focusedThought && (
-                <div className={styles.container}>
+                <div className={styles.container} style={{ borderColor }}>
                     <button className={styles.closeButton} onClick={handleClose} aria-label="Close modal">&times;</button>
                     <p className={styles.message}>{focusedThought.message}</p>
                     <div className={styles.footer}>
