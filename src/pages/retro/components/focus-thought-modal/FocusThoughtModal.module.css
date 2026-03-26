@@ -41,6 +41,33 @@
     padding: 1rem 1.5rem;
 }
 
+@media (max-width: 767px) {
+    .dialog {
+        position: fixed;
+        width: 100vw;
+        height: 100vh;
+        border-radius: 0;
+    }
+
+    .container {
+        width: 100%;
+        height: 100%;
+        box-sizing: border-box;
+        justify-content: center;
+    }
+
+    .message {
+        text-align: center;
+    }
+
+    .footer {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+    }
+}
+
 .completeButton {
     background: none;
     border: none;
