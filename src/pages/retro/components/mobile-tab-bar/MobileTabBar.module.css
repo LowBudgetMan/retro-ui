@@ -1,0 +1,59 @@
+.tabBar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 48px;
+    display: flex;
+    background-color: var(--background-primary);
+    border-top: 1px solid var(--border-color);
+    z-index: 100;
+    overflow-x: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.tabBar::-webkit-scrollbar {
+    display: none;
+}
+
+.tab {
+    flex: 1 0 auto;
+    min-width: 0;
+    padding: 0 0.75rem;
+    border: none;
+    border-bottom: 3px solid transparent;
+    background: none;
+    color: var(--text-secondary);
+    font-size: 0.8rem;
+    font-family: inherit;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+
+.tab:hover {
+    color: var(--text-primary);
+}
+
+.activeTab {
+    color: var(--text-primary);
+    font-weight: 600;
+}
+
+.actionsTab {
+    border-left: 1px solid var(--border-color);
+}
+
+.fadeEdge {
+    position: fixed;
+    bottom: 0;
+    right: 0;
+    width: 30px;
+    height: 48px;
+    background: linear-gradient(to right, transparent, var(--background-primary));
+    pointer-events: none;
+    z-index: 101;
+}
