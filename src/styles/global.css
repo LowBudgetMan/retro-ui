@@ -14,6 +14,7 @@
     --bonfire-orange: #EBB58A;
     --bonfire-yellow: #F4D797;
     --bonfire-cream: #FFF2BD;
+    --bonfire-cyan: #66b3ff;
     --bonfire-good: #2ecc71;
     --bonfire-bad: #e74c3c;
 
@@ -40,6 +41,7 @@
     --bonfire-orange: #EE6C45;
     --bonfire-yellow: #FFCE61;
     --bonfire-cream: #FFE58A;
+    --bonfire-cyan: var(--accent-color);
     --bonfire-good: #27ae60;
     --bonfire-bad: #c0392b;
 
