@@ -29,12 +29,12 @@
     box-sizing: border-box;
     border: none;
     padding: 0.5rem;
-    background-color: var(--background-secondary);
+    background-color: var(--background-tertiary);
     color: var(--text-primary);
     cursor: pointer;
 
     &:not(:last-child) {
-        border-right: 1px solid var(--border-color);
+        border-right: 1px solid var(--border-secondary);
     }
 
     &:first-child {
