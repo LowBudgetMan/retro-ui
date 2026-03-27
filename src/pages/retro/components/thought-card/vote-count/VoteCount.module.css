@@ -10,7 +10,7 @@
     align-items: center;
     justify-content: center;
     padding: 2px 4px;
-
+    color: var(--bonfire-cyan);
     font-size: 0.9rem;
 }
 
@@ -22,7 +22,6 @@
     width: 20px;
     height: 10px;
     margin-top: -0.35rem;
-
     background-color: #F1C40F;
     border-radius: 12px / 6px;
     z-index: 0;
