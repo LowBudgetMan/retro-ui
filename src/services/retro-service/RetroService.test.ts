@@ -167,14 +167,14 @@ describe('RetroService', () => {
                 }
             ];
 
-            mock.onGet(`${ApiConfig.baseApiUrl()}/api/team/${teamId}/retros/${retroId}/thoughts`).reply(200, mockThoughtResponse);
+            mock.onGet(`${ApiConfig.baseApiUrl()}/api/teams/${teamId}/retros/${retroId}/thoughts`).reply(200, mockThoughtResponse);
 
             const result = await RetroService.getThoughts(teamId, retroId);
             expect(result).toEqual(expectedThoughts);
         });
 
         it('should handle errors when fetching thoughts', async () => {
-            mock.onGet(`${ApiConfig.baseApiUrl()}/api/team/${teamId}/retros/${retroId}/thoughts`).reply(500);
+            mock.onGet(`${ApiConfig.baseApiUrl()}/api/teams/${teamId}/retros/${retroId}/thoughts`).reply(500);
 
             await expect(RetroService.getThoughts(teamId, retroId.toString())).rejects.toThrow();
         });
