@@ -48,14 +48,14 @@ describe('RetroContextProvider', () => {
                 [CrudEventTypes.UPDATE]: expect.any(Function),
                 [CrudEventTypes.DELETE]: expect.any(Function),
             }),
-            'test-retro-id'
+            expect.objectContaining({ retroId: 'test-retro-id' })
         );
         expect(WebsocketService.subscribe).toHaveBeenCalledWith(
             '/topic/retros.test-retro-id.events',
             expect.objectContaining({
                 [RetroEventTypes.RETRO_FINISHED]: expect.any(Function),
             }),
-            'test-retro-id'
+            expect.objectContaining({ retroId: 'test-retro-id' })
         );
     });
 

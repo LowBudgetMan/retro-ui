@@ -36,7 +36,7 @@ export function FocusThoughtModal({ teamId, retroId, thoughts }: Props) {
                 [RetroEventTypes.FOCUS]: handleFocus,
                 [RetroEventTypes.FOCUS_CLEAR]: handleFocusClear,
             },
-            retroId
+            { retroId }
         );
         return unsubscribe;
     }, [retroId, handleFocus, handleFocusClear]);

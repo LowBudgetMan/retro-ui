@@ -76,7 +76,7 @@ export function RetroContextProvider({children, retro}: PropsWithChildren<RetroC
                 [CrudEventTypes.UPDATE]: updateThought,
                 [CrudEventTypes.DELETE]: deleteThought,
             },
-            retro.id
+            { retroId: retro.id }
         );
         return unsubscribe;
     }, [retro.id, createThought, updateThought, deleteThought]);
@@ -87,7 +87,7 @@ export function RetroContextProvider({children, retro}: PropsWithChildren<RetroC
             {
                 [RetroEventTypes.RETRO_FINISHED]: setFinished,
             },
-            retro.id
+            { retroId: retro.id }
         );
         return unsubscribe;
     }, [retro.id, setFinished]);
