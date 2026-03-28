@@ -1,5 +1,5 @@
 import {Client, IMessage} from '@stomp/stompjs';
-import {getConfig} from "./WebsocketConfig.ts";
+import {getConfig, buildConnectHeaders} from "./WebsocketConfig.ts";
 
 interface WebsocketEvent {
     eventType: string;
@@ -49,8 +49,12 @@ function ensureConnected(retroId?: string): void {
     if (!client || !client.active) {
         getConfig(retroId).then(config => {
             client = new Client(config);
+            client.beforeConnect = async () => {
+                client!.connectHeaders = await buildConnectHeaders(retroId);
+            };
             client.onConnect = () => {
-                destinations.forEach((_entry, destination) => {
+                destinations.forEach((entry, destination) => {
+                    entry.stompSubscription = undefined;
                     subscribeToDestination(destination);
                 });
             };
