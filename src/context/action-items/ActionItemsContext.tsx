@@ -1,5 +1,5 @@
 import {createContext, PropsWithChildren, useCallback, useEffect, useState} from "react";
-import {ActionItem, transformActionItem} from "../../services/action-items-service/ActionItemsService.ts";
+import {ActionItem, ActionItemsService, transformActionItem} from "../../services/action-items-service/ActionItemsService.ts";
 import {WebsocketService} from "../../services/websocket/WebsocketService.ts";
 import {teamDestination} from "../../services/websocket/destinations.ts";
 import {CrudEventTypes} from "../../services/websocket/EventTypes.ts";
@@ -55,6 +55,11 @@ export function ActionItemsContextProvider({teamId, actionItems, children}: Prop
                 [CrudEventTypes.CREATE]: createActionItem,
                 [CrudEventTypes.UPDATE]: updateActionItem,
                 [CrudEventTypes.DELETE]: deleteActionItem,
+            },
+            {
+                onReconnect: () => {
+                    ActionItemsService.getActionItems(teamId).then(setActionItemsState);
+                },
             }
         );
         return unsubscribe;

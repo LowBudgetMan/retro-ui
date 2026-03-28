@@ -60,6 +60,9 @@ describe('ActionItemsContextProvider', () => {
                 CREATE: expect.any(Function),
                 UPDATE: expect.any(Function),
                 DELETE: expect.any(Function),
+            }),
+            expect.objectContaining({
+                onReconnect: expect.any(Function),
             })
         );
     });
