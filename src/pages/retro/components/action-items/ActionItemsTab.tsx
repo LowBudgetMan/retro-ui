@@ -10,7 +10,7 @@ import {useIsMobile} from "../../../../hooks/useIsMobile.ts";
 export function ActionItemsTab() {
     const {teamId, actionItems} = useActionItems();
     const mobile = useIsMobile();
-    const [isOpen, setIsOpen] = useState<boolean>(false);
+    const [isOpen, setIsOpen] = useState<boolean>(true);
 
     const toggleActionItemsPane = () => setIsOpen(!isOpen);
 

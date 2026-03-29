@@ -32,26 +32,25 @@ describe('ActionItemsTab', () => {
         expect(screen.getByRole('button', { name: `Action Items`})).toBeInTheDocument();
     });
 
-    it('should open and close the tab', () => {
+    it('should default the action items pane to open', () => {
+        const { container } = render(<ActionItemsTab />);
+        expect(container.firstChild).toHaveClass('containerOpen');
+    });
+
+    it('should close and open the tab', () => {
         const { container } = render(<ActionItemsTab />);
 
         const tab = screen.getByRole('button', { name: `Action Items`});
         fireEvent.click(tab);
 
-        expect(container.firstChild).toHaveClass('containerOpen');
+        expect(container.firstChild).toHaveClass('containerClosed');
 
         fireEvent.click(tab);
-
-        expect(container.firstChild).toHaveClass('containerClosed');
+        expect(container.firstChild).toHaveClass('containerOpen');
     });
 
     it('should close the tab on escape key press', () => {
         const { container } = render(<ActionItemsTab />);
-
-        const tab = screen.getByRole('button', { name: `Action Items`});
-        fireEvent.click(tab);
-
-        expect(container.firstChild).toHaveClass('containerOpen');
 
         fireEvent.keyDown(document, {key: 'Escape'});
 
