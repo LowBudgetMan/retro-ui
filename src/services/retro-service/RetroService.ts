@@ -107,7 +107,7 @@ async function createThought(teamId: string, retroId: string, message: string, c
 
 // TODO: Move thought stuff into ThoughtService
 async function getThoughts(teamId: string, retroId: string): Promise<Thought[]> {
-    const response = await axios.get(`${ApiConfig.baseApiUrl()}/api/team/${teamId}/retros/${retroId}/thoughts`);
+    const response = await axios.get(`${ApiConfig.baseApiUrl()}/api/teams/${teamId}/retros/${retroId}/thoughts`);
     return response.data.map(transformThought);
 }
 

@@ -1,4 +1,4 @@
-import {Retro, Template, Thought, transformThought} from "../../services/retro-service/RetroService.ts";
+import {Retro, RetroService, Template, Thought, transformThought} from "../../services/retro-service/RetroService.ts";
 import {createContext, PropsWithChildren, useCallback, useEffect, useState} from "react";
 import {DateTime} from "luxon";
 import {WebsocketService} from "../../services/websocket/WebsocketService.ts";
@@ -76,10 +76,17 @@ export function RetroContextProvider({children, retro}: PropsWithChildren<RetroC
                 [CrudEventTypes.UPDATE]: updateThought,
                 [CrudEventTypes.DELETE]: deleteThought,
             },
-            retro.id
+            {
+                retroId: retro.id,
+                onReconnect: () => {
+                    RetroService.getThoughts(retro.teamId, retro.id).then(thoughts => {
+                        setRetroState(prevState => ({...prevState, thoughts}));
+                    });
+                },
+            }
         );
         return unsubscribe;
-    }, [retro.id, createThought, updateThought, deleteThought]);
+    }, [retro.id, retro.teamId, createThought, updateThought, deleteThought]);
 
     useEffect(() => {
         const unsubscribe = WebsocketService.subscribe(
@@ -87,7 +94,7 @@ export function RetroContextProvider({children, retro}: PropsWithChildren<RetroC
             {
                 [RetroEventTypes.RETRO_FINISHED]: setFinished,
             },
-            retro.id
+            { retroId: retro.id }
         );
         return unsubscribe;
     }, [retro.id, setFinished]);

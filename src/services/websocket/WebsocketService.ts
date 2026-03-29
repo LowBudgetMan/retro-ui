@@ -1,5 +1,5 @@
 import {Client, IMessage} from '@stomp/stompjs';
-import {getConfig} from "./WebsocketConfig.ts";
+import {getConfig, buildConnectHeaders} from "./WebsocketConfig.ts";
 
 interface WebsocketEvent {
     eventType: string;
@@ -13,13 +13,20 @@ type HandlerMap = {
     [eventType: string]: ((payload: any) => void) | ((raw: any) => any) | undefined;
 };
 
+interface SubscribeOptions {
+    retroId?: string;
+    onReconnect?: () => void;
+}
+
 interface DestinationEntry {
     stompSubscription?: { unsubscribe: () => void };
     handlers: Set<HandlerMap>;
 }
 
 let client: Client | null = null;
+let hasConnectedOnce = false;
 const destinations = new Map<string, DestinationEntry>();
+const reconnectCallbacks = new Set<() => void>();
 
 function handleMessage(destination: string, message: IMessage): void {
     const event: WebsocketEvent = JSON.parse(message.body);
@@ -49,23 +56,37 @@ function ensureConnected(retroId?: string): void {
     if (!client || !client.active) {
         getConfig(retroId).then(config => {
             client = new Client(config);
+            client.beforeConnect = async () => {
+                client!.connectHeaders = await buildConnectHeaders(retroId);
+            };
             client.onConnect = () => {
-                destinations.forEach((_entry, destination) => {
+                destinations.forEach((entry, destination) => {
+                    entry.stompSubscription = undefined;
                     subscribeToDestination(destination);
                 });
+                if (hasConnectedOnce) {
+                    reconnectCallbacks.forEach(cb => cb());
+                }
+                hasConnectedOnce = true;
             };
             client.activate();
         });
     }
 }
 
-function subscribe(destination: string, handlerMap: HandlerMap, retroId?: string): () => void {
+function subscribe(destination: string, handlerMap: HandlerMap, options?: SubscribeOptions): () => void {
+    const { retroId, onReconnect } = options ?? {};
+
     let entry = destinations.get(destination);
     if (!entry) {
         entry = { handlers: new Set() };
         destinations.set(destination, entry);
     }
     entry.handlers.add(handlerMap);
+
+    if (onReconnect) {
+        reconnectCallbacks.add(onReconnect);
+    }
 
     subscribeToDestination(destination);
 
@@ -77,16 +98,20 @@ function subscribe(destination: string, handlerMap: HandlerMap, retroId?: string
         const currentEntry = destinations.get(destination);
         if (!currentEntry) return;
         currentEntry.handlers.delete(handlerMap);
+        if (onReconnect) {
+            reconnectCallbacks.delete(onReconnect);
+        }
         if (currentEntry.handlers.size === 0) {
             currentEntry.stompSubscription?.unsubscribe();
             destinations.delete(destination);
             if (destinations.size === 0 && client?.active) {
                 client.deactivate().catch();
                 client = null;
+                hasConnectedOnce = false;
             }
         }
     };
 }
 
-export type { HandlerMap, WebsocketEvent };
+export type { HandlerMap, WebsocketEvent, SubscribeOptions };
 export const WebsocketService = { subscribe };

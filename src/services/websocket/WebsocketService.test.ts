@@ -196,4 +196,38 @@ describe('WebsocketService', () => {
         expect(mockSubscribe).toHaveBeenCalledWith('/topic/a', expect.any(Function));
         expect(mockSubscribe).toHaveBeenCalledWith('/topic/b', expect.any(Function));
     });
+
+    it('calls onReconnect callback on subsequent connections, not the first', async () => {
+        const service = await getService();
+        const onReconnect = vi.fn();
+
+        service.subscribe('/topic/test', {EVENT: vi.fn()}, {onReconnect});
+
+        await flushPromises();
+        simulateConnect(); // first connect
+
+        expect(onReconnect).not.toHaveBeenCalled();
+
+        // Simulate reconnection
+        simulateConnect();
+
+        expect(onReconnect).toHaveBeenCalledTimes(1);
+    });
+
+    it('cleans up onReconnect callback on unsubscribe', async () => {
+        const service = await getService();
+        const onReconnect = vi.fn();
+
+        const unsub = service.subscribe('/topic/test', {EVENT: vi.fn()}, {onReconnect});
+
+        await flushPromises();
+        simulateConnect(); // first connect
+
+        unsub();
+
+        // Simulate reconnection after unsubscribe
+        simulateConnect();
+
+        expect(onReconnect).not.toHaveBeenCalled();
+    });
 });
