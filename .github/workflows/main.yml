@@ -1,5 +1,9 @@
 name: Build
-on: push
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -38,11 +42,15 @@ jobs:
         run: npm install
       - name: Build the application
         run: npm run build
+      - name: Compile server
+        run: npx tsc --project tsconfig.server.json
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
         with:
           name: retro-ui
-          path: dist
+          path: |
+            dist
+            server.js
   build-image:
     runs-on: ubuntu-latest
     needs: [build]
@@ -55,7 +63,6 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: retro-ui
-          path: dist
       - name: Log in to GitHub Container Registry
         uses: docker/login-action@v3
         with:
@@ -66,9 +73,52 @@ jobs:
         run: echo "OWNER_LC=${OWNER,,}" >> "${GITHUB_ENV}"
         env:
           OWNER: ${{ github.repository_owner }}
+      - name: Compute CalVer tag
+        if: github.event_name == 'push'
+        id: calver
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TODAY=$(date -u +%Y.%m.%d)
+
+          TAGS=$(gh api /users/${{ env.OWNER_LC }}/packages/container/retro-ui/versions \
+            --paginate --jq '.[].metadata.container.tags[]' 2>/dev/null || echo "")
+
+          TODAYS_TAGS=$(echo "$TAGS" | grep "^${TODAY}" || true)
+
+          if [ -z "$TODAYS_TAGS" ]; then
+            echo "version=${TODAY}" >> "$GITHUB_OUTPUT"
+          else
+            MAX_SEQ=0
+            for tag in $TODAYS_TAGS; do
+              if [ "$tag" = "$TODAY" ]; then
+                MAX_SEQ=$((MAX_SEQ > 0 ? MAX_SEQ : 0))
+              else
+                SEQ=$(echo "$tag" | sed "s/^${TODAY}\.//")
+                if [ "$SEQ" -gt "$MAX_SEQ" ] 2>/dev/null; then
+                  MAX_SEQ=$SEQ
+                fi
+              fi
+            done
+            NEXT_SEQ=$((MAX_SEQ + 1))
+            echo "version=${TODAY}.${NEXT_SEQ}" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Compute short SHA
+        id: sha
+        run: echo "short=$(echo '${{ github.event.pull_request.head.sha || github.sha }}' | cut -c1-7)" >> "$GITHUB_OUTPUT"
+      - name: Docker metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/${{ env.OWNER_LC }}/retro-ui
+          tags: |
+            type=raw,value=${{ steps.calver.outputs.version || 'unused' }},enable=${{ github.event_name == 'push' }}
+            type=raw,value=latest,enable=${{ github.event_name == 'push' }}
+            type=raw,value=beta-${{ steps.sha.outputs.short }},enable=${{ github.event_name == 'pull_request' }}
       - name: Build and push Docker image
         uses: docker/build-push-action@v6
         with:
           context: .
           push: true
-          tags:  ghcr.io/${{ env.OWNER_LC }}/retro-ui:latest
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
