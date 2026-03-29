@@ -1,5 +1,5 @@
 # Build stage
-FROM node:18-alpine as builder
+FROM node:22-alpine AS builder
 WORKDIR /app
 COPY package*.json ./
 COPY tsconfig.json .
@@ -9,7 +9,7 @@ RUN npm run build
 RUN npx tsc --project tsconfig.server.json
 
 # Production stage
-FROM node:18-alpine
+FROM node:22-alpine
 WORKDIR /app
 COPY package*.json ./
 RUN npm ci --only=production
