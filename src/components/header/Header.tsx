@@ -2,6 +2,7 @@ import {ReactElement, useEffect, useState} from "react";
 import {getUserManager} from "../../pages/user/UserContext.ts";
 import {Theme} from "../../context/theme/ThemeContextTypes.ts";
 import {useTheme} from "../../context/hooks.tsx";
+import BonfireLogo from '../../../public/bonfire.svg';
 
 export function Header() {
     const { theme, setTheme } = useTheme();
@@ -48,7 +49,7 @@ export function Header() {
     return (
         <header className="header">
             <div className="header-content">
-                <h1>Bonfire</h1>
+                <h1><img src={BonfireLogo} alt="" className="bonfire-logo" />Bonfire</h1>
                 <div className="header-actions">
                     <button 
                         onClick={toggleTheme}
