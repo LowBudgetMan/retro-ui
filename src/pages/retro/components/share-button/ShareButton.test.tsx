@@ -1,10 +1,16 @@
 import {fireEvent, render, screen} from '@testing-library/react';
 import {ShareButton} from './ShareButton.tsx';
 import '@testing-library/jest-dom';
-import axios from 'axios';
-import {Mock} from 'vitest';
+import { fetchClient } from '../../../../config/FetchClient';
 
-vi.mock('axios');
+vi.mock('../../../../config/FetchClient', () => ({
+    fetchClient: {
+        get: vi.fn(),
+        post: vi.fn(),
+        put: vi.fn(),
+        delete: vi.fn(),
+    }
+}));
 
 vi.mock('../../../../config/ApiConfig.ts', () => ({
     ApiConfig: {
@@ -33,8 +39,10 @@ describe('ShareButton', () => {
 
     it('should create share token and copy link to clipboard on click', async () => {
         const clipboardSpy = vi.spyOn(window.navigator.clipboard, 'writeText');
-        (axios.post as Mock).mockResolvedValue({
+        vi.mocked(fetchClient.post).mockResolvedValue({
             data: {token: 'generated-token'},
+            status: 201,
+            headers: new Headers(),
         });
 
         render(<ShareButton teamId={teamId} retroId={retroId}/>);
@@ -42,7 +50,7 @@ describe('ShareButton', () => {
 
         await new Promise(resolve => setTimeout(resolve, 0));
 
-        expect(axios.post).toHaveBeenCalledWith(
+        expect(fetchClient.post).toHaveBeenCalledWith(
             `http://localhost:8080/api/teams/${teamId}/retros/${retroId}/share-tokens`
         );
         expect(clipboardSpy).toHaveBeenCalledWith(
@@ -51,8 +59,10 @@ describe('ShareButton', () => {
     });
 
     it('should show "Copied!" text after clicking', async () => {
-        (axios.post as Mock).mockResolvedValue({
+        vi.mocked(fetchClient.post).mockResolvedValue({
             data: {token: 'generated-token'},
+            status: 201,
+            headers: new Headers(),
         });
 
         render(<ShareButton teamId={teamId} retroId={retroId}/>);
@@ -67,8 +77,10 @@ describe('ShareButton', () => {
         const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
         const clipboardError = new Error('Clipboard failed');
         vi.spyOn(window.navigator.clipboard, 'writeText').mockRejectedValue(clipboardError);
-        (axios.post as Mock).mockResolvedValue({
+        vi.mocked(fetchClient.post).mockResolvedValue({
             data: {token: 'generated-token'},
+            status: 201,
+            headers: new Headers(),
         });
 
         render(<ShareButton teamId={teamId} retroId={retroId}/>);

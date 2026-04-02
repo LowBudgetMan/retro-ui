@@ -1,10 +1,15 @@
 import { vi } from 'vitest';
-import axios, {AxiosHeaders} from 'axios';
-import MockAdapter from 'axios-mock-adapter';
+import { fetchClient, FetchResponse } from '../../config/FetchClient';
 import {Invite, TeamListItem, TeamService} from './TeamService.ts';
-import {ApiConfig} from '../../config/ApiConfig.ts';
 
-const mock = new MockAdapter(axios);
+vi.mock('../../config/FetchClient', () => ({
+    fetchClient: {
+        get: vi.fn(),
+        post: vi.fn(),
+        put: vi.fn(),
+        delete: vi.fn(),
+    }
+}));
 
 vi.mock('../../config/ApiConfig.ts', () => ({
     ApiConfig: {
@@ -20,59 +25,56 @@ const TestConfig = {
   createdAt: new Date(),
 };
 
+function mockSuccess<T>(method: 'get' | 'post' | 'put' | 'delete', data: T, status = 200, headers = new Headers()) {
+    vi.mocked(fetchClient[method]).mockResolvedValue({data, status, headers} as FetchResponse);
+}
+
+function mockNetworkError(method: 'get' | 'post' | 'put' | 'delete') {
+    vi.mocked(fetchClient[method]).mockRejectedValue(new TypeError('Network error'));
+}
+
+function mockServerError(method: 'get' | 'post' | 'put' | 'delete') {
+    vi.mocked(fetchClient[method]).mockRejectedValue(new Error('Request failed'));
+}
+
 describe('TeamService', () => {
   beforeEach(() => {
-    mock.reset();
+    vi.clearAllMocks();
   });
 
   describe('createInvite', () => {
       const setupCreateInviteMock = (
-          statusCode: number = 201,
-          isNetworkError: boolean = false,
-          headers: AxiosHeaders = {location: `/api/teams/261cc597-63e6-4ea5-8c78-666c074b5685/invites/${TestConfig.inviteId}`} as unknown as AxiosHeaders
+          headers = new Headers({location: `/api/teams/261cc597-63e6-4ea5-8c78-666c074b5685/invites/${TestConfig.inviteId}`}),
       ) => {
-          const endpoint = `${ApiConfig.baseApiUrl()}/api/teams/${TestConfig.teamId}/invites`;
-
-          if (isNetworkError) {
-              mock.onPost(endpoint).networkError();
-              return;
-          }
-
-          mock.onPost(endpoint).reply(statusCode, null, headers);
-      }
+          mockSuccess('post', null, 201, headers);
+      };
 
       it('should return the invite ID on successful creation', async () => {
-          setupCreateInviteMock(201, false);
+          setupCreateInviteMock();
           const actual = await TeamService.createInvite(TestConfig.teamId);
+          expect(fetchClient.post).toHaveBeenCalledWith(
+              `http://localhost:8080/api/teams/${TestConfig.teamId}/invites`
+          );
           expect(actual).toEqual(TestConfig.inviteId);
       });
 
       it('should throw exception when network call fails', async () => {
-          setupCreateInviteMock(201, true);
+          mockNetworkError('post');
           await expect(TeamService.createInvite(TestConfig.teamId)).rejects.toThrow();
       });
 
       it('should throw exception when location header does not exist', async () => {
-          setupCreateInviteMock(201, false, {} as unknown as AxiosHeaders);
+          setupCreateInviteMock(new Headers());
           await expect(TeamService.createInvite(TestConfig.teamId)).rejects.toThrow();
       });
   });
 
   describe('getInvitesForTeam', () => {
-      const setupGetInvitesForTeamMock = (
-          statusCode: number = 200,
-          isNetworkError: boolean = false,
-          responseData?: {id: string, teamId: string, createdAt: string}[],
+      const setupGetInvitesMock = (
+          responseData: {id: string, teamId: string, createdAt: string}[] = [],
       ) => {
-          const endpoint = `${ApiConfig.baseApiUrl()}/api/teams/${TestConfig.teamId}/invites`;
-
-          if (isNetworkError) {
-              mock.onGet(endpoint).networkError();
-              return;
-          }
-
-          mock.onGet(endpoint).reply(statusCode, responseData);
-      }
+          mockSuccess('get', responseData);
+      };
 
       it('should return a list of invites on success', async () => {
           const remoteData = [
@@ -84,97 +86,75 @@ describe('TeamService', () => {
               {id: 'invite1', teamId: 'teamId', createdAt: new Date()},
               {id: 'invite2', teamId: 'teamId', createdAt: new Date()}
           ];
-          setupGetInvitesForTeamMock(200, false, remoteData);
+
+          setupGetInvitesMock(remoteData);
 
           const actual = await TeamService.getInvitesForTeam(TestConfig.teamId);
 
+          expect(fetchClient.get).toHaveBeenCalledWith(
+              `http://localhost:8080/api/teams/${TestConfig.teamId}/invites`
+          );
           expect(actual.toString()).toEqual(expected.toString());
       });
 
       it('should handle server errors when fetching invites', async () => {
-          setupGetInvitesForTeamMock(500);
+          mockServerError('get');
           await expect(TeamService.getInvitesForTeam(TestConfig.teamId)).rejects.toThrow();
       });
 
       it('should handle network errors when fetching invites', async () => {
-          setupGetInvitesForTeamMock(200, true);
+          mockNetworkError('get');
           await expect(TeamService.getInvitesForTeam(TestConfig.teamId)).rejects.toThrow();
       });
   });
 
   describe('deleteInvite', () => {
-      const setupDeleteInviteMock = (
-          statusCode: number = 204,
-          isNetworkError: boolean = false,
-      ) => {
-          const endpoint = `${ApiConfig.baseApiUrl()}/api/teams/${TestConfig.teamId}/invites/${TestConfig.inviteId}`;
-
-          if (isNetworkError) {
-              mock.onDelete(endpoint).networkError();
-              return;
-          }
-
-          mock.onDelete(endpoint).reply(statusCode, null);
-      }
+      const setupDeleteInviteMock = () => {
+          mockSuccess('delete', null, 204);
+      };
 
       it('should successfully call delete endpoint', async () => {
           setupDeleteInviteMock();
           await expect(TeamService.deleteInvite(TestConfig.teamId, TestConfig.inviteId)).resolves.toBeTruthy();
+          expect(fetchClient.delete).toHaveBeenCalledWith(
+              `http://localhost:8080/api/teams/${TestConfig.teamId}/invites/${TestConfig.inviteId}`
+          );
       });
 
       it('should throw exception when not 204', async () => {
-          setupDeleteInviteMock(500);
+          mockServerError('delete');
           await expect(TeamService.deleteInvite(TestConfig.teamId, TestConfig.inviteId)).rejects.toThrow();
       });
 
       it('should throw exception when there is a network error', async () => {
-          setupDeleteInviteMock(204, true);
+          mockNetworkError('delete');
           await expect(TeamService.deleteInvite(TestConfig.teamId, TestConfig.inviteId)).rejects.toThrow();
       });
   })
 
   describe('addUserToTeam', () => {
-      const setupAddUserToTeamMock = (
-          statusCode: number = 204,
-          request: {inviteId: string},
-          isNetworkError: boolean = false,
-      ) => {
-          const endpoint = `${ApiConfig.baseApiUrl()}/api/teams/${TestConfig.teamId}/users`;
-          if (isNetworkError) {
-              mock.onPost(endpoint, request).networkError();
-              return;
-          }
-
-          mock.onPost(endpoint, request).reply(statusCode, null);
+      const setupAddUserMock = () => {
+          mockSuccess('post', null, 204);
       };
 
       it('should return when user successfully added to team', async () => {
-          const inviteId = 'inviteId';
-          setupAddUserToTeamMock(204, {inviteId})
-          await expect(TeamService.addUserToTeam(TestConfig.teamId, inviteId)).resolves.toBeTruthy();
+          setupAddUserMock();
+          await expect(TeamService.addUserToTeam(TestConfig.teamId, 'inviteId')).resolves.toBeTruthy();
+          expect(fetchClient.post).toHaveBeenCalledWith(
+              `http://localhost:8080/api/teams/${TestConfig.teamId}/users`,
+              {inviteId: 'inviteId'}
+          );
       })
 
       it('should throw an error when user unsuccessfully added to team', async () => {
-          const inviteId = 'inviteId';
-          setupAddUserToTeamMock(409, {inviteId})
-          await expect(TeamService.addUserToTeam(TestConfig.teamId, inviteId)).rejects.toThrow();
+          mockServerError('post');
+          await expect(TeamService.addUserToTeam(TestConfig.teamId, 'inviteId')).rejects.toThrow();
       })
   })
 
   describe('getTeams', () => {
-    const setupGetTeamsMock = (
-      statusCode: number = 200,
-      responseData?: TeamListItem[],
-      isNetworkError: boolean = false
-    ) => {
-      const endpoint = `${ApiConfig.baseApiUrl()}/api/teams`;
-      
-      if (isNetworkError) {
-        mock.onGet(endpoint).networkError();
-        return;
-      }
-      
-      mock.onGet(endpoint).reply(statusCode, responseData);
+    const setupGetTeamsMock = (responseData: TeamListItem[] = []) => {
+        mockSuccess('get', responseData);
     };
 
     it('should fetch all teams', async () => {
@@ -183,17 +163,20 @@ describe('TeamService', () => {
         createTeam('team-456', 'Team 2', new Date('2023-02-01')),
         createTeam('team-789', 'Team 3', new Date('2023-03-01'))
       ];
-      
-      setupGetTeamsMock(200, mockTeams);
+
+      setupGetTeamsMock(mockTeams);
 
       const result = await TeamService.getTeams();
 
+      expect(fetchClient.get).toHaveBeenCalledWith(
+          `http://localhost:8080/api/teams`
+      );
       expect(result).toEqual(mockTeams);
       expect(result.length).toBe(3);
     });
 
     it('should return an empty array when no teams exist', async () => {
-      setupGetTeamsMock(200, []);
+      setupGetTeamsMock([]);
 
       const result = await TeamService.getTeams();
 
@@ -202,96 +185,77 @@ describe('TeamService', () => {
     });
 
     it('should handle server errors when fetching teams', async () => {
-      setupGetTeamsMock(500);
-      
+      mockServerError('get');
       await expect(TeamService.getTeams()).rejects.toThrow();
     });
 
     it('should handle unauthorized errors when fetching teams', async () => {
-      setupGetTeamsMock(401);
-      
+      mockServerError('get');
       await expect(TeamService.getTeams()).rejects.toThrow();
     });
 
     it('should handle network errors when fetching teams', async () => {
-      setupGetTeamsMock(0, undefined, true);
-      
+      mockNetworkError('get');
       await expect(TeamService.getTeams()).rejects.toThrow();
     });
   });
 
   describe('getTeam', () => {
-    const setupGetTeamMock = (
-      statusCode: number = 200,
-      responseData?: TeamListItem,
-      isNetworkError: boolean = false
-    ) => {
-      const endpoint = `${ApiConfig.baseApiUrl()}/api/teams/${TestConfig.teamId}`;
-      
-      if (isNetworkError) {
-        mock.onGet(endpoint).networkError();
-        return;
-      }
-      
-      mock.onGet(endpoint).reply(statusCode, responseData);
+    const setupGetTeamMock = (responseData: TeamListItem) => {
+        mockSuccess('get', responseData);
     };
 
     it('should fetch a team by id', async () => {
       const mockTeamResponse = createTeam(TestConfig.teamId, TestConfig.teamName, new Date(TestConfig.createdAt));
-      setupGetTeamMock(200, mockTeamResponse);
+      setupGetTeamMock(mockTeamResponse);
 
       const result = await TeamService.getTeam(TestConfig.teamId);
 
+      expect(fetchClient.get).toHaveBeenCalledWith(
+          `http://localhost:8080/api/teams/${TestConfig.teamId}`
+      );
       expect(result).toEqual({...mockTeamResponse, createdAt: TestConfig.createdAt});
     });
 
     it('should handle errors when fetching a team', async () => {
-      setupGetTeamMock(404);
+      mockServerError('get');
       await expect(TeamService.getTeam(TestConfig.teamId)).rejects.toThrow();
     });
 
     it('should handle network errors when fetching a team', async () => {
-      setupGetTeamMock(0, undefined, true);
+      mockNetworkError('get');
       await expect(TeamService.getTeam(TestConfig.teamId)).rejects.toThrow();
     });
   });
 
   describe('createTeam', () => {
-    const setupCreateTeamMock = (
-      statusCode: number = 201,
-      isNetworkError: boolean = false
-    ) => {
-      const endpoint = `${ApiConfig.baseApiUrl()}/api/teams`;
-      
-      if (isNetworkError) {
-        mock.onPost(endpoint).networkError();
-        return;
-      }
-      
-      mock.onPost(endpoint).reply(statusCode, null);
+    const setupCreateTeamMock = () => {
+        mockSuccess('post', null, 201);
     };
 
     it('should create a new team', async () => {
-      setupCreateTeamMock(201);
+      setupCreateTeamMock();
 
       await TeamService.createTeam(TestConfig.teamName);
 
-      expect(mock.history.post.length).toBe(1);
-      expect(JSON.parse(mock.history.post[0].data)).toEqual({ name: TestConfig.teamName });
+      expect(fetchClient.post).toHaveBeenCalledWith(
+          `http://localhost:8080/api/teams`,
+          {name: TestConfig.teamName}
+      );
     });
 
     it('should handle validation errors when creating a team', async () => {
-      setupCreateTeamMock(400);
+      mockServerError('post');
       await expect(TeamService.createTeam('')).rejects.toThrow();
     });
 
     it('should handle server errors when creating a team', async () => {
-      setupCreateTeamMock(500);
+      mockServerError('post');
       await expect(TeamService.createTeam(TestConfig.teamName)).rejects.toThrow();
     });
 
     it('should handle network errors when creating a team', async () => {
-      setupCreateTeamMock(0, true);
+      mockNetworkError('post');
       await expect(TeamService.createTeam(TestConfig.teamName)).rejects.toThrow();
     });
   });

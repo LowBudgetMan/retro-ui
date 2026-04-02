@@ -1,4 +1,4 @@
-import axios from "axios";
+import { fetchClient } from "../../config/FetchClient";
 import {ApiConfig} from "../../config/ApiConfig";
 
 export interface ShareLinkInfo {
@@ -7,7 +7,7 @@ export interface ShareLinkInfo {
 }
 
 async function validateShareLink(token: string): Promise<ShareLinkInfo> {
-    const response = await axios.get(`${ApiConfig.baseApiUrl()}/api/share/${token}`);
+    const response = await fetchClient.get<ShareLinkInfo>(`${ApiConfig.baseApiUrl()}/api/share/${token}`);
     return response.data;
 }
 

@@ -1,4 +1,3 @@
-import axios from "axios";
 import {AuthConfig, RemoteConfig} from "./ApiConfigTypes";
 
 declare global {
@@ -44,7 +43,11 @@ const getAuthConfig = (): AuthConfig => {
 
 export async function initializeConfig(): Promise<void> {
     try {
-        const remoteConfig = (await axios.get(`${getBaseApiUrl()}/api/configuration`)).data as RemoteConfig;
+        const response = await fetch(`${getBaseApiUrl()}/api/configuration`);
+        if (!response.ok) {
+            throw new Error(`Failed to fetch configuration: ${response.status}`);
+        }
+        const remoteConfig = await response.json() as RemoteConfig;
         websocketUrl = `${remoteConfig.websocketEnvironmentConfig.baseUrl}/api/websocket`;
         localAuthConfig = { ...remoteConfig.webAuthentication };
     } catch (error) {

@@ -1,24 +1,34 @@
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
-import axios from 'axios';
-import MockAdapter from 'axios-mock-adapter';
 import {AuthConfig, RemoteConfig} from './ApiConfigTypes';
 
 describe('ApiConfig', () => {
-    let mock: MockAdapter;
+    let fetchSpy: ReturnType<typeof vi.fn>;
 
     beforeEach(() => {
         vi.resetModules();
-        mock = new MockAdapter(axios);
+        fetchSpy = vi.fn();
+        vi.stubGlobal('fetch', fetchSpy);
     });
 
     afterEach(() => {
-        mock.restore();
+        vi.restoreAllMocks();
         vi.clearAllMocks();
     });
 
+    function mockFetchConfig(config: RemoteConfig) {
+        fetchSpy.mockResolvedValue(
+            new Response(JSON.stringify(config), {status: 200})
+        );
+    }
+
+    const defaultMockConfig: RemoteConfig = {
+        websocketEnvironmentConfig: {baseUrl: 'ws://test.com'},
+        webAuthentication: {authority: 'auth.com', clientId: 'client1'}
+    };
+
     describe('ApiConfig.baseApiUrl', () => {
         it('should return the base API URL', async () => {
-            const { ApiConfig } = await import('./ApiConfig');
+            const {ApiConfig} = await import('./ApiConfig');
             expect(ApiConfig.baseApiUrl()).toBe('http://localhost:8080');
         });
 
@@ -26,7 +36,7 @@ describe('ApiConfig', () => {
             // Set window property before module import
             (globalThis.window as Window).__BASE_API_URL__ = 'http://fromwindow.com';
             vi.resetModules();
-            const { ApiConfig } = await import('./ApiConfig');
+            const {ApiConfig} = await import('./ApiConfig');
             expect(ApiConfig.baseApiUrl()).toBe('http://fromwindow.com');
             // Cleanup
             delete (globalThis.window as Window).__BASE_API_URL__;
@@ -35,19 +45,13 @@ describe('ApiConfig', () => {
 
     describe('ApiConfig.websocketUrl', () => {
         it('should throw error when configuration is not initialized', async () => {
-            const { ApiConfig } = await import('./ApiConfig');
+            const {ApiConfig} = await import('./ApiConfig');
             expect(() => ApiConfig.websocketUrl()).toThrow('Configuration not initialized. Call initializeConfig() first.');
         });
 
         it('should return websocket URL when configuration is initialized', async () => {
-            const { ApiConfig, initializeConfig } = await import('./ApiConfig');
-
-            const mockConfig: RemoteConfig = {
-                websocketEnvironmentConfig: { baseUrl: 'ws://test.com' },
-                webAuthentication: { authority: 'auth.com', clientId: 'client1' }
-            };
-
-            mock.onGet('http://localhost:8080/api/configuration').reply(200, mockConfig);
+            const {ApiConfig, initializeConfig} = await import('./ApiConfig');
+            mockFetchConfig(defaultMockConfig);
 
             await initializeConfig();
             expect(ApiConfig.websocketUrl()).toBe('ws://test.com/api/websocket');
@@ -56,51 +60,38 @@ describe('ApiConfig', () => {
 
     describe('ApiConfig.authConfig', () => {
         it('should throw error when configuration is not initialized', async () => {
-            const { ApiConfig } = await import('./ApiConfig');
+            const {ApiConfig} = await import('./ApiConfig');
             expect(() => ApiConfig.authConfig()).toThrow('Configuration not initialized. Call initializeConfig() first.');
         });
 
         it('should return auth config when configuration is initialized', async () => {
-            const { ApiConfig, initializeConfig } = await import('./ApiConfig');
-
-            const mockConfig: RemoteConfig = {
-                websocketEnvironmentConfig: { baseUrl: 'ws://test.com' },
-                webAuthentication: { authority: 'auth.com', clientId: 'client1' }
-            };
-
-            mock.onGet('http://localhost:8080/api/configuration').reply(200, mockConfig);
+            const {ApiConfig, initializeConfig} = await import('./ApiConfig');
+            mockFetchConfig(defaultMockConfig);
 
             await initializeConfig();
-            const expectedConfig: AuthConfig = { authority: 'auth.com', clientId: 'client1' };
+            const expectedConfig: AuthConfig = {authority: 'auth.com', clientId: 'client1'};
             expect(ApiConfig.authConfig()).toEqual(expectedConfig);
         });
     });
 
     describe('initializeConfig', () => {
         it('should successfully initialize configuration', async () => {
-            const { ApiConfig, initializeConfig } = await import('./ApiConfig');
-
-            const mockConfig: RemoteConfig = {
-                websocketEnvironmentConfig: { baseUrl: 'ws://test.com' },
-                webAuthentication: { authority: 'auth.com', clientId: 'client1' }
-            };
-
-            mock.onGet('http://localhost:8080/api/configuration').reply(200, mockConfig);
+            const {ApiConfig, initializeConfig} = await import('./ApiConfig');
+            mockFetchConfig(defaultMockConfig);
 
             await expect(initializeConfig()).resolves.toBeUndefined();
 
             expect(ApiConfig.websocketUrl()).toBe('ws://test.com/api/websocket');
-            expect(ApiConfig.authConfig()).toEqual({ authority: 'auth.com', clientId: 'client1' });
+            expect(ApiConfig.authConfig()).toEqual({authority: 'auth.com', clientId: 'client1'});
 
-            expect(mock.history.get[0].url).toBe('http://localhost:8080/api/configuration');
+            expect(fetchSpy).toHaveBeenCalledWith('http://localhost:8080/api/configuration');
         });
 
         it('should throw error when HTTP request fails', async () => {
-            const { initializeConfig } = await import('./ApiConfig');
-
+            const {initializeConfig} = await import('./ApiConfig');
             const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
-            mock.onGet('http://localhost:8080/api/configuration').networkError();
+            fetchSpy.mockRejectedValue(new TypeError('Failed to fetch'));
 
             await expect(initializeConfig()).rejects.toThrow();
 
@@ -112,12 +103,13 @@ describe('ApiConfig', () => {
             consoleSpy.mockRestore();
         });
 
-        it('should handle axios errors properly', async () => {
-            const { initializeConfig } = await import('./ApiConfig');
-
+        it('should handle server errors properly', async () => {
+            const {initializeConfig} = await import('./ApiConfig');
             const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
-            mock.onGet('http://localhost:8080/api/configuration').reply(500, { error: 'Server error' });
+            fetchSpy.mockResolvedValue(
+                new Response(JSON.stringify({error: 'Server error'}), {status: 500})
+            );
 
             await expect(initializeConfig()).rejects.toThrow();
 
@@ -132,52 +124,28 @@ describe('ApiConfig', () => {
 
     describe('waitForAppConfiguration', () => {
         it('should resolve immediately when already configured', async () => {
-            const { initializeConfig, waitForAppConfiguration } = await import('./ApiConfig');
+            const {initializeConfig, waitForAppConfiguration} = await import('./ApiConfig');
+            mockFetchConfig(defaultMockConfig);
 
-            const mockConfig: RemoteConfig = {
-                websocketEnvironmentConfig: { baseUrl: 'ws://test.com' },
-                webAuthentication: { authority: 'auth.com', clientId: 'client1' }
-            };
-
-            mock.onGet('http://localhost:8080/api/configuration').reply(200, mockConfig);
-
-            // Initialize config first
             await initializeConfig();
-
-            // Now waitForAppConfiguration should resolve immediately
             await expect(waitForAppConfiguration()).resolves.toBeUndefined();
 
-            expect(mock.history.get).toHaveLength(1); // Only one call from initializeConfig
+            expect(fetchSpy).toHaveBeenCalledTimes(1);
         });
 
         it('should initialize config when not configured', async () => {
-            const { waitForAppConfiguration } = await import('./ApiConfig');
-
-            const mockConfig: RemoteConfig = {
-                websocketEnvironmentConfig: { baseUrl: 'ws://test.com' },
-                webAuthentication: { authority: 'auth.com', clientId: 'client1' }
-            };
-
-            mock.onGet('http://localhost:8080/api/configuration').reply(200, mockConfig);
+            const {waitForAppConfiguration} = await import('./ApiConfig');
+            mockFetchConfig(defaultMockConfig);
 
             await expect(waitForAppConfiguration()).resolves.toBeUndefined();
 
-            expect(mock.history.get[0].url).toBe('http://localhost:8080/api/configuration');
+            expect(fetchSpy).toHaveBeenCalledWith('http://localhost:8080/api/configuration');
         });
 
-
-
         it('should prevent duplicate initialization calls', async () => {
-            const { waitForAppConfiguration } = await import('./ApiConfig');
+            const {waitForAppConfiguration} = await import('./ApiConfig');
+            mockFetchConfig(defaultMockConfig);
 
-            const mockConfig: RemoteConfig = {
-                websocketEnvironmentConfig: { baseUrl: 'ws://test.com' },
-                webAuthentication: { authority: 'auth.com', clientId: 'client1' }
-            };
-
-            mock.onGet('http://localhost:8080/api/configuration').reply(200, mockConfig);
-
-            // Call waitForAppConfiguration multiple times concurrently
             const promises = Promise.all([
                 waitForAppConfiguration(),
                 waitForAppConfiguration(),
@@ -186,37 +154,28 @@ describe('ApiConfig', () => {
 
             await expect(promises).resolves.toEqual([undefined, undefined, undefined]);
 
-            // Should only make one HTTP call despite multiple concurrent waits
-            expect(mock.history.get).toHaveLength(1);
+            expect(fetchSpy).toHaveBeenCalledTimes(1);
         });
     });
 
     describe('ApiConfig object interface', () => {
         it('should export all required methods', async () => {
-            const { ApiConfig } = await import('./ApiConfig');
+            const {ApiConfig} = await import('./ApiConfig');
             expect(typeof ApiConfig.baseApiUrl).toBe('function');
             expect(typeof ApiConfig.websocketUrl).toBe('function');
             expect(typeof ApiConfig.authConfig).toBe('function');
         });
 
         it('should provide consistent API through all methods', async () => {
-            const { ApiConfig, initializeConfig } = await import('./ApiConfig');
+            const {ApiConfig, initializeConfig} = await import('./ApiConfig');
+            mockFetchConfig(defaultMockConfig);
 
-            const mockConfig: RemoteConfig = {
-                websocketEnvironmentConfig: { baseUrl: 'ws://test.com' },
-                webAuthentication: { authority: 'auth.com', clientId: 'client1' }
-            };
-
-            mock.onGet('http://localhost:8080/api/configuration').reply(200, mockConfig);
-
-            // Base URL should work before configuration
             expect(ApiConfig.baseApiUrl()).toBe('http://localhost:8080');
 
             await initializeConfig();
 
-            // After configuration, all methods should work
             expect(ApiConfig.websocketUrl()).toBe('ws://test.com/api/websocket');
-            expect(ApiConfig.authConfig()).toEqual({ authority: 'auth.com', clientId: 'client1' });
+            expect(ApiConfig.authConfig()).toEqual({authority: 'auth.com', clientId: 'client1'});
         });
     });
 });

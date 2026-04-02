@@ -1,4 +1,4 @@
-import axios from "axios";
+import { fetchClient } from "../../../../config/FetchClient";
 import {ApiConfig} from "../../../../config/ApiConfig.ts";
 import {useState} from "react";
 
@@ -11,7 +11,7 @@ export function ShareButton({teamId, retroId}: Props) {
     const [copied, setCopied] = useState(false);
 
     const handleClick = async () => {
-        const response = await axios.post(
+        const response = await fetchClient.post<{token: string}>(
             `${ApiConfig.baseApiUrl()}/api/teams/${teamId}/retros/${retroId}/share-tokens`
         );
         const token = response.data.token;
