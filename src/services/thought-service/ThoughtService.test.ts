@@ -1,10 +1,15 @@
 import { vi } from 'vitest';
-import axios from 'axios';
-import MockAdapter from 'axios-mock-adapter';
+import { fetchClient } from '../../config/FetchClient';
 import {ThoughtService} from './ThoughtService';
-import {ApiConfig} from '../../config/ApiConfig.ts';
 
-const mock = new MockAdapter(axios);
+vi.mock('../../config/FetchClient', () => ({
+    fetchClient: {
+        get: vi.fn(),
+        post: vi.fn(),
+        put: vi.fn(),
+        delete: vi.fn(),
+    }
+}));
 
 vi.mock('../../config/ApiConfig.ts', () => ({
     ApiConfig: {
@@ -19,7 +24,7 @@ describe('ThoughtService', () => {
     const thoughtId = 'thought-123';
 
     beforeEach(() => {
-        mock.reset();
+        vi.clearAllMocks();
     });
 
     describe('setCompleted', () => {
@@ -27,29 +32,34 @@ describe('ThoughtService', () => {
             const completed = true;
             const mockResponse = { success: true };
 
-            mock.onPut(`${ApiConfig.baseApiUrl()}/api/teams/${teamId}/retros/${retroId}/thoughts/${thoughtId}/completed`, {
-                completed
-            }).reply(200, mockResponse);
+            vi.mocked(fetchClient.put).mockResolvedValue({data: mockResponse, status: 200, headers: new Headers()});
 
             const result = await ThoughtService.setCompleted(teamId, retroId, thoughtId, completed);
             expect(result.data).toEqual(mockResponse);
             expect(result.status).toBe(200);
+            expect(fetchClient.put).toHaveBeenCalledWith(
+                `http://localhost:8080/api/teams/${teamId}/retros/${retroId}/thoughts/${thoughtId}/completed`,
+                {completed}
+            );
         });
 
         it('should throw when status is not 204', async () => {
-            mock.onPut(`${ApiConfig.baseApiUrl()}/api/teams/${teamId}/retros/${retroId}/thoughts/${thoughtId}/completed`).reply(500);
+            vi.mocked(fetchClient.put).mockRejectedValue(new Error('Request failed'));
             await expect(ThoughtService.setCompleted(teamId, retroId, thoughtId, true)).rejects.toThrow();
         });
     });
     describe('vote', () => {
         it('should call vote endpoint', async () => {
-            mock.onPut(`${ApiConfig.baseApiUrl()}/api/teams/${teamId}/retros/${retroId}/thoughts/${thoughtId}/votes`).reply(204);
+            vi.mocked(fetchClient.put).mockResolvedValue({data: null, status: 204, headers: new Headers()});
             const result = await ThoughtService.vote(teamId, retroId, thoughtId);
             expect(result.status).toBe(204);
+            expect(fetchClient.put).toHaveBeenCalledWith(
+                `http://localhost:8080/api/teams/${teamId}/retros/${retroId}/thoughts/${thoughtId}/votes`
+            );
         });
 
         it('should throw when status is not 204', async () => {
-            mock.onPut(`${ApiConfig.baseApiUrl()}/api/teams/${teamId}/retros/${retroId}/thoughts/${thoughtId}/votes`).reply(500);
+            vi.mocked(fetchClient.put).mockRejectedValue(new Error('Request failed'));
             await expect(ThoughtService.vote(teamId, retroId, thoughtId)).rejects.toThrow();
         });
     });
@@ -58,30 +68,35 @@ describe('ThoughtService', () => {
         it('should set message with correct endpoint and payload', async () => {
             const message = 'Updated thought message';
 
-            mock.onPut(`${ApiConfig.baseApiUrl()}/api/teams/${teamId}/retros/${retroId}/thoughts/${thoughtId}/message`, {
-                message
-            }).reply(204);
+            vi.mocked(fetchClient.put).mockResolvedValue({data: null, status: 204, headers: new Headers()});
 
             const result = await ThoughtService.setMessage(teamId, retroId, thoughtId, message);
             expect(result.status).toBe(204);
+            expect(fetchClient.put).toHaveBeenCalledWith(
+                `http://localhost:8080/api/teams/${teamId}/retros/${retroId}/thoughts/${thoughtId}/message`,
+                {message}
+            );
         });
 
         it('should throw when status is not 204', async () => {
             const message = 'Test message';
-            mock.onPut(`${ApiConfig.baseApiUrl()}/api/teams/${teamId}/retros/${retroId}/thoughts/${thoughtId}/message`).reply(500);
+            vi.mocked(fetchClient.put).mockRejectedValue(new Error('Request failed'));
             await expect(ThoughtService.setMessage(teamId, retroId, thoughtId, message)).rejects.toThrow();
         });
     });
 
     describe('deleteThought', () => {
         it('should call vote endpoint', async () => {
-            mock.onDelete(`${ApiConfig.baseApiUrl()}/api/teams/${teamId}/retros/${retroId}/thoughts/${thoughtId}`).reply(204);
+            vi.mocked(fetchClient.delete).mockResolvedValue({data: null, status: 204, headers: new Headers()});
             const result = await ThoughtService.deleteThought(teamId, retroId, thoughtId);
             expect(result.status).toBe(204);
+            expect(fetchClient.delete).toHaveBeenCalledWith(
+                `http://localhost:8080/api/teams/${teamId}/retros/${retroId}/thoughts/${thoughtId}`
+            );
         });
 
         it('should throw when status is not 204', async () => {
-            mock.onDelete(`${ApiConfig.baseApiUrl()}/api/teams/${teamId}/retros/${retroId}/thoughts/${thoughtId}`).reply(403);
+            vi.mocked(fetchClient.delete).mockRejectedValue(new Error('Request failed'));
             await expect(ThoughtService.deleteThought(teamId, retroId, thoughtId)).rejects.toThrow();
         });
     });

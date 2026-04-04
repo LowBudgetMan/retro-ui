@@ -1,11 +1,16 @@
 import {vi} from 'vitest';
-import axios from 'axios';
-import MockAdapter from 'axios-mock-adapter';
+import { fetchClient } from '../../config/FetchClient';
 import {Retro, RetroListItem, RetroService, Thought} from './RetroService.ts';
 import {DateTime} from 'luxon';
-import {ApiConfig} from '../../config/ApiConfig.ts';
 
-const mock = new MockAdapter(axios);
+vi.mock('../../config/FetchClient', () => ({
+    fetchClient: {
+        get: vi.fn(),
+        post: vi.fn(),
+        put: vi.fn(),
+        delete: vi.fn(),
+    }
+}));
 
 vi.mock('../../config/ApiConfig.ts', () => ({
     ApiConfig: {
@@ -20,7 +25,7 @@ describe('RetroService', () => {
     const testDate = DateTime.fromISO('2024-01-01T00:00:00.000Z');
 
     beforeEach(() => {
-        mock.reset();
+        vi.clearAllMocks();
     });
 
     describe('getRetrosForTeam', () => {
@@ -42,14 +47,17 @@ describe('RetroService', () => {
                 }
             ];
 
-            mock.onGet(`${ApiConfig.baseApiUrl()}/api/teams/${teamId}/retros`).reply(200, mockRetroResponse);
+            vi.mocked(fetchClient.get).mockResolvedValue({data: mockRetroResponse, status: 200, headers: new Headers()});
 
             const result = await RetroService.getRetrosForTeam(teamId);
+            expect(fetchClient.get).toHaveBeenCalledWith(
+                `http://localhost:8080/api/teams/${teamId}/retros`
+            );
             expect(result).toEqual(expectedRetros);
         });
 
         it('should handle errors when fetching retros', async () => {
-            mock.onGet(`${ApiConfig.baseApiUrl()}/api/teams/${teamId}/retros`).reply(500);
+            vi.mocked(fetchClient.get).mockRejectedValue(new Error('Request failed'));
 
             await expect(RetroService.getRetrosForTeam(teamId)).rejects.toThrow();
         });
@@ -76,14 +84,17 @@ describe('RetroService', () => {
                 createdAt: testDate,
             };
 
-            mock.onGet(`${ApiConfig.baseApiUrl()}/api/teams/${teamId}/retros/${retroId}`).reply(200, mockRetroResponse);
+            vi.mocked(fetchClient.get).mockResolvedValue({data: mockRetroResponse, status: 200, headers: new Headers()});
 
             const result = await RetroService.getRetro(teamId, retroId);
+            expect(fetchClient.get).toHaveBeenCalledWith(
+                `http://localhost:8080/api/teams/${teamId}/retros/${retroId}`
+            );
             expect(result).toEqual(expectedRetro);
         });
 
         it('should handle errors when fetching a specific retro', async () => {
-            mock.onGet(`${ApiConfig.baseApiUrl()}/api/teams/${teamId}/retros/${retroId}`).reply(404);
+            vi.mocked(fetchClient.get).mockRejectedValue(new Error('Request failed'));
 
             await expect(RetroService.getRetro(teamId, retroId)).rejects.toThrow();
         });
@@ -92,35 +103,39 @@ describe('RetroService', () => {
     describe('createRetro', () => {
         it('should create a new retro', async () => {
             const retroTemplateId = 'template-123';
-            const mockResponse = { id: 'new-retro-id' };
+            const mockResponse = {id: 'new-retro-id'};
 
-            mock.onPost(`${ApiConfig.baseApiUrl()}/api/teams/${teamId}/retros`, { retroTemplateId })
-                .reply(201, mockResponse);
+            vi.mocked(fetchClient.post).mockResolvedValue({data: mockResponse, status: 201, headers: new Headers()});
 
             const result = await RetroService.createRetro(teamId, retroTemplateId);
             expect(result.data).toEqual(mockResponse);
+            expect(fetchClient.post).toHaveBeenCalledWith(
+                `http://localhost:8080/api/teams/${teamId}/retros`,
+                {retroTemplateId}
+            );
         });
 
         it('should handle errors when creating a retro', async () => {
-            const retroTemplateId = 'invalid-template';
-            mock.onPost(`${ApiConfig.baseApiUrl()}/api/teams/${teamId}/retros`).reply(400);
+            vi.mocked(fetchClient.post).mockRejectedValue(new Error('Request failed'));
 
-            await expect(RetroService.createRetro(teamId, retroTemplateId)).rejects.toThrow();
+            await expect(RetroService.createRetro(teamId, 'invalid-template')).rejects.toThrow();
         });
     });
 
     describe('setFinished', () => {
         it('should update the finished state of a retro', async () => {
-            mock.onPut(`${ApiConfig.baseApiUrl()}/api/teams/${teamId}/retros/${retroId}/finished`, { finished: true })
-                .reply(204);
+            vi.mocked(fetchClient.put).mockResolvedValue({data: null, status: 204, headers: new Headers()});
 
             const result = await RetroService.setFinished(teamId, retroId, true);
             expect(result.status).toEqual(204);
+            expect(fetchClient.put).toHaveBeenCalledWith(
+                `http://localhost:8080/api/teams/${teamId}/retros/${retroId}/finished`,
+                {finished: true}
+            );
         });
 
         it('should handle errors when updating the finished state of a retro', async () => {
-            mock.onPut(`${ApiConfig.baseApiUrl()}/api/teams/${teamId}/retros/${retroId}/finished`, { finished: true })
-                .reply(400);
+            vi.mocked(fetchClient.put).mockRejectedValue(new Error('Request failed'));
 
             await expect(RetroService.setFinished(teamId, retroId, true)).rejects.toThrow();
         });
@@ -130,17 +145,20 @@ describe('RetroService', () => {
         it('should create a new thought', async () => {
             const message = 'Test thought';
             const category = 'happy';
-            const mockResponse = { id: 'new-thought-id' };
+            const mockResponse = {id: 'new-thought-id'};
 
-            mock.onPost(`${ApiConfig.baseApiUrl()}/api/teams/${teamId}/retros/${retroId}/thoughts`, { message, category })
-                .reply(201, mockResponse);
+            vi.mocked(fetchClient.post).mockResolvedValue({data: mockResponse, status: 201, headers: new Headers()});
 
             const result = await RetroService.createThought(teamId, retroId, message, category);
             expect(result.data).toEqual(mockResponse);
+            expect(fetchClient.post).toHaveBeenCalledWith(
+                `http://localhost:8080/api/teams/${teamId}/retros/${retroId}/thoughts`,
+                {message, category}
+            );
         });
 
         it('should handle errors when creating a thought', async () => {
-            mock.onPost(`${ApiConfig.baseApiUrl()}/api/teams/${teamId}/thoughts`).reply(400);
+            vi.mocked(fetchClient.post).mockRejectedValue(new Error('Request failed'));
 
             await expect(RetroService.createThought(teamId, retroId, '', 'happy')).rejects.toThrow();
         });
@@ -167,14 +185,17 @@ describe('RetroService', () => {
                 }
             ];
 
-            mock.onGet(`${ApiConfig.baseApiUrl()}/api/teams/${teamId}/retros/${retroId}/thoughts`).reply(200, mockThoughtResponse);
+            vi.mocked(fetchClient.get).mockResolvedValue({data: mockThoughtResponse, status: 200, headers: new Headers()});
 
             const result = await RetroService.getThoughts(teamId, retroId);
+            expect(fetchClient.get).toHaveBeenCalledWith(
+                `http://localhost:8080/api/teams/${teamId}/retros/${retroId}/thoughts`
+            );
             expect(result).toEqual(expectedThoughts);
         });
 
         it('should handle errors when fetching thoughts', async () => {
-            mock.onGet(`${ApiConfig.baseApiUrl()}/api/teams/${teamId}/retros/${retroId}/thoughts`).reply(500);
+            vi.mocked(fetchClient.get).mockRejectedValue(new Error('Request failed'));
 
             await expect(RetroService.getThoughts(teamId, retroId.toString())).rejects.toThrow();
         });

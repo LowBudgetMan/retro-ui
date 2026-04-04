@@ -60,7 +60,7 @@ describe('InviteListItem', () => {
         let mockRevalidator: MockRevalidator;
 
         beforeEach(() => {
-            deleteInviteSpy = vi.spyOn(TeamService, 'deleteInvite').mockResolvedValue(undefined);
+            deleteInviteSpy = vi.spyOn(TeamService, 'deleteInvite').mockResolvedValue({data: null, status: 204, headers: new Headers()});
             mockRevalidator = {
                 revalidate: vi.fn().mockResolvedValue(undefined),
                 state: undefined as unknown as RevalidationState,

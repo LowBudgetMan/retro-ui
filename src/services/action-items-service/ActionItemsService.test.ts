@@ -1,11 +1,16 @@
 import { vi } from 'vitest';
-import axios from 'axios';
-import MockAdapter from 'axios-mock-adapter';
+import { fetchClient } from '../../config/FetchClient';
 import { ActionItemsService } from './ActionItemsService';
 import { DateTime } from 'luxon';
-import {ApiConfig} from '../../config/ApiConfig.ts';
 
-const mock = new MockAdapter(axios);
+vi.mock('../../config/FetchClient', () => ({
+    fetchClient: {
+        get: vi.fn(),
+        post: vi.fn(),
+        put: vi.fn(),
+        delete: vi.fn(),
+    }
+}));
 
 vi.mock('../../config/ApiConfig.ts', () => ({
     ApiConfig: {
@@ -18,7 +23,7 @@ describe('ActionItemsService', () => {
     const teamId = 'team-123';
 
     beforeEach(() => {
-        mock.reset();
+        vi.clearAllMocks();
     });
 
     describe('getActionItems', () => {
@@ -28,10 +33,13 @@ describe('ActionItemsService', () => {
                 { id: '2', teamId, action: 'Action 2', assignee: 'User 2', completed: true, createdAt: '2023-01-02T00:00:00.000Z' },
             ];
 
-            mock.onGet(`${ApiConfig.baseApiUrl()}/api/teams/${teamId}/action-items`).reply(200, mockActionItems);
+            vi.mocked(fetchClient.get).mockResolvedValue({data: mockActionItems, status: 200, headers: new Headers()});
 
             const actionItems = await ActionItemsService.getActionItems(teamId);
 
+            expect(fetchClient.get).toHaveBeenCalledWith(
+                `http://localhost:8080/api/teams/${teamId}/action-items`
+            );
             expect(actionItems).toHaveLength(2);
             expect(actionItems[0].action).toBe('Action 1');
             expect(actionItems[0].createdAt).toEqual(DateTime.fromISO('2023-01-01T00:00:00.000Z'));
@@ -40,7 +48,7 @@ describe('ActionItemsService', () => {
         });
 
         it('should throw an error if the API call fails', async () => {
-            mock.onGet(`${ApiConfig.baseApiUrl()}/api/teams/${teamId}/action-items`).reply(500);
+            vi.mocked(fetchClient.get).mockRejectedValue(new Error('Request failed'));
 
             await expect(ActionItemsService.getActionItems(teamId)).rejects.toThrow();
         });
@@ -52,16 +60,18 @@ describe('ActionItemsService', () => {
         it('should set completed as passed value', async () => {
             const completed = true;
 
-            mock.onPut(`${ApiConfig.baseApiUrl()}/api/teams/${teamId}/action-items/${actionItemId}/completed`, {
-                completed
-            }).reply(204);
+            vi.mocked(fetchClient.put).mockResolvedValue({data: null, status: 204, headers: new Headers()});
 
             const actual = await ActionItemsService.setCompleted(teamId, actionItemId, completed);
             expect(actual.status).toBe(204);
+            expect(fetchClient.put).toHaveBeenCalledWith(
+                `http://localhost:8080/api/teams/${teamId}/action-items/${actionItemId}/completed`,
+                {completed}
+            );
         });
 
         it('should throw when status is not 204', async () => {
-            mock.onPut(`${ApiConfig.baseApiUrl()}/api/teams/${teamId}/action-items/${actionItemId}/completed`).reply(500);
+            vi.mocked(fetchClient.put).mockRejectedValue(new Error('Request failed'));
             await expect(ActionItemsService.setCompleted(teamId, actionItemId, true)).rejects.toThrow();
         });
     });
@@ -71,17 +81,18 @@ describe('ActionItemsService', () => {
         const assignee = 'User 3';
 
         it('should post to the correct endpoint with the correct payload', async () => {
-            mock.onPost(`${ApiConfig.baseApiUrl()}/api/teams/${teamId}/action-items`, {
-                action,
-                assignee
-            }).reply(201);
+            vi.mocked(fetchClient.post).mockResolvedValue({data: null, status: 201, headers: new Headers()});
 
             const result = await ActionItemsService.createActionItem(teamId, action, assignee);
             expect(result.status).toBe(201);
+            expect(fetchClient.post).toHaveBeenCalledWith(
+                `http://localhost:8080/api/teams/${teamId}/action-items`,
+                {action, assignee}
+            );
         });
 
         it('should throw an error if the API call fails', async () => {
-            mock.onPost(`${ApiConfig.baseApiUrl()}/api/teams/${teamId}/action-items`).reply(500);
+            vi.mocked(fetchClient.post).mockRejectedValue(new Error('Request failed'));
 
             await expect(ActionItemsService.createActionItem(teamId, action, assignee)).rejects.toThrow();
         });
@@ -91,14 +102,17 @@ describe('ActionItemsService', () => {
         const actionItemId = 'action-item-456';
 
         it('should send a delete request to the correct endpoint', async () => {
-            mock.onDelete(`${ApiConfig.baseApiUrl()}/api/teams/${teamId}/action-items/${actionItemId}`).reply(204);
+            vi.mocked(fetchClient.delete).mockResolvedValue({data: null, status: 204, headers: new Headers()});
 
             const result = await ActionItemsService.deleteActionItem(teamId, actionItemId);
             expect(result.status).toBe(204);
+            expect(fetchClient.delete).toHaveBeenCalledWith(
+                `http://localhost:8080/api/teams/${teamId}/action-items/${actionItemId}`
+            );
         });
 
         it('should throw an error if the API call fails', async () => {
-            mock.onDelete(`${ApiConfig.baseApiUrl()}/api/teams/${teamId}/action-items/${actionItemId}`).reply(500);
+            vi.mocked(fetchClient.delete).mockRejectedValue(new Error('Request failed'));
 
             await expect(ActionItemsService.deleteActionItem(teamId, actionItemId)).rejects.toThrow();
         });
@@ -109,16 +123,18 @@ describe('ActionItemsService', () => {
         const action = 'Updated Action';
 
         it('should send a put request to the correct endpoint with the correct payload', async () => {
-            mock.onPut(`${ApiConfig.baseApiUrl()}/api/teams/${teamId}/action-items/${actionItemId}/action`, {
-                action
-            }).reply(204);
+            vi.mocked(fetchClient.put).mockResolvedValue({data: null, status: 204, headers: new Headers()});
 
             const result = await ActionItemsService.setAction(teamId, actionItemId, action);
             expect(result.status).toBe(204);
+            expect(fetchClient.put).toHaveBeenCalledWith(
+                `http://localhost:8080/api/teams/${teamId}/action-items/${actionItemId}/action`,
+                {action}
+            );
         });
 
         it('should throw an error if the API call fails', async () => {
-            mock.onPut(`${ApiConfig.baseApiUrl()}/api/teams/${teamId}/action-items/${actionItemId}/action`).reply(500);
+            vi.mocked(fetchClient.put).mockRejectedValue(new Error('Request failed'));
 
             await expect(ActionItemsService.setAction(teamId, actionItemId, action)).rejects.toThrow();
         });
@@ -129,16 +145,18 @@ describe('ActionItemsService', () => {
         const assignee = 'New Assignee';
 
         it('should send a put request to the correct endpoint with the correct payload', async () => {
-            mock.onPut(`${ApiConfig.baseApiUrl()}/api/teams/${teamId}/action-items/${actionItemId}/assignee`, {
-                assignee
-            }).reply(204);
+            vi.mocked(fetchClient.put).mockResolvedValue({data: null, status: 204, headers: new Headers()});
 
             const result = await ActionItemsService.setAssignee(teamId, actionItemId, assignee);
             expect(result.status).toBe(204);
+            expect(fetchClient.put).toHaveBeenCalledWith(
+                `http://localhost:8080/api/teams/${teamId}/action-items/${actionItemId}/assignee`,
+                {assignee}
+            );
         });
 
         it('should throw an error if the API call fails', async () => {
-            mock.onPut(`${ApiConfig.baseApiUrl()}/api/teams/${teamId}/action-items/${actionItemId}/action`).reply(500);
+            vi.mocked(fetchClient.put).mockRejectedValue(new Error('Request failed'));
 
             await expect(ActionItemsService.setAssignee(teamId, actionItemId, assignee)).rejects.toThrow();
         });

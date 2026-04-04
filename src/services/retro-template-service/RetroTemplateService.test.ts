@@ -1,11 +1,16 @@
 import { vi } from 'vitest';
-import axios from 'axios';
-import MockAdapter from 'axios-mock-adapter';
+import { fetchClient } from '../../config/FetchClient';
 import { RetroTemplateService } from './RetroTemplateService.ts';
 import { Template } from '../retro-service/RetroService.ts';
-import {ApiConfig} from '../../config/ApiConfig.ts';
 
-const mock = new MockAdapter(axios);
+vi.mock('../../config/FetchClient', () => ({
+    fetchClient: {
+        get: vi.fn(),
+        post: vi.fn(),
+        put: vi.fn(),
+        delete: vi.fn(),
+    }
+}));
 
 vi.mock('../../config/ApiConfig.ts', () => ({
     ApiConfig: {
@@ -16,7 +21,7 @@ vi.mock('../../config/ApiConfig.ts', () => ({
 
 describe('RetroTemplateService', () => {
     beforeEach(() => {
-        mock.reset();
+        vi.clearAllMocks();
     });
 
     describe('getTemplates', () => {
@@ -78,7 +83,7 @@ describe('RetroTemplateService', () => {
                 }
             ];
 
-            mock.onGet(`${ApiConfig.baseApiUrl()}/api/templates`).reply(200, mockTemplatesResponse);
+            vi.mocked(fetchClient.get).mockResolvedValue({data: mockTemplatesResponse, status: 200, headers: new Headers()});
 
             const result = await RetroTemplateService.getTemplates();
 
@@ -92,7 +97,7 @@ describe('RetroTemplateService', () => {
         });
 
         it('should return empty array when no templates exist', async () => {
-            mock.onGet(`${ApiConfig.baseApiUrl()}/api/templates`).reply(200, []);
+            vi.mocked(fetchClient.get).mockResolvedValue({data: [], status: 200, headers: new Headers()});
 
             const result = await RetroTemplateService.getTemplates();
 
@@ -101,21 +106,19 @@ describe('RetroTemplateService', () => {
         });
 
         it('should handle server errors when fetching templates', async () => {
-            mock.onGet(`${ApiConfig.baseApiUrl()}/api/templates`).reply(500, {
-                error: 'Internal Server Error'
-            });
+            vi.mocked(fetchClient.get).mockRejectedValue(new Error('Request failed'));
 
             await expect(RetroTemplateService.getTemplates()).rejects.toThrow();
         });
 
         it('should handle network errors when fetching templates', async () => {
-            mock.onGet(`${ApiConfig.baseApiUrl()}/api/templates`).networkError();
+            vi.mocked(fetchClient.get).mockRejectedValue(new TypeError('Network error'));
 
             await expect(RetroTemplateService.getTemplates()).rejects.toThrow();
         });
 
         it('should handle malformed response data', async () => {
-            mock.onGet(`${ApiConfig.baseApiUrl()}/api/templates`).reply(200, 'invalid json');
+            vi.mocked(fetchClient.get).mockResolvedValue({data: 'invalid json', status: 200, headers: new Headers()});
 
             const result = await RetroTemplateService.getTemplates();
             expect(result).toBe('invalid json');
@@ -129,7 +132,7 @@ describe('RetroTemplateService', () => {
                 categories: []
             };
 
-            mock.onGet(`${ApiConfig.baseApiUrl()}/api/templates`).reply(200, [minimalTemplate]);
+            vi.mocked(fetchClient.get).mockResolvedValue({data: [minimalTemplate], status: 200, headers: new Headers()});
 
             const result = await RetroTemplateService.getTemplates();
 
@@ -171,7 +174,7 @@ describe('RetroTemplateService', () => {
                 ]
             };
 
-            mock.onGet(`${ApiConfig.baseApiUrl()}/api/templates`).reply(200, [complexTemplate]);
+            vi.mocked(fetchClient.get).mockResolvedValue({data: [complexTemplate], status: 200, headers: new Headers()});
 
             const result = await RetroTemplateService.getTemplates();
 
@@ -183,16 +186,15 @@ describe('RetroTemplateService', () => {
         });
 
         it('should verify the correct API endpoint is called', async () => {
-            mock.onGet(`${ApiConfig.baseApiUrl()}/api/templates`).reply(200, []);
+            vi.mocked(fetchClient.get).mockResolvedValue({data: [], status: 200, headers: new Headers()});
 
             await RetroTemplateService.getTemplates();
 
-            expect(mock.history.get).toHaveLength(1);
-            expect(mock.history.get[0].url).toBe(`${ApiConfig.baseApiUrl()}/api/templates`);
+            expect(fetchClient.get).toHaveBeenCalledWith('http://localhost:8080/api/templates');
         });
 
         it('should handle timeout errors', async () => {
-            mock.onGet(`${ApiConfig.baseApiUrl()}/api/templates`).timeout();
+            vi.mocked(fetchClient.get).mockRejectedValue(new Error('Timeout'));
 
             await expect(RetroTemplateService.getTemplates()).rejects.toThrow();
         });

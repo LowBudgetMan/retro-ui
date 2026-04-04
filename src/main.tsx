@@ -4,14 +4,14 @@ import App from './App.tsx'
 import './styles/global.css'
 import './styles/colors.css';
 import { initializeConfig } from './config/ApiConfig';
-import {configureAxios} from "./config/AxiosConfig.ts";
+import { configureFetchClient } from "./config/FetchClient.ts";
 import { registerCrossTabLogoutListener } from "./pages/user/UserContext.ts";
 import "@fontsource/quicksand";
 import "@fontsource/quicksand/700.css";
 
 initializeConfig()
     .then(async () => {
-        await configureAxios();
+        await configureFetchClient();
         registerCrossTabLogoutListener();
         ReactDOM.createRoot(document.getElementById('root')!).render(
             <React.StrictMode>
