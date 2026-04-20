@@ -3,7 +3,7 @@ import styles from './ActionItemCard.module.css';
 import {useCallback, useEffect, KeyboardEvent, useState} from "react";
 import {onKeys} from "../../../../../services/key-event-handler/KeyEventHandler.ts";
 import {AssigneeInput} from "../AssigneeInput/AssigneeInput.tsx";
-import {FaEdit, FaRegTrashAlt} from "react-icons/fa";
+import {TbEdit, TbTrash} from "react-icons/tb";
 import {ImCheckboxChecked, ImCheckboxUnchecked} from "react-icons/im";
 import {DateTime} from "luxon";
 
@@ -81,10 +81,10 @@ export function ActionItemCard({actionItem}: ActionItemCardProps) {
                             <span>{actionItem.createdAt.toFormat('MMM dd')}{nthCalculator(actionItem.createdAt)}</span>
                         </p>
                         <button className={`${styles.bottomItem} ${styles.bottomButton}`} aria-label={'edit'} onClick={() => setEditing(!editing)} disabled={actionItem.completed}>
-                            <FaEdit title={'Edit'} fontSize={'1rem'}/>
+                            <TbEdit title={'Edit'} fontSize={'1.4rem'}/>
                         </button>
                         <button className={`${styles.bottomItem} ${styles.bottomButton}`} aria-label={'delete'} onClick={handleDeleteClick} disabled={actionItem.completed}>
-                            <FaRegTrashAlt title={'Delete'} fontSize={'1rem'}/>
+                            <TbTrash title={'Delete'} fontSize={'1.3rem'}/>
                         </button>
                         <button className={`${styles.bottomItem} ${styles.bottomButton}`} aria-label={'mark complete'} onClick={handleCompleteClicked}>
                             {actionItem.completed ? <ImCheckboxChecked title={'Completed'} fontSize={'1rem'}/> : <ImCheckboxUnchecked title={'Incomplete'} fontSize={'1rem'}/>}

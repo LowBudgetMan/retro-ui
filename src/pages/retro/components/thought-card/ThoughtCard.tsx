@@ -4,7 +4,7 @@ import {useCallback, useRef, useState, KeyboardEvent, useEffect} from "react";
 import {ThoughtService} from "../../../../services/thought-service/ThoughtService.ts";
 import {RetroEventService} from "../../../../services/retro-event-service/RetroEventService.ts";
 import {onKeys} from "../../../../services/key-event-handler/KeyEventHandler.ts";
-import { FaEdit, FaRegTrashAlt } from "react-icons/fa";
+import {TbEdit, TbTrash} from "react-icons/tb";
 import { ImCheckboxChecked, ImCheckboxUnchecked } from "react-icons/im";
 import {VoteCount} from "./vote-count/VoteCount.tsx";
 
@@ -97,10 +97,10 @@ export function ThoughtCard({teamId, thought}: Props) {
                             <VoteCount votes={thought.votes} />
                         </button>
                         <button className={styles.action} name='edit' aria-label={'edit'} onClick={() => setEditing(!editing)} disabled={thought.completed}>
-                            <FaEdit title={'Edit'} fontSize={'1rem'}/>
+                            <TbEdit title={'Edit'} fontSize={'1.4rem'}/>
                         </button>
                         <button className={styles.action} name='delete' aria-label={'delete'} onClick={handleDeleteClick} disabled={thought.completed}>
-                            <FaRegTrashAlt title={'Delete'} fontSize={'1rem'}/>
+                            <TbTrash title={'Delete'} fontSize={'1.3rem'}/>
                         </button>
                         <button className={styles.action} name='mark complete' aria-label={'mark complete'} style={{cursor: 'pointer'}} onClick={handleCompleteClicked}>
                             {thought.completed ? <ImCheckboxChecked title={'Completed'} fontSize={'1rem'}/> : <ImCheckboxUnchecked title={'Incomplete'} fontSize={'1rem'}/>}

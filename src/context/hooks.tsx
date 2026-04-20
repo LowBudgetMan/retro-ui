@@ -4,6 +4,7 @@ import {ActionItemsContext, ActionItemsContextValue} from "./action-items/Action
 import {ThemeContext} from "./theme/ThemeContext.tsx";
 import {Theme} from "./theme/ThemeContextTypes.ts";
 import {Category} from "../services/retro-service/RetroService.ts";
+import {ToastContext} from "./toast/ToastContext.tsx";
 
 export function useRetro(): RetroContextValue {
     return useContext(RetroContext);
@@ -15,6 +16,10 @@ export function useActionItems(): ActionItemsContextValue {
 
 export function useTheme() {
     return useContext(ThemeContext);
+}
+
+export function useToasts() {
+    return useContext(ToastContext);
 }
 
 export function useCategoryBackgroundColor(category: Category | undefined): string | undefined {
