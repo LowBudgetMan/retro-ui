@@ -2,6 +2,9 @@ import {fireEvent, render, screen} from '@testing-library/react';
 import {ShareButton} from './ShareButton.tsx';
 import '@testing-library/jest-dom';
 import { fetchClient } from '../../../../config/FetchClient';
+import {ToastContext} from '../../../../context/toast/ToastContext.tsx';
+import {ToastType} from '../../../../context/toast/ToastContextTypes.ts';
+import {PropsWithChildren} from 'react';
 
 vi.mock('../../../../config/FetchClient', () => ({
     fetchClient: {
@@ -21,6 +24,16 @@ vi.mock('../../../../config/ApiConfig.ts', () => ({
 describe('ShareButton', () => {
     const teamId = 'team-123';
     const retroId = 'retro-456';
+    const queueToast = vi.fn();
+
+    function renderWithToastContext(ui: React.ReactElement) {
+        const Wrapper = ({children}: PropsWithChildren) => (
+            <ToastContext.Provider value={{toasts: [], queueToast}}>
+                {children}
+            </ToastContext.Provider>
+        );
+        return render(ui, {wrapper: Wrapper});
+    }
 
     beforeEach(() => {
         vi.clearAllMocks();
@@ -33,7 +46,7 @@ describe('ShareButton', () => {
     });
 
     it('should render with "Share" text', () => {
-        render(<ShareButton teamId={teamId} retroId={retroId}/>);
+        renderWithToastContext(<ShareButton teamId={teamId} retroId={retroId}/>);
         expect(screen.getByText('Share')).toBeInTheDocument();
     });
 
@@ -45,7 +58,7 @@ describe('ShareButton', () => {
             headers: new Headers(),
         });
 
-        render(<ShareButton teamId={teamId} retroId={retroId}/>);
+        renderWithToastContext(<ShareButton teamId={teamId} retroId={retroId}/>);
         fireEvent.click(screen.getByText('Share'));
 
         await new Promise(resolve => setTimeout(resolve, 0));
@@ -58,22 +71,25 @@ describe('ShareButton', () => {
         );
     });
 
-    it('should show "Copied!" text after clicking', async () => {
+    it('should queue a success toast after copying link to clipboard', async () => {
         vi.mocked(fetchClient.post).mockResolvedValue({
             data: {token: 'generated-token'},
             status: 201,
             headers: new Headers(),
         });
 
-        render(<ShareButton teamId={teamId} retroId={retroId}/>);
+        renderWithToastContext(<ShareButton teamId={teamId} retroId={retroId}/>);
         fireEvent.click(screen.getByText('Share'));
 
         await new Promise(resolve => setTimeout(resolve, 0));
 
-        expect(screen.getByText('Copied!')).toBeInTheDocument();
+        expect(queueToast).toHaveBeenCalledWith({
+            message: 'Copied share link to clipboard',
+            type: ToastType.SUCCESS,
+        });
     });
 
-    it('should handle clipboard errors gracefully', async () => {
+    it('should queue a failure toast and log when the clipboard write fails', async () => {
         const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
         const clipboardError = new Error('Clipboard failed');
         vi.spyOn(window.navigator.clipboard, 'writeText').mockRejectedValue(clipboardError);
@@ -83,11 +99,15 @@ describe('ShareButton', () => {
             headers: new Headers(),
         });
 
-        render(<ShareButton teamId={teamId} retroId={retroId}/>);
+        renderWithToastContext(<ShareButton teamId={teamId} retroId={retroId}/>);
         fireEvent.click(screen.getByText('Share'));
 
         await new Promise(resolve => setTimeout(resolve, 0));
 
+        expect(queueToast).toHaveBeenCalledWith({
+            message: 'Failed to copy share link',
+            type: ToastType.FAILURE,
+        });
         expect(consoleSpy).toHaveBeenCalledWith('Failed to copy share link: ', clipboardError);
         expect(screen.getByText('Share')).toBeInTheDocument();
         consoleSpy.mockRestore();

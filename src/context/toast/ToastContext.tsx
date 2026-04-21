@@ -14,6 +14,7 @@ export const ToastContext = createContext<ToastContextValue>({
 
 export function ToastProvider({ children }: PropsWithChildren) {
     const [toasts, setToasts] = useState<Toast[]>([]);
+    const [dismissCount, setDismissCount] = useState(0);
 
     const queueToast = (toast: Toast) => {
         setToasts(prevState => {
@@ -23,12 +24,13 @@ export function ToastProvider({ children }: PropsWithChildren) {
 
     const dequeueToast = () => {
         setToasts(prevState => prevState.slice(1));
+        setDismissCount(count => count + 1);
     }
 
     return (
         <ToastContext.Provider value={{toasts, queueToast}}>
             {children}
-            {toasts[0] && <ToastComponent content={toasts[0]} closeToast={dequeueToast}/>}
+            {toasts[0] && <ToastComponent key={dismissCount} content={toasts[0]} closeToast={dequeueToast}/>}
         </ToastContext.Provider>
     )
 }

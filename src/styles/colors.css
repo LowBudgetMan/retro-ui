@@ -1,20 +1,21 @@
-/* :root {
-    --green: #00FF11;
-    --blue: #0099FF;
-    --red: #FF4400;
-}
-
-.dark {
-    --green: #11FF99;
-} */
-
 :root[data-theme="light"] {
-    --green: #00FF11;
-    --blue: #0099FF;
-    --red: #FF4400;
+    --toast-info-text: #3498db;
+    --toast-success-text: #2ecc71;
+    --toast-warning-text: #f1c40f;
+    --toast-error-text: #e74c3c;
+    --toast-info-background: #e8f4fc;
+    --toast-success-background: #e6f6ed;
+    --toast-warning-background: #fdf5d5;
+    --toast-error-background: #fbe7e4;
 }
 
 :root[data-theme="dark"] {
-    /* --green: #11FF99; */
-    --green: #0099FF;
+    --toast-info-text: #2980b9;
+    --toast-success-text: #27ae60;
+    --toast-warning-text: #f39c12;
+    --toast-error-text: #c0392b;
+    --toast-info-background: #1b2d3d;
+    --toast-success-background: #162e22;
+    --toast-warning-background: #2e2613;
+    --toast-error-background: #2d1916;
 }

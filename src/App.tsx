@@ -17,6 +17,7 @@ import {SilentRedirectPage} from "./pages/auth-redirect/SilentRedirectPage.tsx";
 import {InvitePage} from "./pages/invite/InvitePage.tsx";
 import {TeamPage} from "./pages/team/TeamPage.tsx";
 import {SharePage} from "./pages/share/SharePage.tsx";
+import {ToastProvider} from "./context/toast/ToastContext.tsx";
 
 function AppContent() {
     const router = useMemo(() => createBrowserRouter([
@@ -80,7 +81,9 @@ function AppContent() {
 function App() {
     return (
         <ThemeProvider>
-            <AppContent />
+            <ToastProvider>
+                <AppContent />
+            </ToastProvider>
         </ThemeProvider>
     );
 }
