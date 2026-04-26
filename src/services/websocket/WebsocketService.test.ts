@@ -164,6 +164,32 @@ describe('WebsocketService', () => {
         expect(mockActivate).toHaveBeenCalledTimes(1);
     });
 
+    it('multiple synchronous subscribes before connect create only one Client', async () => {
+        const {Client} = await import('@stomp/stompjs');
+        const service = await getService();
+
+        service.subscribe('/topic/a', {EVENT: vi.fn()});
+        service.subscribe('/topic/b', {EVENT: vi.fn()});
+        service.subscribe('/topic/c', {EVENT: vi.fn()});
+        await flushPromises();
+
+        expect(Client).toHaveBeenCalledTimes(1);
+        expect(mockActivate).toHaveBeenCalledTimes(1);
+    });
+
+    it('subscribe-unsubscribe-subscribe before connect creates only one Client (StrictMode safety)', async () => {
+        const {Client} = await import('@stomp/stompjs');
+        const service = await getService();
+
+        const unsub = service.subscribe('/topic/test', {EVENT: vi.fn()});
+        unsub();
+        service.subscribe('/topic/test', {EVENT: vi.fn()});
+        await flushPromises();
+
+        expect(Client).toHaveBeenCalledTimes(1);
+        expect(mockActivate).toHaveBeenCalledTimes(1);
+    });
+
     it('auto-disconnect when last subscription removed', async () => {
         const service = await getService();
 

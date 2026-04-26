@@ -24,6 +24,7 @@ interface DestinationEntry {
 }
 
 let client: Client | null = null;
+let isConnecting = false;
 let hasConnectedOnce = false;
 const destinations = new Map<string, DestinationEntry>();
 const reconnectCallbacks = new Set<() => void>();
@@ -53,25 +54,32 @@ function subscribeToDestination(destination: string): void {
 }
 
 function ensureConnected(retroId?: string): void {
-    if (!client || !client.active) {
-        getConfig(retroId).then(config => {
-            client = new Client(config);
-            client.beforeConnect = async () => {
-                client!.connectHeaders = await buildConnectHeaders(retroId);
-            };
-            client.onConnect = () => {
-                destinations.forEach((entry, destination) => {
-                    entry.stompSubscription = undefined;
-                    subscribeToDestination(destination);
-                });
-                if (hasConnectedOnce) {
-                    reconnectCallbacks.forEach(cb => cb());
-                }
-                hasConnectedOnce = true;
-            };
-            client.activate();
-        });
-    }
+    if (client?.active || isConnecting) return;
+    isConnecting = true;
+    getConfig(retroId).then(config => {
+        if (destinations.size === 0 || client) {
+            isConnecting = false;
+            return;
+        }
+        client = new Client(config);
+        client.beforeConnect = async () => {
+            client!.connectHeaders = await buildConnectHeaders(retroId);
+        };
+        client.onConnect = () => {
+            destinations.forEach((entry, destination) => {
+                entry.stompSubscription = undefined;
+                subscribeToDestination(destination);
+            });
+            if (hasConnectedOnce) {
+                reconnectCallbacks.forEach(cb => cb());
+            }
+            hasConnectedOnce = true;
+        };
+        client.activate();
+        isConnecting = false;
+    }).catch(() => {
+        isConnecting = false;
+    });
 }
 
 function subscribe(destination: string, handlerMap: HandlerMap, options?: SubscribeOptions): () => void {
@@ -104,9 +112,12 @@ function subscribe(destination: string, handlerMap: HandlerMap, options?: Subscr
         if (currentEntry.handlers.size === 0) {
             currentEntry.stompSubscription?.unsubscribe();
             destinations.delete(destination);
-            if (destinations.size === 0 && client?.active) {
-                client.deactivate().catch();
+            if (destinations.size === 0) {
+                if (client?.active) {
+                    client.deactivate().catch();
+                }
                 client = null;
+                isConnecting = false;
                 hasConnectedOnce = false;
             }
         }
