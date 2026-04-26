@@ -1,17 +1,20 @@
 .link {
     text-decoration: none;
     color: unset;
+    display: block;
+    height: 100%;
 }
 
 .teamCard {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100%;
+    box-sizing: border-box;
     padding: 1rem 1.5rem;
-    transition: transform 0.2s;
     background-color: var(--card-background);
     border-radius: 0.5rem;
-}
-
-.teamCard {
-    transition: box-shadow 0.1s;
+    transition: transform 0.2s, box-shadow 0.1s;
 }
 
 .teamCard:hover {

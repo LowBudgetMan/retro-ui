@@ -19,8 +19,7 @@
 
 .retrosList {
     display: grid;
-    grid-template-columns: 1fr;
-    grid-auto-rows: 1fr;
+    grid-template-columns: repeat(auto-fill, minmax(14.5rem, 1fr));
     gap: 1.75rem;
     list-style: none;
     margin: 0;
@@ -36,13 +35,5 @@
         display: flex;
         flex-direction: row;
         min-height: calc(100vh - 74px);
-    }
-
-    .retrosList {
-        grid-template-columns: 1fr 1fr 1fr 1fr;
-    }
-
-    .retroListItem {
-        width: 14.5rem;
     }
 }

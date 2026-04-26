@@ -7,19 +7,15 @@
 }
 
 .teamsList {
-    display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
     gap: 2rem;
     list-style: none;
-    justify-content: flex-start;
     margin: 0;
     padding: 0;
 }
 
-/* Turn the page into CSS Grid to make it real nice */
 .teamItem {
-    width: 200px;
     text-overflow-ellipsis: auto;
 }
 
