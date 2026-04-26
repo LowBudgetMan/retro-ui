@@ -95,39 +95,6 @@ describe('FocusThoughtModal', () => {
         expect(screen.queryByText('First thought')).not.toBeInTheDocument();
     });
 
-    it('should call clearFocus when x button is clicked', () => {
-        render(<FocusThoughtModal teamId={teamId} retroId={retroId} thoughts={thoughts} />);
-
-        act(() => {
-            capturedHandlers[RetroEventTypes.FOCUS]({ thoughtId: 'thought1' });
-        });
-
-        fireEvent.click(screen.getByLabelText('Close modal'));
-        expect(RetroEventService.clearFocus).toHaveBeenCalledWith(teamId, retroId);
-    });
-
-    it('should call clearFocus when background is clicked', () => {
-        render(<FocusThoughtModal teamId={teamId} retroId={retroId} thoughts={thoughts} />);
-
-        act(() => {
-            capturedHandlers[RetroEventTypes.FOCUS]({ thoughtId: 'thought1' });
-        });
-
-        fireEvent.click(screen.getByLabelText('Close focused thought'));
-        expect(RetroEventService.clearFocus).toHaveBeenCalledWith(teamId, retroId);
-    });
-
-    it('should call clearFocus when Escape key is pressed', () => {
-        render(<FocusThoughtModal teamId={teamId} retroId={retroId} thoughts={thoughts} />);
-
-        act(() => {
-            capturedHandlers[RetroEventTypes.FOCUS]({ thoughtId: 'thought1' });
-        });
-
-        fireEvent.keyDown(document, { key: 'Escape' });
-        expect(RetroEventService.clearFocus).toHaveBeenCalledWith(teamId, retroId);
-    });
-
     it('should mark thought as complete and clear focus when complete button is clicked', async () => {
         render(<FocusThoughtModal teamId={teamId} retroId={retroId} thoughts={thoughts} />);
 

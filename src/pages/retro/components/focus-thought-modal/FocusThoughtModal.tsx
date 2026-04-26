@@ -1,14 +1,14 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { Thought } from "../../../../services/retro-service/RetroService";
-import { useCategoryBackgroundColor, useRetro } from "../../../../context/hooks";
-import { WebsocketService } from "../../../../services/websocket/WebsocketService";
-import { retroDestination } from "../../../../services/websocket/destinations";
-import { RetroEventTypes } from "../../../../services/websocket/EventTypes";
-import { RetroEventService } from "../../../../services/retro-event-service/RetroEventService";
-import { ThoughtService } from "../../../../services/thought-service/ThoughtService";
-import { Modal } from "../../../../components/modal/Modal";
-import { VoteCount } from "../thought-card/vote-count/VoteCount";
-import { ImCheckboxUnchecked } from "react-icons/im";
+import {useCallback, useEffect, useMemo, useState} from "react";
+import {Thought} from "../../../../services/retro-service/RetroService";
+import {useCategoryBackgroundColor, useRetro} from "../../../../context/hooks";
+import {WebsocketService} from "../../../../services/websocket/WebsocketService";
+import {retroDestination} from "../../../../services/websocket/destinations";
+import {RetroEventTypes} from "../../../../services/websocket/EventTypes";
+import {RetroEventService} from "../../../../services/retro-event-service/RetroEventService";
+import {ThoughtService} from "../../../../services/thought-service/ThoughtService";
+import {Modal} from "../../../../components/modal/Modal";
+import {VoteCount} from "../thought-card/vote-count/VoteCount";
+import {ImCheckboxUnchecked} from "react-icons/im";
 import styles from "./FocusThoughtModal.module.css";
 
 interface Props {
@@ -30,15 +30,14 @@ export function FocusThoughtModal({ teamId, retroId, thoughts }: Props) {
     }, []);
 
     useEffect(() => {
-        const unsubscribe = WebsocketService.subscribe(
+        return WebsocketService.subscribe(
             retroDestination(retroId, 'events'),
             {
                 [RetroEventTypes.FOCUS]: handleFocus,
                 [RetroEventTypes.FOCUS_CLEAR]: handleFocusClear,
             },
-            { retroId }
+            {retroId}
         );
-        return unsubscribe;
     }, [retroId, handleFocus, handleFocusClear]);
 
     const focusedThought = focusedThoughtId
@@ -62,8 +61,7 @@ export function FocusThoughtModal({ teamId, retroId, thoughts }: Props) {
 
     const handleClose = useCallback(() => {
         setFocusedThoughtId(null);
-        RetroEventService.clearFocus(teamId, retroId);
-    }, [teamId, retroId]);
+    }, []);
 
     const handleComplete = useCallback(async () => {
         if (!focusedThoughtId) return;
