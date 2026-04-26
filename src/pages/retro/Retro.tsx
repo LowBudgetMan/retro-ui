@@ -42,16 +42,16 @@ export function RetroComponent() {
             <div className={`${style.retroColumnsContainer} ${isMobile ? style.mobileColumnsContainer : ''} ${isActionItemsActive ? style.mobileHidden : ''}`}>
                 <div className={style.retroColumns}>
                     {retro.template.categories.map(category => (
-                        <div key={category.name} className={isMobile && activeTab !== category.name ? style.mobileHidden : ''}>
-                            <RetroColumn
-                                teamId={retro.teamId}
-                                retroId={retro.id}
-                                category={category}
-                                thoughts={retro.thoughts
-                                    .filter(thought => thought.category === category.name)
-                                     .sort((a, b) => a.createdAt.toMillis() - b.createdAt.toMillis())}
-                            />
-                        </div>
+                        <RetroColumn
+                            key={category.name}
+                            teamId={retro.teamId}
+                            retroId={retro.id}
+                            category={category}
+                            thoughts={retro.thoughts
+                                .filter(thought => thought.category === category.name)
+                                 .sort((a, b) => a.createdAt.toMillis() - b.createdAt.toMillis())}
+                            hidden={isMobile && activeTab !== category.name}
+                        />
                     ))}
                 </div>
             </div>

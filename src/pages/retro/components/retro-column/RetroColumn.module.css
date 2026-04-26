@@ -1,7 +1,13 @@
 .retroCategory {
-    display: inline-block;
+    display: grid;
+    grid-template-rows: subgrid;
+    grid-row: span 2;
     width: 324px;
     min-width: 324px;
+}
+
+.retroCategory.hidden {
+    display: none;
 }
 
 .thoughtsList {

@@ -13,6 +13,7 @@ interface RetroColumnProps {
     retroId: string;
     category: Category;
     thoughts: Thought[];
+    hidden?: boolean;
 }
 
 export interface CategoryStyling {
@@ -20,7 +21,7 @@ export interface CategoryStyling {
     textColor: string
 }
 
-export function RetroColumn({teamId, retroId, category, thoughts}: RetroColumnProps) {
+export function RetroColumn({teamId, retroId, category, thoughts, hidden}: RetroColumnProps) {
     const {getEffectiveTheme} = useTheme();
     const [isSorting, setSorting] = useState(false);
     const categoryStyling: CategoryStyling = useMemo(() => {
@@ -46,27 +47,29 @@ export function RetroColumn({teamId, retroId, category, thoughts}: RetroColumnPr
     }, [thoughts, isSorting]);
 
     return (
-        <div key={`column${category.name}`} className={styles.retroCategory}>
+        <div key={`column${category.name}`} className={`${styles.retroCategory} ${hidden ? styles.hidden : ''}`}>
             <ColumnHeader
                 category={category}
                 styling={categoryStyling}
                 isSorting={isSorting}
                 toggleSort={handleSortToggle}
             />
-            <CreateThought
-                teamId={teamId}
-                retroId={retroId}
-                category={category.name}
-                borderColor={categoryStyling.backgroundColor}
-            />
-            <span style={{marginBottom: '0.5rem'}}/>
-            <CountSeparator count={thoughts.length} />
-            <ul className={styles.thoughtsList}>
-                {sortedThoughts
-                    .map(thought => (
-                    <li key={`thought${thought.id}`}><ThoughtCard teamId={teamId} thought={thought} /></li>
-                ))}
-            </ul>
+            <div>
+                <CreateThought
+                    teamId={teamId}
+                    retroId={retroId}
+                    category={category.name}
+                    borderColor={categoryStyling.backgroundColor}
+                />
+                <span style={{marginBottom: '0.5rem'}}/>
+                <CountSeparator count={thoughts.length} />
+                <ul className={styles.thoughtsList}>
+                    {sortedThoughts
+                        .map(thought => (
+                        <li key={`thought${thought.id}`}><ThoughtCard teamId={teamId} thought={thought} /></li>
+                    ))}
+                </ul>
+            </div>
         </div>
     );
 }
