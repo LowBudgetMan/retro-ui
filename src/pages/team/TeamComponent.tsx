@@ -5,6 +5,7 @@ import "../../styles/global.css";
 import {CreateRetroButton} from "./components/CreateRetroButton.tsx";
 import {notFoundTemplate, RetroListItem, Template} from "../../services/retro-service/RetroService.ts";
 import {Invite} from "../../services/team-service/TeamService.ts";
+import {ApiToken} from "../../services/api-token-service/ApiTokenService.ts";
 import {TeamSidePane} from "./components/team-side-panel/TeamSidePane.tsx";
 
 interface Props {
@@ -13,12 +14,13 @@ interface Props {
     invites: Invite[];
     retros: RetroListItem[];
     templates: Template[];
+    apiTokens: ApiToken[];
 }
 
 export function TeamComponent(props: Props) {
     return (
         <div className={teamStyles.teamPage}>
-            <TeamSidePane id={props.id} name={props.name} invites={props.invites} />
+            <TeamSidePane id={props.id} name={props.name} invites={props.invites} apiTokens={props.apiTokens} />
             <main className={teamStyles.mainContent}>
                 {/* TODO: This probably needs to not be directly in the h1 tag for accessibility reasons */}
                 <div className={teamStyles.headerContainer}>
