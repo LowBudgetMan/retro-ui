@@ -1,4 +1,5 @@
 import {beforeEach, describe, expect, it, vi} from 'vitest';
+import {DateTime} from 'luxon';
 import {fetchClient, FetchResponse} from '../../config/FetchClient';
 import {ApiTokenService} from './ApiTokenService';
 
@@ -42,7 +43,7 @@ describe('ApiTokenService', () => {
 
             expect(fetchClient.get).toHaveBeenCalledWith(`http://localhost:8080/api/teams/${teamId}/api-tokens`);
             expect(result[0].id).toBe('tok-1');
-            expect(result[0].createdAt).toBeInstanceOf(Date);
+            expect(result[0].createdAt).toBeInstanceOf(DateTime);
             expect(result[0].expiresAt).toBeNull();
             expect(result[0].lastUsedAt).toBeNull();
         });
@@ -60,8 +61,8 @@ describe('ApiTokenService', () => {
 
             const result = await ApiTokenService.getTokens(teamId);
 
-            expect(result[0].expiresAt).toBeInstanceOf(Date);
-            expect(result[0].lastUsedAt).toBeInstanceOf(Date);
+            expect(result[0].expiresAt).toBeInstanceOf(DateTime);
+            expect(result[0].lastUsedAt).toBeInstanceOf(DateTime);
         });
     });
 

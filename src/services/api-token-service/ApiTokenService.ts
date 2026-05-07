@@ -1,3 +1,4 @@
+import {DateTime} from "luxon";
 import {fetchClient} from "../../config/FetchClient";
 import {ApiConfig} from "../../config/ApiConfig";
 
@@ -6,9 +7,9 @@ export interface ApiToken {
     name: string;
     tokenPrefix: string;
     scopes: string[];
-    createdAt: Date;
-    expiresAt: Date | null;
-    lastUsedAt: Date | null;
+    createdAt: DateTime;
+    expiresAt: DateTime | null;
+    lastUsedAt: DateTime | null;
 }
 
 export interface CreateTokenRequest {
@@ -43,9 +44,9 @@ async function deleteToken(teamId: string, tokenId: string): Promise<void> {
 function transform(token: ApiToken): ApiToken {
     return {
         ...token,
-        createdAt: new Date(token.createdAt),
-        expiresAt: token.expiresAt ? new Date(token.expiresAt) : null,
-        lastUsedAt: token.lastUsedAt ? new Date(token.lastUsedAt) : null,
+        createdAt: DateTime.fromISO(token.createdAt as unknown as string),
+        expiresAt: token.expiresAt ? DateTime.fromISO(token.expiresAt as unknown as string) : null,
+        lastUsedAt: token.lastUsedAt ? DateTime.fromISO(token.lastUsedAt as unknown as string) : null,
     };
 }
 
