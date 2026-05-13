@@ -8,7 +8,7 @@ export function TeamPage() {
 
     return (
         <ActionItemsContextProvider teamId={team.id} actionItems={team.actionItems}>
-            <TeamComponent id={team.id} name={team.name} invites={team.invites} retros={team.retros} templates={team.templates} apiTokens={team.apiTokens} />
+            <TeamComponent id={team.id} name={team.name} invites={team.invites} retros={team.retros} templates={team.templates} apiTokens={team.apiTokens} webhooks={team.webhooks} />
         </ActionItemsContextProvider>
     )
 }

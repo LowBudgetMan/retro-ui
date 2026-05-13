@@ -6,6 +6,7 @@ import {CreateRetroButton} from "./components/CreateRetroButton.tsx";
 import {notFoundTemplate, RetroListItem, Template} from "../../services/retro-service/RetroService.ts";
 import {Invite} from "../../services/team-service/TeamService.ts";
 import {ApiToken} from "../../services/api-token-service/ApiTokenService.ts";
+import {Webhook} from "../../services/webhook-service/WebhookService.ts";
 import {TeamSidePane} from "./components/team-side-panel/TeamSidePane.tsx";
 
 interface Props {
@@ -15,12 +16,13 @@ interface Props {
     retros: RetroListItem[];
     templates: Template[];
     apiTokens: ApiToken[];
+    webhooks: Webhook[];
 }
 
 export function TeamComponent(props: Props) {
     return (
         <div className={teamStyles.teamPage}>
-            <TeamSidePane id={props.id} name={props.name} invites={props.invites} apiTokens={props.apiTokens} />
+            <TeamSidePane id={props.id} name={props.name} invites={props.invites} apiTokens={props.apiTokens} webhooks={props.webhooks} />
             <main className={teamStyles.mainContent}>
                 {/* TODO: This probably needs to not be directly in the h1 tag for accessibility reasons */}
                 <div className={teamStyles.headerContainer}>

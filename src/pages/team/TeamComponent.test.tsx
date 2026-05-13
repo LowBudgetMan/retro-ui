@@ -105,10 +105,11 @@ describe('TeamComponent', () => {
         templates: mockTemplates,
         invites: [],
         actionItems: [],
-        apiTokens: []
+        apiTokens: [],
+        webhooks: []
     };
 
-    const teamComponent = <TeamComponent id={'team-123'} name={'Test Team'} retros={mockRetros} templates={mockTemplates} invites={[]} apiTokens={[]}/>;
+    const teamComponent = <TeamComponent id={'team-123'} name={'Test Team'} retros={mockRetros} templates={mockTemplates} invites={[]} apiTokens={[]} webhooks={[]}/>;
 
     describe('Rendering', () => {
         it('should render the home link', () => {
@@ -175,7 +176,7 @@ describe('TeamComponent', () => {
             render(<TeamComponent id={mockTeamData.id} name={mockTeamData.name} invites={mockTeamData.invites}
                                   retros={[...mockRetros, retroWithMissingTemplate]}
                                   templates={mockTeamData.templates}
-                                  apiTokens={[]}/>);
+                                  apiTokens={[]} webhooks={[]}/>);
 
             const templateNames = screen.getAllByTestId('retro-template-name');
             expect(templateNames[2]).toHaveTextContent('Retro Type Not Found');

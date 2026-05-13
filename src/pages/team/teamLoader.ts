@@ -4,6 +4,7 @@ import {RetroTemplateService} from "../../services/retro-template-service/RetroT
 import {LoaderFunctionArgs} from "react-router-dom";
 import {ActionItem, ActionItemsService} from "../../services/action-items-service/ActionItemsService.ts";
 import {ApiToken, ApiTokenService} from "../../services/api-token-service/ApiTokenService.ts";
+import {Webhook, WebhookService} from "../../services/webhook-service/WebhookService.ts";
 
 export interface TeamPageData extends TeamListItem {
     invites: Invite[],
@@ -11,6 +12,7 @@ export interface TeamPageData extends TeamListItem {
     templates: Template[],
     actionItems: ActionItem[],
     apiTokens: ApiToken[],
+    webhooks: Webhook[],
 }
 
 export async function loader({params}: LoaderFunctionArgs<{teamId: string}>): Promise<TeamPageData> {
@@ -21,5 +23,6 @@ export async function loader({params}: LoaderFunctionArgs<{teamId: string}>): Pr
         invites: await TeamService.getInvitesForTeam(params.teamId!),
         actionItems: await ActionItemsService.getActionItems(params.teamId!),
         apiTokens: await ApiTokenService.getTokens(params.teamId!),
+        webhooks: await WebhookService.getWebhooks(params.teamId!),
     }
 }

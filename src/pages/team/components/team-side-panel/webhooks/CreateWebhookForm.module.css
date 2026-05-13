@@ -1,0 +1,43 @@
+.form {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    min-width: 22rem;
+}
+
+.explanationText {
+    margin: 0;
+}
+
+.eventTypeRow {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.error {
+    color: var(--error-color, #c00);
+    margin: 0;
+}
+
+.secretBlock {
+    background: var(--code-background, #f5f5f5);
+    padding: 0.75rem;
+    border-radius: 4px;
+    word-break: break-all;
+    font-family: monospace;
+    font-size: 0.85rem;
+}
+
+.warning {
+    color: var(--error-color, #c00);
+    font-weight: 600;
+    margin: 0;
+}
+
+.buttonsContainer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+}
