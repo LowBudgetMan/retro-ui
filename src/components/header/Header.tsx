@@ -5,7 +5,7 @@ import {useTheme} from "../../context/hooks.tsx";
 import BonfireLogo from '../../../public/bonfire.svg';
 
 export function Header() {
-    const { theme, setTheme } = useTheme();
+    const { setTheme, getEffectiveTheme } = useTheme();
     const [authAction, setAuthAction] = useState<ReactElement>(loginButton);
     useEffect(() => {
         getUserManager().events.addUserLoaded(() => {
@@ -35,16 +35,10 @@ export function Header() {
     }, [setAuthAction])
 
     const toggleTheme = () => {
-        if (theme === Theme.DARK) {
-            setTheme(Theme.LIGHT);
-        } else if (theme === Theme.LIGHT) {
-            setTheme(Theme.SYSTEM);
-        } else {
-            setTheme(Theme.DARK);
-        }
+        setTheme(getEffectiveTheme() === Theme.DARK ? Theme.LIGHT : Theme.DARK);
     };
 
-    const themeIcon = theme === Theme.DARK ? '🌙' : theme === Theme.LIGHT ? '☀️' : '⚙️';
+    const themeIcon = getEffectiveTheme() === Theme.DARK ? '🌙' : '☀️';
 
     return (
         <header className="header">
@@ -54,7 +48,7 @@ export function Header() {
                     <button 
                         onClick={toggleTheme}
                         className="theme-toggle"
-                        title={`Current theme: ${theme}`}
+                        title={`Current theme: ${getEffectiveTheme()}`}
                     >
                         {themeIcon}
                     </button>

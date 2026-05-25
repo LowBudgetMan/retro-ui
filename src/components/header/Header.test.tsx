@@ -52,7 +52,7 @@ describe('Header', () => {
                 render(<Header/>);
             });
             expect(screen.getByText('Bonfire')).toBeInTheDocument();
-            expect(screen.getByTitle('Current theme: dark')).toBeInTheDocument();
+            expect(screen.getByRole('button', { name: '🌙' })).toBeInTheDocument();
         });
 
         it('should render login button by default', async () => {
@@ -81,7 +81,7 @@ describe('Header', () => {
             expect(mockedUserManager.getUser).toHaveBeenCalled();
         });
 
-        it('should display different theme icons based on current theme', async () => {
+        it('should display moon icon for dark theme and sun icon for light theme', async () => {
             mockedUseTheme.mockReturnValue({
                 theme: Theme.LIGHT,
                 setTheme: vi.fn(),
@@ -94,19 +94,49 @@ describe('Header', () => {
                 rerender = result.rerender;
             });
 
-            expect(screen.getByText('☀️')).toBeInTheDocument(); // Light theme icon
+            expect(screen.getByText('☀️')).toBeInTheDocument();
 
             mockedUseTheme.mockReturnValue({
-                theme: Theme.SYSTEM,
+                theme: Theme.DARK,
                 setTheme: vi.fn(),
-                getEffectiveTheme: vi.fn(() => Theme.SYSTEM),
+                getEffectiveTheme: vi.fn(() => Theme.DARK),
             });
 
             await act(async () => {
                 rerender(<Header/>);
             });
 
-            expect(screen.getByText('⚙️')).toBeInTheDocument(); // System theme icon
+            expect(screen.getByText('🌙')).toBeInTheDocument();
+        });
+
+        it('should display moon icon when in system mode and effective theme is dark', async () => {
+            mockedUseTheme.mockReturnValue({
+                theme: Theme.SYSTEM,
+                setTheme: vi.fn(),
+                getEffectiveTheme: vi.fn(() => Theme.DARK),
+            });
+
+            await act(async () => {
+                render(<Header/>);
+            });
+
+            expect(screen.getByText('🌙')).toBeInTheDocument();
+            expect(screen.queryByText('☀️️')).not.toBeInTheDocument();
+        });
+
+        it('should display sun icon when in system mode and effective theme is light', async () => {
+            mockedUseTheme.mockReturnValue({
+                theme: Theme.SYSTEM,
+                setTheme: vi.fn(),
+                getEffectiveTheme: vi.fn(() => Theme.LIGHT),
+            });
+
+            await act(async () => {
+                render(<Header/>);
+            });
+
+            expect(screen.getByText('☀️')).toBeInTheDocument();
+            expect(screen.queryByText('🌙')).not.toBeInTheDocument();
         });
     });
 
@@ -174,7 +204,7 @@ describe('Header', () => {
     });
 
     describe('Interactions', () => {
-        it('should toggle theme when theme button is clicked', async () => {
+        it('should toggle from dark to light', async () => {
             const setTheme = vi.fn();
 
             mockedUseTheme.mockReturnValue({
@@ -187,9 +217,13 @@ describe('Header', () => {
                 render(<Header/>);
             });
 
-            fireEvent.click(screen.getByTitle('Current theme: dark'));
+            fireEvent.click(screen.getByRole('button', { name: '🌙' }));
 
             expect(setTheme).toHaveBeenCalledWith(Theme.LIGHT);
+        });
+
+        it('should toggle from light to dark (not to system)', async () => {
+            const setTheme = vi.fn();
 
             mockedUseTheme.mockReturnValue({
                 theme: Theme.LIGHT,
@@ -201,9 +235,14 @@ describe('Header', () => {
                 render(<Header/>);
             });
 
-            fireEvent.click(screen.getByTitle('Current theme: light'));
+            fireEvent.click(screen.getByRole('button', { name: '☀️' }));
 
-            expect(setTheme).toHaveBeenCalledWith(Theme.SYSTEM);
+            expect(setTheme).toHaveBeenCalledWith(Theme.DARK);
+            expect(setTheme).not.toHaveBeenCalledWith(Theme.SYSTEM);
+        });
+
+        it('should toggle from system mode (effective dark) to light', async () => {
+            const setTheme = vi.fn();
 
             mockedUseTheme.mockReturnValue({
                 theme: Theme.SYSTEM,
@@ -215,9 +254,29 @@ describe('Header', () => {
                 render(<Header/>);
             });
 
-            fireEvent.click(screen.getByTitle('Current theme: system'));
+            fireEvent.click(screen.getByRole('button', { name: '🌙' }));
+
+            expect(setTheme).toHaveBeenCalledWith(Theme.LIGHT);
+            expect(setTheme).not.toHaveBeenCalledWith(Theme.SYSTEM);
+        });
+
+        it('should toggle from system mode (effective light) to dark', async () => {
+            const setTheme = vi.fn();
+
+            mockedUseTheme.mockReturnValue({
+                theme: Theme.SYSTEM,
+                setTheme,
+                getEffectiveTheme: vi.fn(() => Theme.LIGHT),
+            });
+
+            await act(async () => {
+                render(<Header/>);
+            });
+
+            fireEvent.click(screen.getByRole('button', { name: '☀️' }));
 
             expect(setTheme).toHaveBeenCalledWith(Theme.DARK);
+            expect(setTheme).not.toHaveBeenCalledWith(Theme.SYSTEM);
         });
 
         it('should call signinRedirect when login button is clicked', async () => {
