@@ -1,13 +1,9 @@
 import {render, screen, fireEvent, waitFor, act} from '@testing-library/react';
 import {Header} from './Header.tsx';
 import {getUserManager} from '../../pages/user/UserContext.ts';
-import {Theme} from '../../context/theme/ThemeContextTypes.ts';
 import '@testing-library/jest-dom';
-import {useTheme} from "../../context/hooks.tsx";
 import type {User, UserManager} from 'oidc-client-ts';
 import {Mock} from "vitest";
-
-const mockedUseTheme = vi.mocked(useTheme);
 
 const mockedUserManager = {
     events: {
@@ -25,39 +21,31 @@ vi.mock('../../pages/user/UserContext.ts', () => ({
     getUserManager: vi.fn(),
 }));
 
+vi.mock('../theme-toggle/ThemeToggle.tsx', () => ({
+    ThemeToggle: () => <div data-testid="theme-toggle" />,
+}));
+
 vi.mocked(getUserManager).mockReturnValue(mockedUserManager);
 
 const mockedAddUserLoaded = vi.mocked(mockedUserManager.events.addUserLoaded);
 const mockedAddUserUnloaded = vi.mocked(mockedUserManager.events.addUserUnloaded);
 
-vi.mock('../../context/hooks.tsx', () => ({
-    Theme: {DARK: 'dark', LIGHT: 'light', SYSTEM: 'system'},
-    useTheme: vi.fn()
-}));
-
 describe('Header', () => {
     beforeEach(() => {
         vi.clearAllMocks();
-        (mockedUserManager.getUser as Mock).mockResolvedValue(null); // Default to no user
-        mockedUseTheme.mockReturnValue({
-            theme: Theme.DARK,
-            setTheme: vi.fn(),
-            getEffectiveTheme: vi.fn(() => Theme.DARK),
-        });
+        (mockedUserManager.getUser as Mock).mockResolvedValue(null);
     });
 
     describe('Rendering', () => {
-        it('should render the header with title and theme toggle button', async () => {
+        it('should render the title and ThemeToggle', async () => {
             await act(async () => {
                 render(<Header/>);
             });
             expect(screen.getByText('Bonfire')).toBeInTheDocument();
-            expect(screen.getByRole('button', { name: '🌙' })).toBeInTheDocument();
+            expect(screen.getByTestId('theme-toggle')).toBeInTheDocument();
         });
 
         it('should render login button by default', async () => {
-            (mockedUserManager.getUser as Mock).mockResolvedValue(null);
-
             await act(async () => {
                 render(<Header/>);
             });
@@ -79,64 +67,6 @@ describe('Header', () => {
                 expect(screen.getByText('Logout')).toBeInTheDocument();
             });
             expect(mockedUserManager.getUser).toHaveBeenCalled();
-        });
-
-        it('should display moon icon for dark theme and sun icon for light theme', async () => {
-            mockedUseTheme.mockReturnValue({
-                theme: Theme.LIGHT,
-                setTheme: vi.fn(),
-                getEffectiveTheme: vi.fn(() => Theme.LIGHT),
-            });
-
-            let rerender: (component: React.ReactElement) => void;
-            await act(async () => {
-                const result = render(<Header/>);
-                rerender = result.rerender;
-            });
-
-            expect(screen.getByText('☀️')).toBeInTheDocument();
-
-            mockedUseTheme.mockReturnValue({
-                theme: Theme.DARK,
-                setTheme: vi.fn(),
-                getEffectiveTheme: vi.fn(() => Theme.DARK),
-            });
-
-            await act(async () => {
-                rerender(<Header/>);
-            });
-
-            expect(screen.getByText('🌙')).toBeInTheDocument();
-        });
-
-        it('should display moon icon when in system mode and effective theme is dark', async () => {
-            mockedUseTheme.mockReturnValue({
-                theme: Theme.SYSTEM,
-                setTheme: vi.fn(),
-                getEffectiveTheme: vi.fn(() => Theme.DARK),
-            });
-
-            await act(async () => {
-                render(<Header/>);
-            });
-
-            expect(screen.getByText('🌙')).toBeInTheDocument();
-            expect(screen.queryByText('☀️️')).not.toBeInTheDocument();
-        });
-
-        it('should display sun icon when in system mode and effective theme is light', async () => {
-            mockedUseTheme.mockReturnValue({
-                theme: Theme.SYSTEM,
-                setTheme: vi.fn(),
-                getEffectiveTheme: vi.fn(() => Theme.LIGHT),
-            });
-
-            await act(async () => {
-                render(<Header/>);
-            });
-
-            expect(screen.getByText('☀️')).toBeInTheDocument();
-            expect(screen.queryByText('🌙')).not.toBeInTheDocument();
         });
     });
 
@@ -204,84 +134,7 @@ describe('Header', () => {
     });
 
     describe('Interactions', () => {
-        it('should toggle from dark to light', async () => {
-            const setTheme = vi.fn();
-
-            mockedUseTheme.mockReturnValue({
-                theme: Theme.DARK,
-                setTheme,
-                getEffectiveTheme: vi.fn(() => Theme.DARK),
-            });
-
-            await act(async () => {
-                render(<Header/>);
-            });
-
-            fireEvent.click(screen.getByRole('button', { name: '🌙' }));
-
-            expect(setTheme).toHaveBeenCalledWith(Theme.LIGHT);
-        });
-
-        it('should toggle from light to dark (not to system)', async () => {
-            const setTheme = vi.fn();
-
-            mockedUseTheme.mockReturnValue({
-                theme: Theme.LIGHT,
-                setTheme,
-                getEffectiveTheme: vi.fn(() => Theme.LIGHT),
-            });
-
-            await act(async () => {
-                render(<Header/>);
-            });
-
-            fireEvent.click(screen.getByRole('button', { name: '☀️' }));
-
-            expect(setTheme).toHaveBeenCalledWith(Theme.DARK);
-            expect(setTheme).not.toHaveBeenCalledWith(Theme.SYSTEM);
-        });
-
-        it('should toggle from system mode (effective dark) to light', async () => {
-            const setTheme = vi.fn();
-
-            mockedUseTheme.mockReturnValue({
-                theme: Theme.SYSTEM,
-                setTheme,
-                getEffectiveTheme: vi.fn(() => Theme.DARK),
-            });
-
-            await act(async () => {
-                render(<Header/>);
-            });
-
-            fireEvent.click(screen.getByRole('button', { name: '🌙' }));
-
-            expect(setTheme).toHaveBeenCalledWith(Theme.LIGHT);
-            expect(setTheme).not.toHaveBeenCalledWith(Theme.SYSTEM);
-        });
-
-        it('should toggle from system mode (effective light) to dark', async () => {
-            const setTheme = vi.fn();
-
-            mockedUseTheme.mockReturnValue({
-                theme: Theme.SYSTEM,
-                setTheme,
-                getEffectiveTheme: vi.fn(() => Theme.LIGHT),
-            });
-
-            await act(async () => {
-                render(<Header/>);
-            });
-
-            fireEvent.click(screen.getByRole('button', { name: '☀️' }));
-
-            expect(setTheme).toHaveBeenCalledWith(Theme.DARK);
-            expect(setTheme).not.toHaveBeenCalledWith(Theme.SYSTEM);
-        });
-
         it('should call signinRedirect when login button is clicked', async () => {
-            (mockedUserManager.getUser as Mock).mockResolvedValue(null);
-
             await act(async () => {
                 render(<Header/>);
             });

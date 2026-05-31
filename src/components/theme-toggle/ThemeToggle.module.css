@@ -1,0 +1,64 @@
+.themeToggle {
+    background: none;
+    border: 1px solid var(--border-color);
+    border-radius: 50%;
+    width: 2.5rem;
+    height: 2.5rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    transition: all 0.3s ease;
+    padding: 0;
+}
+
+.themeToggle:hover {
+    background-color: var(--background-secondary);
+    transform: scale(1.1);
+}
+
+.themeMenu {
+    position: relative;
+}
+
+.themeDropdown {
+    position: absolute;
+    top: calc(100% + 0.5rem);
+    right: 0;
+    background-color: var(--header-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    box-shadow: 0 4px 12px var(--shadow-color);
+    min-width: 130px;
+    padding-bottom: 5px;
+}
+
+.themeOption {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    width: 100%;
+    padding: 0.5rem 0.75rem;
+    background: none;
+    border: none;
+    color: var(--text-primary);
+    font-family: inherit;
+    font-size: 0.9rem;
+    cursor: pointer;
+}
+
+.themeOption:hover {
+    background-color: var(--background-secondary);
+    transform: none;
+}
+
+.themeOption--active {
+    font-weight: 600;
+    background-color: var(--background-secondary);
+}
+
+.themeOption-check {
+    margin-left: auto;
+    color: var(--accent-color);
+}

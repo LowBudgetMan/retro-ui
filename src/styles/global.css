@@ -126,27 +126,6 @@ body {
     align-items: center;
 }
 
-/* Theme toggle button */
-.theme-toggle {
-    background: none;
-    border: 1px solid var(--border-color);
-    border-radius: 50%;
-    width: 2.5rem;
-    height: 2.5rem;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.2rem;
-    transition: all 0.3s ease;
-    padding: 0;
-}
-
-.theme-toggle:hover {
-    background-color: var(--background-secondary);
-    transform: scale(1.1);
-}
-
 button {
     cursor: pointer;
     transition: all 0.2s ease;
