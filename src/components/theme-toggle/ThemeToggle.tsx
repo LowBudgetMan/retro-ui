@@ -1,7 +1,7 @@
 import {useEffect, useRef, useState} from "react";
 import {useTheme} from "../../context/hooks.tsx";
 import {Theme} from "../../context/theme/ThemeContextTypes.ts";
-import {THEME_OPTIONS} from "../../contants/Theme.ts";
+import {THEME_OPTIONS} from "../../constants/Theme.ts";
 import styles from "./ThemeToggle.module.css"
 
 export function ThemeToggle() {
