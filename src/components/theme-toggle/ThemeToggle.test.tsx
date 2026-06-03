@@ -60,7 +60,7 @@ describe("ThemeToggle component", () => {
             render(<ThemeToggle/>);
         });
         expect(screen.getByText('💻')).toBeInTheDocument();
-        expect(screen.getByText('🌙')).toBeInTheDocument();
+        expect(screen.queryByText('🌙')).not.toBeInTheDocument();
         expect(screen.queryByText('☀️️')).not.toBeInTheDocument();
     });
 
