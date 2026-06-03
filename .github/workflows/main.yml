@@ -146,6 +146,7 @@ jobs:
       - name: Start E2E stack
         run: |
           RETRO_UI_IMAGE=${{ needs.build-image.outputs.image-tag }} \
+          RETRO_API_IMAGE=ghcr.io/lowbudgetman/retro-api:latest \
           docker compose up -d --wait --wait-timeout 120
 
       - name: Run E2E tests
