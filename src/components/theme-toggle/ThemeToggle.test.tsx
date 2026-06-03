@@ -59,6 +59,21 @@ describe("ThemeToggle component", () => {
         await act(async () => {
             render(<ThemeToggle/>);
         });
+        expect(screen.getByText('💻')).toBeInTheDocument();
+        expect(screen.getByText('🌙')).toBeInTheDocument();
+        expect(screen.queryByText('☀️️')).not.toBeInTheDocument();
+    });
+
+    it('should display light icon when in system mode and effective theme is light', async () => {
+        mockedUseTheme.mockReturnValue({
+            theme: Theme.SYSTEM,
+            setTheme: vi.fn(),
+            getEffectiveTheme: vi.fn(() => Theme.LIGHT),
+        });
+
+        await act(async () => {
+            render(<ThemeToggle/>);
+        });
 
         expect(screen.getByText('💻')).toBeInTheDocument();
         expect(screen.queryByText('🌙')).not.toBeInTheDocument();
