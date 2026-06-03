@@ -1,14 +1,14 @@
 import {useEffect, useRef, useState} from "react";
 import {useTheme} from "../../context/hooks.tsx";
-import {Theme} from "../../context/theme/ThemeContextTypes.ts";
 import {THEME_OPTIONS} from "../../constants/Theme.ts";
 import styles from "./ThemeToggle.module.css"
 
 export function ThemeToggle() {
-    const { theme, setTheme, getEffectiveTheme } = useTheme();
+    const { theme, setTheme } = useTheme();
     const [themeMenuOpen, setThemeMenuOpen] = useState(false);
     const themeMenuRef = useRef<HTMLDivElement>(null);
-    const themeIcon = getEffectiveTheme() === Theme.DARK ? '🌙' : '☀️';
+    const themeIcon = THEME_OPTIONS.find(o => o.value === theme)?.icon;
+
 
     useEffect(() => {
         if (!themeMenuOpen) return;

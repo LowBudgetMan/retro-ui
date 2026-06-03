@@ -49,7 +49,7 @@ describe("ThemeToggle component", () => {
     });
 
 
-    it('should display dark icon when in system mode and effective theme is dark', async () => {
+    it('should display system icon when theme is system', async () => {
         mockedUseTheme.mockReturnValue({
             theme: Theme.SYSTEM,
             setTheme: vi.fn(),
@@ -60,23 +60,9 @@ describe("ThemeToggle component", () => {
             render(<ThemeToggle/>);
         });
 
-        expect(screen.getByText('🌙')).toBeInTheDocument();
-        expect(screen.queryByText('☀️️')).not.toBeInTheDocument();
-    });
-
-    it('should display light icon when in system mode and effective theme is light', async () => {
-        mockedUseTheme.mockReturnValue({
-            theme: Theme.SYSTEM,
-            setTheme: vi.fn(),
-            getEffectiveTheme: vi.fn(() => Theme.LIGHT),
-        });
-
-        await act(async () => {
-            render(<ThemeToggle/>);
-        });
-
-        expect(screen.getByText('☀️')).toBeInTheDocument();
+        expect(screen.getByText('💻')).toBeInTheDocument();
         expect(screen.queryByText('🌙')).not.toBeInTheDocument();
+        expect(screen.queryByText('☀️')).not.toBeInTheDocument();
     });
 
     it('should show all options when the dropdown is opened', async () => {
@@ -105,5 +91,60 @@ describe("ThemeToggle component", () => {
         expect(darkOption).toHaveClass('themeOption--active');
         expect(lightOption).not.toHaveClass('themeOption--active');
         expect(systemOption).not.toHaveClass('themeOption--active');
+    });
+
+    it('should not show the dropdown on initial render', async () => {
+        await act(async () => {
+            render(<ThemeToggle/>);
+        });
+
+        expect(screen.queryByText('Light')).not.toBeInTheDocument();
+        expect(screen.queryByText('Dark')).not.toBeInTheDocument();
+        expect(screen.queryByText('System')).not.toBeInTheDocument();
+    });
+
+    it('should call setTheme with the selected value and close the dropdown', async () => {
+        const setTheme = vi.fn();
+        mockedUseTheme.mockReturnValue({
+            theme: Theme.DARK,
+            setTheme,
+            getEffectiveTheme: vi.fn(() => Theme.DARK),
+        });
+
+        await act(async () => {
+            render(<ThemeToggle/>);
+        });
+
+        fireEvent.click(screen.getByRole('button', { name: '🌙' }));
+        fireEvent.click(screen.getByText('Light').closest('button')!);
+
+        expect(setTheme).toHaveBeenCalledWith(Theme.LIGHT);
+        expect(screen.queryByText('Light')).not.toBeInTheDocument();
+    });
+
+    it('should close the dropdown when clicking outside', async () => {
+        await act(async () => {
+            render(<ThemeToggle/>);
+        });
+
+        fireEvent.click(screen.getByRole('button', { name: '🌙' }));
+        expect(screen.getByText('Light')).toBeInTheDocument();
+
+        fireEvent.mouseDown(document.body);
+        expect(screen.queryByText('Light')).not.toBeInTheDocument();
+    });
+
+    it('should show a checkmark only on the active theme option', async () => {
+        await act(async () => {
+            render(<ThemeToggle/>);
+        });
+
+        fireEvent.click(screen.getByRole('button', { name: '🌙' }));
+
+        const darkOption = screen.getByText('Dark').closest('button')!;
+        const lightOption = screen.getByText('Light').closest('button')!;
+
+        expect(darkOption).toHaveTextContent('✓');
+        expect(lightOption).not.toHaveTextContent('✓');
     });
 });
