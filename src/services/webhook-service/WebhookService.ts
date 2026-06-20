@@ -7,11 +7,6 @@ export interface Webhook {
     name: string;
     url: string;
     eventTypes: string[];
-    enabled: boolean;
-    consecutiveFailures: number;
-    lastDeliveryAt: DateTime | null;
-    lastFailureAt: DateTime | null;
-    lastFailureReason: string | null;
     createdAt: DateTime;
 }
 
@@ -26,7 +21,6 @@ export interface CreateWebhookResponse {
     name: string;
     url: string;
     eventTypes: string[];
-    enabled: boolean;
     secret: string;
 }
 
@@ -34,7 +28,6 @@ export interface UpdateWebhookRequest {
     name?: string;
     url?: string;
     eventTypes?: string[];
-    enabled?: boolean;
 }
 
 async function getWebhooks(teamId: string): Promise<Webhook[]> {
@@ -55,16 +48,10 @@ async function deleteWebhook(teamId: string, webhookId: string): Promise<void> {
     await fetchClient.delete(`${ApiConfig.baseApiUrl()}/api/teams/${teamId}/webhooks/${webhookId}`);
 }
 
-async function testWebhook(teamId: string, webhookId: string): Promise<void> {
-    await fetchClient.post(`${ApiConfig.baseApiUrl()}/api/teams/${teamId}/webhooks/${webhookId}/test`, {});
-}
-
 function transform(webhook: Webhook): Webhook {
     return {
         ...webhook,
         createdAt: DateTime.fromISO(webhook.createdAt as unknown as string),
-        lastDeliveryAt: webhook.lastDeliveryAt ? DateTime.fromISO(webhook.lastDeliveryAt as unknown as string) : null,
-        lastFailureAt: webhook.lastFailureAt ? DateTime.fromISO(webhook.lastFailureAt as unknown as string) : null,
     };
 }
 
@@ -73,5 +60,4 @@ export const WebhookService = {
     createWebhook,
     updateWebhook,
     deleteWebhook,
-    testWebhook,
 };

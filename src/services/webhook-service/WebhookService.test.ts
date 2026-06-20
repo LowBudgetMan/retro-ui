@@ -28,17 +28,12 @@ describe('WebhookService', () => {
     beforeEach(() => vi.clearAllMocks());
 
     describe('getWebhooks', () => {
-        it('returns transformed list with parsed dates', async () => {
+        it('returns transformed list with parsed createdAt date', async () => {
             mockSuccess('get', [{
                 id: 'wh-1',
                 name: 'Slack',
                 url: 'https://hooks.slack.com',
                 eventTypes: ['action_item.created'],
-                enabled: true,
-                consecutiveFailures: 0,
-                lastDeliveryAt: '2026-04-27T10:00:00Z',
-                lastFailureAt: null,
-                lastFailureReason: null,
                 createdAt: '2026-04-27T09:00:00Z',
             }]);
 
@@ -48,28 +43,6 @@ describe('WebhookService', () => {
             expect(result).toHaveLength(1);
             expect(result[0].name).toBe('Slack');
             expect(result[0].createdAt).toBeInstanceOf(DateTime);
-            expect(result[0].lastDeliveryAt).toBeInstanceOf(DateTime);
-            expect(result[0].lastFailureAt).toBeNull();
-        });
-
-        it('handles null dates', async () => {
-            mockSuccess('get', [{
-                id: 'wh-1',
-                name: 'Hook',
-                url: 'https://example.com',
-                eventTypes: ['retro.finished'],
-                enabled: true,
-                consecutiveFailures: 0,
-                lastDeliveryAt: null,
-                lastFailureAt: null,
-                lastFailureReason: null,
-                createdAt: '2026-04-27T09:00:00Z',
-            }]);
-
-            const result = await WebhookService.getWebhooks(teamId);
-
-            expect(result[0].lastDeliveryAt).toBeNull();
-            expect(result[0].lastFailureAt).toBeNull();
         });
     });
 
@@ -77,7 +50,7 @@ describe('WebhookService', () => {
         it('posts and returns the response with the secret', async () => {
             mockSuccess('post', {
                 id: 'wh-1', name: 'Slack', url: 'https://hooks.slack.com',
-                eventTypes: ['action_item.created'], enabled: true, secret: 'abc123',
+                eventTypes: ['action_item.created'], secret: 'abc123',
             }, 201);
 
             const result = await WebhookService.createWebhook(teamId, {name: 'Slack', url: 'https://hooks.slack.com', eventTypes: ['action_item.created']});

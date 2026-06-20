@@ -23,23 +23,13 @@ const sampleWebhooks: Webhook[] = [
         name: "Slack Hook",
         url: "https://hooks.slack.com/test",
         eventTypes: ["action_item.created"],
-        enabled: true,
-        consecutiveFailures: 0,
-        lastDeliveryAt: DateTime.fromISO("2026-04-27T10:00:00Z"),
-        lastFailureAt: null,
-        lastFailureReason: null,
         createdAt: DateTime.fromISO("2026-04-27T09:00:00Z"),
     },
     {
         id: "wh-2",
-        name: "Disabled Hook",
+        name: "Second Hook",
         url: "https://example.com/hook",
         eventTypes: ["retro.finished"],
-        enabled: false,
-        consecutiveFailures: 5,
-        lastDeliveryAt: DateTime.fromISO("2026-04-26T10:00:00Z"),
-        lastFailureAt: DateTime.fromISO("2026-04-26T10:00:00Z"),
-        lastFailureReason: "HTTP 500",
         createdAt: DateTime.fromISO("2026-04-25T09:00:00Z"),
     },
 ];
@@ -59,19 +49,11 @@ describe("WebhooksPanel", () => {
         expect(screen.getByRole("button", {name: /create webhook/i})).toBeInTheDocument();
     });
 
-    it("renders each webhook's name, url, and status", () => {
+    it("renders each webhook's name and url", () => {
         render(<WebhooksPanel teamId="team-1" webhooks={sampleWebhooks} />);
 
         expect(screen.getByText("Slack Hook")).toBeInTheDocument();
-        expect(screen.getByText("Disabled Hook")).toBeInTheDocument();
-        expect(screen.getByText(/— Active/)).toBeInTheDocument();
-        expect(screen.getByText(/— Disabled/)).toBeInTheDocument();
-    });
-
-    it("shows failure reason for failed webhooks", () => {
-        render(<WebhooksPanel teamId="team-1" webhooks={sampleWebhooks} />);
-
-        expect(screen.getByText(/HTTP 500/)).toBeInTheDocument();
+        expect(screen.getByText("Second Hook")).toBeInTheDocument();
     });
 
     it("deletes a webhook after confirmation and revalidates", async () => {

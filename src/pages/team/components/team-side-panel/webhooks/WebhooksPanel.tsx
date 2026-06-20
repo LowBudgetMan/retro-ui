@@ -32,8 +32,6 @@ export function WebhooksPanel({teamId, webhooks}: Props) {
                             <strong>{webhook.name}</strong>
                             <span> — {webhook.url}</span>
                             <span> ({webhook.eventTypes.join(", ")})</span>
-                            <span> — {webhook.enabled ? "Active" : "Disabled"}</span>
-                            {webhook.lastFailureReason && <span> — Last error: {webhook.lastFailureReason}</span>}
                             <button onClick={() => handleDelete(webhook.id)}>Delete</button>
                         </li>
                     ))}
