@@ -35,8 +35,6 @@ describe('ApiTokenService', () => {
                 tokenPrefix: 'retro_pat_abcd',
                 scopes: ['read'],
                 createdAt: '2026-04-27T00:00:00Z',
-                expiresAt: null,
-                lastUsedAt: null,
             }]);
 
             const result = await ApiTokenService.getTokens(teamId);
@@ -44,32 +42,13 @@ describe('ApiTokenService', () => {
             expect(fetchClient.get).toHaveBeenCalledWith(`http://localhost:8080/api/teams/${teamId}/api-tokens`);
             expect(result[0].id).toBe('tok-1');
             expect(result[0].createdAt).toBeInstanceOf(DateTime);
-            expect(result[0].expiresAt).toBeNull();
-            expect(result[0].lastUsedAt).toBeNull();
-        });
-
-        it('parses expiresAt and lastUsedAt when present', async () => {
-            mockSuccess('get', [{
-                id: 'tok-1',
-                name: 'Slack',
-                tokenPrefix: 'retro_pat_abcd',
-                scopes: ['read'],
-                createdAt: '2026-04-27T00:00:00Z',
-                expiresAt: '2027-04-27T00:00:00Z',
-                lastUsedAt: '2026-04-28T00:00:00Z',
-            }]);
-
-            const result = await ApiTokenService.getTokens(teamId);
-
-            expect(result[0].expiresAt).toBeInstanceOf(DateTime);
-            expect(result[0].lastUsedAt).toBeInstanceOf(DateTime);
         });
     });
 
     describe('createToken', () => {
         it('posts and returns the response with the plaintext token', async () => {
             mockSuccess('post', {
-                id: 'tok-1', name: 'Slack', scopes: ['read'], expiresAt: null,
+                id: 'tok-1', name: 'Slack', scopes: ['read'],
                 tokenPrefix: 'retro_pat_abcd', token: 'retro_pat_fullsecretvalue',
             }, 201);
 

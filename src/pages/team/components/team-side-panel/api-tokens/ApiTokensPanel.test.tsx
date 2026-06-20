@@ -24,8 +24,6 @@ const sampleTokens: ApiToken[] = [
         tokenPrefix: "retro_pat_abcd",
         scopes: ["read"],
         createdAt: DateTime.fromISO("2026-04-27T00:00:00Z"),
-        expiresAt: null,
-        lastUsedAt: null,
     },
 ];
 
@@ -50,7 +48,6 @@ describe("ApiTokensPanel", () => {
         expect(screen.getByText("Slack")).toBeInTheDocument();
         expect(screen.getByText(/retro_pat_abcd/)).toBeInTheDocument();
         expect(screen.getByText(/\(read\)/)).toBeInTheDocument();
-        expect(screen.getByText(/last used:.*never/i)).toBeInTheDocument();
     });
 
     it("revokes a token after confirmation and revalidates", async () => {

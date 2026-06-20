@@ -32,8 +32,7 @@ export function ApiTokensPanel({teamId, tokens}: Props) {
                             <strong>{token.name}</strong>
                             <span> — {token.tokenPrefix}…</span>
                             <span> ({token.scopes.join(", ")})</span>
-                            <span> — last used: {token.lastUsedAt ? token.lastUsedAt.toRelative() : "never"}</span>
-                            <button onClick={() => handleRevoke(token.id)}>Revoke</button>
+<button onClick={() => handleRevoke(token.id)}>Revoke</button>
                         </li>
                     ))}
                 </ol>

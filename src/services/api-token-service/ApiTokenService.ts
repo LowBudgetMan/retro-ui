@@ -8,21 +8,17 @@ export interface ApiToken {
     tokenPrefix: string;
     scopes: string[];
     createdAt: DateTime;
-    expiresAt: DateTime | null;
-    lastUsedAt: DateTime | null;
 }
 
 export interface CreateTokenRequest {
     name: string;
     scopes: string[];
-    expiresAt?: string;
 }
 
 export interface CreateTokenResponse {
     id: string;
     name: string;
     scopes: string[];
-    expiresAt: string | null;
     tokenPrefix: string;
     token: string;
 }
@@ -45,8 +41,6 @@ function transform(token: ApiToken): ApiToken {
     return {
         ...token,
         createdAt: DateTime.fromISO(token.createdAt as unknown as string),
-        expiresAt: token.expiresAt ? DateTime.fromISO(token.expiresAt as unknown as string) : null,
-        lastUsedAt: token.lastUsedAt ? DateTime.fromISO(token.lastUsedAt as unknown as string) : null,
     };
 }
 
