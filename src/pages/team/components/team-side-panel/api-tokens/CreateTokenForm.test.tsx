@@ -15,7 +15,7 @@ describe("CreateTokenForm", () => {
 
     it("submits with name and selected scopes, then shows the secret once", async () => {
         (ApiTokenService.createToken as Mock).mockResolvedValue({
-            id: "tok-1", name: "Slack", scopes: ["read"], expiresAt: null,
+            id: "tok-1", name: "Slack", scopes: ["read"],
             tokenPrefix: "retro_pat_abcd", token: "retro_pat_fullsecretvalue",
         });
         const user = userEvent.setup();
@@ -56,7 +56,7 @@ describe("CreateTokenForm", () => {
 
     it("calls onClose when Done is clicked after creation", async () => {
         (ApiTokenService.createToken as Mock).mockResolvedValue({
-            id: "tok-1", name: "Slack", scopes: ["read"], expiresAt: null,
+            id: "tok-1", name: "Slack", scopes: ["read"],
             tokenPrefix: "retro_pat_abcd", token: "retro_pat_fullsecretvalue",
         });
         const user = userEvent.setup();

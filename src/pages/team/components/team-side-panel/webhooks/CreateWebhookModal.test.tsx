@@ -43,7 +43,7 @@ describe("CreateWebhookModal", () => {
     it("revalidates after a webhook is created", async () => {
         (WebhookService.createWebhook as Mock).mockResolvedValue({
             id: "wh-1", name: "Slack", url: "https://hooks.slack.com",
-            eventTypes: ["action_item.created"], enabled: true, secret: "abcdef1234567890",
+            eventTypes: ["action_item.created"], secret: "abcdef1234567890",
         });
         const user = userEvent.setup();
 

@@ -42,7 +42,7 @@ describe("CreateTokenModal", () => {
 
     it("revalidates after a token is created", async () => {
         (ApiTokenService.createToken as Mock).mockResolvedValue({
-            id: "tok-1", name: "Slack", scopes: ["read"], expiresAt: null,
+            id: "tok-1", name: "Slack", scopes: ["read"],
             tokenPrefix: "retro_pat_abcd", token: "retro_pat_fullsecretvalue",
         });
         const user = userEvent.setup();

@@ -54,6 +54,8 @@ describe("WebhooksPanel", () => {
 
         expect(screen.getByText("Slack Hook")).toBeInTheDocument();
         expect(screen.getByText("Second Hook")).toBeInTheDocument();
+        expect(screen.getByText(/hooks\.slack\.com\/test/)).toBeInTheDocument();
+        expect(screen.getByText(/example\.com\/hook/)).toBeInTheDocument();
     });
 
     it("deletes a webhook after confirmation and revalidates", async () => {

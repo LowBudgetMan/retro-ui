@@ -32,7 +32,7 @@ export function ApiTokensPanel({teamId, tokens}: Props) {
                             <strong>{token.name}</strong>
                             <span> — {token.tokenPrefix}…</span>
                             <span> ({token.scopes.join(", ")})</span>
-<button onClick={() => handleRevoke(token.id)}>Revoke</button>
+                            <button onClick={() => handleRevoke(token.id)}>Revoke</button>
                         </li>
                     ))}
                 </ol>

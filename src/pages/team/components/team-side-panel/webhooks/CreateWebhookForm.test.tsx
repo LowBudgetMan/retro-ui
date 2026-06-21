@@ -16,7 +16,7 @@ describe("CreateWebhookForm", () => {
     it("submits with name, url and selected event types, then shows the secret once", async () => {
         (WebhookService.createWebhook as Mock).mockResolvedValue({
             id: "wh-1", name: "Slack", url: "https://hooks.slack.com/test",
-            eventTypes: ["action_item.created"], enabled: true, secret: "abcdef1234567890",
+            eventTypes: ["action_item.created"], secret: "abcdef1234567890",
         });
         const user = userEvent.setup();
         const onCreated = vi.fn();
@@ -61,7 +61,7 @@ describe("CreateWebhookForm", () => {
     it("calls onClose when Done is clicked after creation", async () => {
         (WebhookService.createWebhook as Mock).mockResolvedValue({
             id: "wh-1", name: "Slack", url: "https://hooks.slack.com",
-            eventTypes: ["action_item.created"], enabled: true, secret: "abcdef1234567890",
+            eventTypes: ["action_item.created"], secret: "abcdef1234567890",
         });
         const user = userEvent.setup();
         const onClose = vi.fn();
