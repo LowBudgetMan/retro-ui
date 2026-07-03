@@ -36,6 +36,7 @@ export const notFoundTemplate: Template = {
 
 export interface Category {
     name: string,
+    description?: string,
     position: number,
     lightBackgroundColor: string,
     lightTextColor: string,
