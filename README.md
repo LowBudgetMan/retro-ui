@@ -82,6 +82,11 @@ docker run -p 8080:80 -e BASE_API_URL=http://your-api:8080 retro-ui
 
 The application will automatically connect to the configured API endpoint for authentication and retro data.
 
+## Contributing
+
+Interested in contributing? See [CONTRIBUTING.md](CONTRIBUTING.md) for local
+setup, testing, code style, and the pull request process.
+
 ## Expanding the ESLint configuration
 
 If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
