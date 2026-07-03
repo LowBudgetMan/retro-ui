@@ -46,3 +46,28 @@
     composes: tooltipBase;
     opacity: 1;
 }
+
+.categoryNameText {
+    cursor: help;
+}
+
+.descriptionTooltipBase {
+    composes: tooltipBase;
+    white-space: normal;
+    max-width: 16rem;
+    text-align: center;
+    left: 50%;
+    right: auto;
+    transform: translateX(-50%);
+}
+
+.descriptionTooltip {
+    composes: descriptionTooltipBase;
+    opacity: 1;
+}
+
+.descriptionTooltipHidden {
+    composes: descriptionTooltipBase;
+    opacity: 0;
+    pointer-events: none;
+}

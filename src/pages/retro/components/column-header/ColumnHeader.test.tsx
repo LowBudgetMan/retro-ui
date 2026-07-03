@@ -73,4 +73,55 @@ describe('ColumnHeader', () => {
             expect(screen.getByRole('tooltip')).toHaveTextContent('Sort by time added');
         });
     })
+
+    describe('description tooltip', () => {
+        const describedCategory = {
+            name: 'Confused',
+            description: 'What confused you? What could help clear it up?',
+        } as unknown as Category;
+
+        beforeEach(() => {
+            vi.useFakeTimers();
+        });
+
+        afterEach(() => {
+            vi.useRealTimers();
+        });
+
+        it('should hide the description tooltip before hovering the name', () => {
+            render(<ColumnHeader category={describedCategory} styling={styling} isSorting={false} toggleSort={vi.fn()} />);
+
+            expect(screen.getByText(describedCategory.description!)).toHaveClass('descriptionTooltipHidden');
+        });
+
+        it('should show the description tooltip after hovering the name for 400ms', () => {
+            render(<ColumnHeader category={describedCategory} styling={styling} isSorting={false} toggleSort={vi.fn()} />);
+            fireEvent.mouseEnter(screen.getByText('Confused'));
+            act(() => { vi.advanceTimersByTime(400); });
+
+            expect(screen.getByText(describedCategory.description!)).toHaveClass('descriptionTooltip');
+        });
+
+        it('should hide the description tooltip when the mouse leaves the name', () => {
+            render(<ColumnHeader category={describedCategory} styling={styling} isSorting={false} toggleSort={vi.fn()} />);
+            fireEvent.mouseEnter(screen.getByText('Confused'));
+            act(() => { vi.advanceTimersByTime(400); });
+            fireEvent.mouseLeave(screen.getByText('Confused'));
+
+            expect(screen.getByText(describedCategory.description!)).toHaveClass('descriptionTooltipHidden');
+        });
+
+        it('should show the description tooltip immediately on focus', () => {
+            render(<ColumnHeader category={describedCategory} styling={styling} isSorting={false} toggleSort={vi.fn()} />);
+            fireEvent.focus(screen.getByText('Confused'));
+
+            expect(screen.getByText(describedCategory.description!)).toHaveClass('descriptionTooltip');
+        });
+
+        it('should not render a description tooltip or aria-describedby when there is no description', () => {
+            render(<ColumnHeader category={category} styling={styling} isSorting={false} toggleSort={vi.fn()} />);
+
+            expect(screen.getByText('Something')).not.toHaveAttribute('aria-describedby');
+        });
+    });
 });
