@@ -58,6 +58,9 @@
     text-align: center;
     left: 50%;
     right: auto;
+    /* Render below the header so it never clips against the top of the viewport. */
+    top: calc(100% + 0.35rem);
+    bottom: auto;
     transform: translateX(-50%);
 }
 
