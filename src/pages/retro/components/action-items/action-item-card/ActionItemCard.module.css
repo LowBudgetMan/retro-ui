@@ -1,6 +1,6 @@
 .card {
-    color: #1a1a1a;
-    background-color: white;
+    color: oklch(0.2178 0 0);
+    background-color: oklch(1 0 0);
     border-radius: 4px;
 }
 

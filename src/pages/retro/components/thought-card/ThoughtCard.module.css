@@ -49,7 +49,7 @@
 .action:disabled, .completed .action {
     cursor: unset;
     background-color: var(--background-secondary);
-    color: #6D6D6D;
+    color: oklch(0.5348 0 0);
 }
 
 .completed {
