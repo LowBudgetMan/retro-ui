@@ -77,3 +77,15 @@
     opacity: 0;
     pointer-events: none;
 }
+
+/* Mobile: the description shows inline under the column name instead of on hover.
+   The negative top margin counteracts the column header's larger default margin
+   so the text sits vertically centered between the header and the thought box. */
+.inlineDescription {
+    margin: -0.6rem 0 0.65rem;
+    padding: 0 10px;
+    text-align: center;
+    font-style: italic;
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+}

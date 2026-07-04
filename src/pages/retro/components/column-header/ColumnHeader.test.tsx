@@ -2,6 +2,11 @@ import {act, fireEvent, render, screen} from "@testing-library/react";
 import {ColumnHeader} from "./ColumnHeader.tsx";
 import {Category} from "../../../../services/retro-service/RetroService.ts";
 import {afterEach, beforeEach, expect, vi} from "vitest";
+import {useIsMobile} from "../../../../hooks/useIsMobile.ts";
+
+vi.mock("../../../../hooks/useIsMobile.ts", () => ({
+    useIsMobile: vi.fn(() => false),
+}));
 
 describe('ColumnHeader', () => {
     const category = {name: 'Something'} as unknown as Category;
@@ -122,6 +127,35 @@ describe('ColumnHeader', () => {
             render(<ColumnHeader category={category} styling={styling} isSorting={false} toggleSort={vi.fn()} />);
 
             expect(screen.getByText('Something')).not.toHaveAttribute('aria-describedby');
+        });
+    });
+
+    describe('description on mobile', () => {
+        const describedCategory = {
+            name: 'Confused',
+            description: 'What confused you? What could help clear it up?',
+        } as unknown as Category;
+
+        beforeEach(() => {
+            vi.mocked(useIsMobile).mockReturnValue(true);
+        });
+
+        afterEach(() => {
+            vi.mocked(useIsMobile).mockReturnValue(false);
+        });
+
+        it('should render the description inline instead of as a hover tooltip', () => {
+            render(<ColumnHeader category={describedCategory} styling={styling} isSorting={false} toggleSort={vi.fn()} />);
+
+            const description = screen.getByText(describedCategory.description!);
+            expect(description).toBeInTheDocument();
+            expect(description).not.toHaveAttribute('role', 'tooltip');
+        });
+
+        it('should not make the name a hover/focus trigger on mobile', () => {
+            render(<ColumnHeader category={describedCategory} styling={styling} isSorting={false} toggleSort={vi.fn()} />);
+
+            expect(screen.getByText('Confused')).not.toHaveAttribute('aria-describedby');
         });
     });
 });

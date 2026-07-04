@@ -3,6 +3,7 @@ import {Category} from "../../../../services/retro-service/RetroService.ts";
 import styles from './ColumnHeader.module.css';
 import {BsCaretDown, BsCaretDownFill} from "react-icons/bs";
 import {useEffect, useId, useRef, useState} from "react";
+import {useIsMobile} from "../../../../hooks/useIsMobile.ts";
 
 interface ColumnHeaderProps {
     category: Category;
@@ -22,6 +23,11 @@ export function ColumnHeader({category, styling, isSorting, toggleSort}: ColumnH
     const descriptionDelay = 400;
     const descriptionId = useId();
     const hasDescription = Boolean(category.description);
+    const isMobile = useIsMobile();
+    // On touch/mobile there is no hover and one column shows at a time, so the
+    // description is rendered inline instead of as a hover tooltip.
+    const showTooltip = hasDescription && !isMobile;
+    const showInlineDescription = hasDescription && isMobile;
 
     const handleMouseEnter = () => {
         if (hoverTimeout.current) {
@@ -78,13 +84,13 @@ export function ColumnHeader({category, styling, isSorting, toggleSort}: ColumnH
                 'color': styling.textColor
             }}>
                 <span
-                    className={hasDescription ? styles.categoryNameText : undefined}
-                    tabIndex={hasDescription ? 0 : undefined}
-                    aria-describedby={hasDescription ? descriptionId : undefined}
-                    onMouseEnter={hasDescription ? handleDescriptionEnter : undefined}
-                    onMouseLeave={hasDescription ? handleDescriptionLeave : undefined}
-                    onFocus={hasDescription ? handleDescriptionFocus : undefined}
-                    onBlur={hasDescription ? handleDescriptionLeave : undefined}
+                    className={showTooltip ? styles.categoryNameText : undefined}
+                    tabIndex={showTooltip ? 0 : undefined}
+                    aria-describedby={showTooltip ? descriptionId : undefined}
+                    onMouseEnter={showTooltip ? handleDescriptionEnter : undefined}
+                    onMouseLeave={showTooltip ? handleDescriptionLeave : undefined}
+                    onFocus={showTooltip ? handleDescriptionFocus : undefined}
+                    onBlur={showTooltip ? handleDescriptionLeave : undefined}
                 >
                     {category.name}
                 </span>
@@ -106,7 +112,7 @@ export function ColumnHeader({category, styling, isSorting, toggleSort}: ColumnH
                         {tooltipText}
                     </span>
                 </button>
-                {hasDescription && (
+                {showTooltip && (
                     <span
                         id={descriptionId}
                         role="tooltip"
@@ -116,6 +122,9 @@ export function ColumnHeader({category, styling, isSorting, toggleSort}: ColumnH
                     </span>
                 )}
             </h2>
+            {showInlineDescription && (
+                <p className={styles.inlineDescription}>{category.description}</p>
+            )}
         </>
     )
 }
