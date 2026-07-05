@@ -35,6 +35,7 @@ change as complete — these three are what CI enforces.
   and bug fixes.
 - Match the patterns already present in `src/` — follow the surrounding code's
   naming, structure, and formatting rather than introducing new styles.
+- Use **Luxon** `DateTime` for dates/times, not the native `Date`.
 - End-to-end tests live in a separate repository and run in CI; they don't need
   to be run locally for most changes.
 
