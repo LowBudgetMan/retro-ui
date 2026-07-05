@@ -1,8 +1,8 @@
 # Contributing to Retro UI
 
-Thanks for your interest in contributing! This document describes how to set up
-your environment, the conventions we follow, and what to expect when you open a
-pull request.
+Thanks for your interest in contributing! The [README](README.md) covers running
+the app for yourself; this guide is for changing it — the conventions we follow
+and what to expect when you open a pull request.
 
 ## Prerequisites
 
@@ -14,16 +14,12 @@ pull request.
 ## Getting Started
 
 ```bash
-# Install dependencies
-npm install
-
-# Start the dev server with hot reloading (http://localhost:3000)
-npm run dev
+npm install   # Install dependencies
+npm run dev   # Dev server with hot reload (http://localhost:3000)
 ```
 
-The dev server defaults the API URL to `http://localhost:8080` via `.env.local`.
-See the [README](README.md) for other ways to run the app (static preview,
-Docker) and for environment-variable details.
+The [README](README.md) has the details — other ways to run the app (static
+preview, Docker) and environment-variable configuration.
 
 ## Development Workflow
 
