@@ -83,6 +83,14 @@ Conventional-commit prefixes (`feat:`, `refactor:`) appear in the history and
 are welcome but not required. When a change lands via a pull request, the merge
 commit typically includes the PR number (e.g. `Theme toggle change (#31)`).
 
+## Using AI Tools
+
+AI coding assistants are welcome as a tool, but every contribution is owned by
+the human who submits it. If you use AI to help write code, tests, or docs, you
+are responsible for reviewing, understanding, testing, and standing behind every
+line before opening a PR — the same bar as anything written by hand. Please
+don't open PRs that are unreviewed AI output.
+
 ## Pull Requests
 
 - Target the `main` branch.
