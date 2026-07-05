@@ -91,6 +91,11 @@ are responsible for reviewing, understanding, testing, and standing behind every
 line before opening a PR — the same bar as anything written by hand. Please
 don't open PRs that are unreviewed AI output.
 
+Do not credit AI as a contributor. Commits must not include
+`Co-authored-by:` trailers for Claude, Anthropic, or any other AI tool, and no
+AI account or bot should appear in the repository's contributor list — the human
+author is the sole contributor.
+
 ## Pull Requests
 
 - Target the `main` branch.
