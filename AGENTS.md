@@ -38,6 +38,24 @@ change as complete — these three are what CI enforces.
 - End-to-end tests live in a separate repository and run in CI; they don't need
   to be run locally for most changes.
 
+## Architecture
+
+- **Data flow is unidirectional.** User actions call the REST API (via the
+  services in `src/services/`) to mutate state — they do **not** set local
+  state directly. The change comes back over a STOMP WebSocket as a CRUD event,
+  and that event is what updates the UI. Optimistically updating local state
+  after a mutation will double-apply or desync; let the socket drive it.
+- **Contexts own state and the real-time stream.** `RetroContext` and
+  `ActionItemsContext` hold the current state and set up their own
+  `WebsocketService` subscriptions, mapping backend CRUD events to state
+  updates and re-fetching over REST on reconnect. Put real-time behavior inside
+  the relevant context, not in components.
+- **All HTTP goes through `fetchClient`** (`src/config/FetchClient.ts`), a thin
+  wrapper over `fetch` that attaches the auth Bearer token and share token and
+  redirects to sign-in on 401. Don't call `fetch` or set auth headers by hand.
+- **Page data is loaded by React Router loaders** (see `src/App.tsx`), not
+  fetched in components on mount. Add a loader for new routes that need data.
+
 ## Contributing & PRs
 
 Follow the full workflow in [CONTRIBUTING.md](CONTRIBUTING.md): branch off `main`,
