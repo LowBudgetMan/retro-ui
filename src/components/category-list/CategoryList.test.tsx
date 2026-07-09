@@ -43,5 +43,20 @@ describe('CategoryList', () => {
 
             expect(category1.compareDocumentPosition(category2)).toBe(Node.DOCUMENT_POSITION_FOLLOWING);
         })
+
+        it('should use the inline layout by default', () => {
+            const {container} = render(<CategoryList categories={categories} />);
+
+            const list = container.querySelector('ol');
+            expect(list?.className).toContain('categoriesList');
+            expect(list?.className).not.toContain('stacked');
+        })
+
+        it('should apply the stacked layout when variant is "stacked"', () => {
+            const {container} = render(<CategoryList categories={categories} variant="stacked" />);
+
+            const list = container.querySelector('ol');
+            expect(list?.className).toContain('stacked');
+        })
     });
 });
