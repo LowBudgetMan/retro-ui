@@ -30,7 +30,13 @@ const destinations = new Map<string, DestinationEntry>();
 const reconnectCallbacks = new Set<() => void>();
 
 function handleMessage(destination: string, message: IMessage): void {
-    const event: WebsocketEvent = JSON.parse(message.body);
+    let event: WebsocketEvent;
+    try {
+        event = JSON.parse(message.body);
+    } catch (error) {
+        console.error('Failed to parse websocket message for', destination, error);
+        return;
+    }
     const entry = destinations.get(destination);
     if (!entry) return;
     entry.handlers.forEach((handlerMap) => {
@@ -77,8 +83,9 @@ function ensureConnected(retroId?: string): void {
         };
         client.activate();
         isConnecting = false;
-    }).catch(() => {
+    }).catch((error) => {
         isConnecting = false;
+        console.error('Failed to establish websocket connection:', error);
     });
 }
 
@@ -114,7 +121,9 @@ function subscribe(destination: string, handlerMap: HandlerMap, options?: Subscr
             destinations.delete(destination);
             if (destinations.size === 0) {
                 if (client?.active) {
-                    client.deactivate().catch();
+                    client.deactivate().catch((error) => {
+                        console.error('Error deactivating websocket client:', error);
+                    });
                 }
                 client = null;
                 isConnecting = false;
