@@ -3,7 +3,7 @@ import {waitForAppConfiguration} from "./ApiConfig";
 import {getShareTokenForUrl} from "../services/anonymous-auth/AnonymousAuthService.ts";
 
 /**
- * Axios-compatible response shape returned by all {@link fetchClient} methods.
+ * Response shape returned by all {@link fetchClient} methods.
  * @typeParam T - The expected type of the parsed JSON body (defaults to `unknown`).
  */
 export interface FetchResponse<T = unknown> {
@@ -13,7 +13,7 @@ export interface FetchResponse<T = unknown> {
 }
 
 /**
- * Thrown on non-2xx responses to match axios's default rejection
+ * Thrown on non-2xx responses so callers can reject on request failures.
  */
 export class FetchError extends Error {
     status: number;
@@ -88,9 +88,9 @@ async function request<T>(method: string, url: string, body?: unknown): Promise<
 /**
  * Thin wrapper around the native Fetch API:
  * - Adds Bearer token and X-Share-Token headers per request when needed
- * - Throws {@link FetchError} on non-2xx responses (matching axios behavior)
+ * - Throws {@link FetchError} on non-2xx responses
  * - Triggers signout on 401 (if no share token is passed)
- * - Returns an axios-compatible {@link FetchResponse} so service calls stay unchanged
+ * - Returns a {@link FetchResponse} with the parsed body, status, and headers
  *
  * Must be initialized via {@link configureFetchClient} before use.
  *
