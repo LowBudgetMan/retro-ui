@@ -58,7 +58,9 @@ async function request<T>(method: string, url: string, body?: unknown): Promise<
 
     if (!response.ok) {
         if (response.status === 401 && !getShareTokenForUrl(url)) {
-            getUserManager()?.signoutRedirect().then();
+            getUserManager()?.signoutRedirect().catch((error) => {
+                console.error('Error during signout redirect:', error);
+            });
         }
 
         let errorData: unknown = null;
