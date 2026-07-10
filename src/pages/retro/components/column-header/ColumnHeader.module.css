@@ -46,3 +46,46 @@
     composes: tooltipBase;
     opacity: 1;
 }
+
+.categoryNameText {
+    cursor: help;
+}
+
+.descriptionTooltipBase {
+    composes: tooltipBase;
+    white-space: normal;
+    /* Size to the text (capped by max-width) rather than shrink-to-fitting against
+       the half-header space that `left: 50%` would otherwise leave. */
+    width: max-content;
+    max-width: 16rem;
+    text-align: center;
+    left: 50%;
+    right: auto;
+    /* Render below the header so it never clips against the top of the viewport. */
+    top: calc(100% + 0.35rem);
+    bottom: auto;
+    transform: translateX(-50%);
+}
+
+.descriptionTooltip {
+    composes: descriptionTooltipBase;
+    opacity: 1;
+}
+
+.descriptionTooltipHidden {
+    composes: descriptionTooltipBase;
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* Mobile: the description shows inline under the column name instead of on hover.
+   The negative top margin counteracts the column header's larger default margin
+   so the text sits vertically centered between the header and the thought box. */
+.inlineDescription {
+    margin: -0.6rem 0 0.65rem;
+    padding: 0 10px;
+    text-align: center;
+    font-style: italic;
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+}
