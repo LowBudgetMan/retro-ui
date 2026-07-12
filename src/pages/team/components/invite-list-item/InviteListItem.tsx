@@ -1,6 +1,8 @@
 import {Invite, TeamService} from "../../../../services/team-service/TeamService.ts";
 import {InvitePackage} from "../../../invite/inviteLoader.ts";
 import {useRevalidator} from "react-router-dom";
+import {useToasts} from "../../../../context/hooks.tsx";
+import {ToastType} from "../../../../context/toast/ToastContextTypes.ts";
 
 interface Props {
     invite: Invite;
@@ -10,6 +12,7 @@ interface Props {
 
 export function InviteListItem({ invite, teamId, teamName }: Props) {
     const revalidator = useRevalidator();
+    const {queueToast} = useToasts();
 
     const handleCopy = async (inviteId: string): Promise<void> => {
         const invitePackage = btoa(JSON.stringify({
@@ -20,17 +23,20 @@ export function InviteListItem({ invite, teamId, teamName }: Props) {
         const inviteLink = `${window.location.origin}/invite?package=${invitePackage}`;
         try {
             await navigator.clipboard.writeText(inviteLink);
-            // TODO: Add toast pop-up
+            queueToast({message: "Copied invite link to clipboard", type: ToastType.SUCCESS});
         } catch (err) {
+            queueToast({message: "Failed to copy invite link", type: ToastType.FAILURE});
             console.error('Failed to copy text: ', err);
-            // TODO: Add toast pop-up
         }
     }
 
     const handleDelete = async (teamId: string, inviteId: string) => {
         await TeamService.deleteInvite(teamId, inviteId)
             .then(() => {revalidator.revalidate()})
-            .catch((err) => {console.error('Delete failed:', err)});
+            .catch((err) => {
+                queueToast({message: "Couldn't delete invite. Please try again.", type: ToastType.FAILURE});
+                console.error('Delete failed:', err);
+            });
     }
 
     return (
