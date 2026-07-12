@@ -4,12 +4,16 @@ import {CategoryPill} from "../category-pill/CategoryPill.tsx";
 
 
 interface Props {
-    categories: Category[]
+    categories: Category[],
+    variant?: 'inline' | 'stacked'
 }
 
-export function CategoryList({categories}: Props) {
+export function CategoryList({categories, variant = 'inline'}: Props) {
+    const className = variant === 'stacked'
+        ? `${styles.categoriesList} ${styles.stacked}`
+        : styles.categoriesList;
     return (
-        <ol className={styles.categoriesList}>
+        <ol className={className}>
             {
                 categories
                     .sort((a, b) => a.position - b.position)

@@ -18,7 +18,7 @@ export function CreateRetroFormOption({template, selectionCallback}: OptionProps
         <div className={optionStyles.option}>
             <div className={optionStyles.displayContent}>
                 <h3 className={optionStyles.title}>{template.name}</h3>
-                <CategoryList categories={template.categories} />
+                <CategoryList categories={template.categories} variant="stacked" />
             </div>
             <div className={optionStyles.actionsContainer}>
                 <Link to={`/templates#${template.id}`} target={'_blank'} className={optionStyles.moreInfo}>Learn more</Link>

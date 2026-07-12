@@ -6,3 +6,27 @@
     flex-wrap: wrap;
     gap: 1rem 0.5rem;
 }
+
+/* Vertical stack used in the create-retro template picker. Each pill hugs its
+   own label with consistent padding, and the column is centered under the
+   template title. */
+.stacked {
+    flex-direction: column;
+    flex-wrap: nowrap;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0;
+}
+
+.stacked li {
+    max-width: 100%;
+}
+
+/* Each pill hugs its label on one line; a label too wide for the column
+   wraps to centered lines instead of overflowing the column. */
+.stacked li > span {
+    display: inline-block;
+    max-width: 100%;
+    box-sizing: border-box;
+    text-align: center;
+}
