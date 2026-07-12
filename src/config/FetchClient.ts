@@ -1,6 +1,8 @@
 import {getUserManager, waitForAuthInitialization} from "../pages/user/UserContext.ts";
 import {waitForAppConfiguration} from "./ApiConfig";
 import {getShareTokenForUrl} from "../services/anonymous-auth/AnonymousAuthService.ts";
+import {notifyToast} from "../context/toast/toastBus.ts";
+import {ToastType} from "../context/toast/ToastContextTypes.ts";
 
 /**
  * Response shape returned by all {@link fetchClient} methods.
@@ -60,6 +62,7 @@ async function request<T>(method: string, url: string, body?: unknown): Promise<
         if (response.status === 401 && !getShareTokenForUrl(url)) {
             getUserManager()?.signoutRedirect().catch((error) => {
                 console.error('Error during signout redirect:', error);
+                notifyToast({message: "Your session has ended. Please refresh the page to continue.", type: ToastType.FAILURE});
             });
         }
 

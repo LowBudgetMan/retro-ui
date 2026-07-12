@@ -1,5 +1,7 @@
 import {Client, IMessage} from '@stomp/stompjs';
 import {getConfig, buildConnectHeaders} from "./WebsocketConfig.ts";
+import {notifyToast} from "../../context/toast/toastBus.ts";
+import {ToastType} from "../../context/toast/ToastContextTypes.ts";
 
 interface WebsocketEvent {
     eventType: string;
@@ -26,6 +28,7 @@ interface DestinationEntry {
 let client: Client | null = null;
 let isConnecting = false;
 let hasConnectedOnce = false;
+let hasNotifiedConnectionFailure = false;
 const destinations = new Map<string, DestinationEntry>();
 const reconnectCallbacks = new Set<() => void>();
 
@@ -80,12 +83,20 @@ function ensureConnected(retroId?: string): void {
                 reconnectCallbacks.forEach(cb => cb());
             }
             hasConnectedOnce = true;
+            if (hasNotifiedConnectionFailure) {
+                hasNotifiedConnectionFailure = false;
+                notifyToast({message: "Live updates restored", type: ToastType.SUCCESS});
+            }
         };
         client.activate();
         isConnecting = false;
     }).catch((error) => {
         isConnecting = false;
         console.error('Failed to establish websocket connection:', error);
+        if (!hasNotifiedConnectionFailure) {
+            hasNotifiedConnectionFailure = true;
+            notifyToast({message: "Live updates are unavailable — retrying connection...", type: ToastType.WARNING});
+        }
     });
 }
 
@@ -128,6 +139,7 @@ function subscribe(destination: string, handlerMap: HandlerMap, options?: Subscr
                 client = null;
                 isConnecting = false;
                 hasConnectedOnce = false;
+                hasNotifiedConnectionFailure = false;
             }
         }
     };
