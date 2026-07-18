@@ -2,6 +2,7 @@ import {vi} from 'vitest';
 import { fetchClient } from '../../config/FetchClient';
 import {Retro, RetroListItem, RetroService, Thought} from './RetroService.ts';
 import {DateTime} from 'luxon';
+import {hexToOklch} from '../../utils/color/color.ts';
 
 vi.mock('../../config/FetchClient', () => ({
     fetchClient: {
@@ -73,7 +74,16 @@ describe('RetroService', () => {
                     id: 'template-1',
                     name: 'Basic Retro',
                     description: 'A basic retro template',
-                    categories: []
+                    categories: [
+                        {
+                            name: 'Start',
+                            position: 1,
+                            lightBackgroundColor: '#e8f5e8',
+                            lightTextColor: '#2d5a2d',
+                            darkBackgroundColor: '#1a3d1a',
+                            darkTextColor: '#90ee90'
+                        }
+                    ]
                 },
                 thoughts: [],
                 createdAt: testDate.toISO()
@@ -82,6 +92,19 @@ describe('RetroService', () => {
             const expectedRetro: Retro = {
                 ...mockRetroResponse,
                 createdAt: testDate,
+                template: {
+                    ...mockRetroResponse.template,
+                    categories: [
+                        {
+                            name: 'Start',
+                            position: 1,
+                            lightBackgroundColor: hexToOklch('#e8f5e8'),
+                            lightTextColor: hexToOklch('#2d5a2d'),
+                            darkBackgroundColor: hexToOklch('#1a3d1a'),
+                            darkTextColor: hexToOklch('#90ee90')
+                        }
+                    ]
+                }
             };
 
             vi.mocked(fetchClient.get).mockResolvedValue({data: mockRetroResponse, status: 200, headers: new Headers()});
