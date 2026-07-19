@@ -3,6 +3,8 @@ import { UserManager, User } from 'oidc-client-ts';
 import { fetchClient, configureFetchClient, FetchError } from './FetchClient';
 import { getUserManager } from '../pages/user/UserContext';
 import { getShareTokenForUrl } from '../services/anonymous-auth/AnonymousAuthService';
+import { notifyToast } from '../context/toast/toastBus.ts';
+import { ToastType } from '../context/toast/ToastContextTypes.ts';
 
 vi.mock('../pages/user/UserContext', () => ({
     getUserManager: vi.fn(),
@@ -15,6 +17,10 @@ vi.mock('./ApiConfig', () => ({
 
 vi.mock('../services/anonymous-auth/AnonymousAuthService', () => ({
     getShareTokenForUrl: vi.fn(),
+}));
+
+vi.mock('../context/toast/toastBus.ts', () => ({
+    notifyToast: vi.fn(),
 }));
 
 const mockUserManager = {
@@ -208,6 +214,27 @@ describe('FetchClient', () => {
 
             await expect(fetchClient.get('/teams/t1')).rejects.toThrow(FetchError);
             expect(mockUserManager.signoutRedirect).toHaveBeenCalledTimes(1);
+        });
+
+        it('should notify a failure toast when signoutRedirect itself rejects', async () => {
+            const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+            (mockUserManager.getUser as Mock).mockResolvedValue({access_token: 'test-token'} as User);
+            const redirectError = new Error('redirect failed');
+            (mockUserManager.signoutRedirect as Mock).mockRejectedValue(redirectError);
+            vi.mocked(globalThis.fetch).mockResolvedValue(
+                new Response(JSON.stringify({error: 'Unauthorized'}), {status: 401})
+            );
+
+            await expect(fetchClient.get('/test')).rejects.toThrow(FetchError);
+            await new Promise(resolve => setTimeout(resolve, 0));
+
+            expect(consoleSpy).toHaveBeenCalledWith('Error during signout redirect:', redirectError);
+            expect(notifyToast).toHaveBeenCalledWith({
+                message: "Your session has ended. Please refresh the page to continue.",
+                type: ToastType.FAILURE,
+            });
+
+            consoleSpy.mockRestore();
         });
 
         it('should reject when fetch throws a network error', async () => {

@@ -4,10 +4,24 @@ import {Invite, TeamService} from "../../../../../services/team-service/TeamServ
 import {Mock} from "vitest";
 import {useRevalidator} from "react-router-dom";
 import {InviteDetails} from "./InviteDetails.tsx";
+import {ToastContext} from "../../../../../context/toast/ToastContext.tsx";
+import {ToastType} from "../../../../../context/toast/ToastContextTypes.ts";
+import {PropsWithChildren} from "react";
 
 vi.mock('react-router-dom', () => ({
     useRevalidator: vi.fn(),
 }));
+
+const queueToast = vi.fn();
+
+function renderWithToastContext(ui: React.ReactElement) {
+    const Wrapper = ({children}: PropsWithChildren) => (
+        <ToastContext.Provider value={{toasts: [], queueToast}}>
+            {children}
+        </ToastContext.Provider>
+    );
+    return render(ui, {wrapper: Wrapper});
+}
 
 const teamId = 'team-123';
 const teamName = 'Team Name';
@@ -40,14 +54,14 @@ describe('Invites', () => {
     });
 
     it('should render the invites section with heading', () => {
-        render(<InviteDetails id={teamId} name={teamName} invites={mockInvites} />);
+        renderWithToastContext(<InviteDetails id={teamId} name={teamName} invites={mockInvites} />);
 
         expect(screen.getByText('Invites')).toBeInTheDocument();
         expect(screen.getByRole('button', {name: 'Create invite link'})).toBeInTheDocument();
     });
 
     it('should pass correct props to InviteListItem components', () => {
-        render(<InviteDetails id={teamId} name={teamName} invites={mockInvites} />);
+        renderWithToastContext(<InviteDetails id={teamId} name={teamName} invites={mockInvites} />);
         expect(screen.getByText('inviteId1')).toBeInTheDocument();
         expect(screen.getByText('inviteId2')).toBeInTheDocument();
     });
@@ -57,7 +71,7 @@ describe('Invites', () => {
             const user = userEvent.setup();
             (TeamService.createInvite as Mock).mockResolvedValue('new-invite-id');
 
-            render(<InviteDetails id={teamId} name={teamName} invites={mockInvites} />);
+            renderWithToastContext(<InviteDetails id={teamId} name={teamName} invites={mockInvites} />);
 
             const createButton = screen.getByRole('button', {name: 'Create invite link'});
             await user.click(createButton);
@@ -75,12 +89,38 @@ describe('Invites', () => {
             });
             (TeamService.createInvite as Mock).mockResolvedValue('new-invite-id');
 
-            render(<InviteDetails id={teamId} name={teamName} invites={mockInvites} />);
+            renderWithToastContext(<InviteDetails id={teamId} name={teamName} invites={mockInvites} />);
 
             const createButton = screen.getByRole('button', {name: 'Create invite link'});
             await user.click(createButton);
 
             expect(mockRevalidate).toHaveBeenCalledTimes(1);
+        });
+
+        it('should queue a failure toast and not revalidate when createInvite rejects', async () => {
+            const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+            const user = userEvent.setup();
+            const mockRevalidate = vi.fn().mockResolvedValue(undefined);
+            (useRevalidator as Mock).mockReturnValue({
+                revalidate: mockRevalidate,
+                state: 'idle'
+            });
+            const error = new Error('Missing "location" header in createInvite response');
+            (TeamService.createInvite as Mock).mockRejectedValue(error);
+
+            renderWithToastContext(<InviteDetails id={teamId} name={teamName} invites={mockInvites} />);
+
+            const createButton = screen.getByRole('button', {name: 'Create invite link'});
+            await user.click(createButton);
+
+            expect(queueToast).toHaveBeenCalledWith({
+                message: "Couldn't create an invite link. Please try again.",
+                type: ToastType.FAILURE,
+            });
+            expect(consoleSpy).toHaveBeenCalledWith('Failed to create invite:', error);
+            expect(mockRevalidate).not.toHaveBeenCalled();
+
+            consoleSpy.mockRestore();
         });
     });
 });

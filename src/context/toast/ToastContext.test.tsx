@@ -4,6 +4,8 @@ import {useContext} from 'react';
 import {ToastContext, ToastProvider} from './ToastContext.tsx';
 import {Toast as ToastValue, ToastType} from './ToastContextTypes.ts';
 import {useToasts} from '../hooks.tsx';
+import * as toastBus from './toastBus.ts';
+import {notifyToast} from './toastBus.ts';
 
 vi.mock('./Toast.tsx', () => ({
     Toast: ({content, closeToast}: { content: ToastValue, closeToast: () => void }) => (
@@ -14,6 +16,15 @@ vi.mock('./Toast.tsx', () => ({
         </div>
     )
 }));
+
+vi.mock('./toastBus.ts', async () => {
+    const actual = await vi.importActual<typeof import('./toastBus.ts')>('./toastBus.ts');
+    return {
+        ...actual,
+        registerToastHandler: vi.fn(actual.registerToastHandler),
+        unregisterToastHandler: vi.fn(actual.unregisterToastHandler),
+    };
+});
 
 describe('ToastContext', () => {
     function TestHarness() {
@@ -144,6 +155,39 @@ describe('ToastContext', () => {
 
         expect(screen.getByTestId('toast-message').textContent).toBe('first');
         expect(screen.getByTestId('toast-type').textContent).toBe(ToastType.INFO);
+    });
+
+    it('should queue a toast when notifyToast is called from outside the component tree', () => {
+        render(
+            <ToastProvider>
+                <TestHarness/>
+            </ToastProvider>
+        );
+
+        act(() => {
+            notifyToast({message: 'from bus', type: ToastType.WARNING});
+        });
+
+        expect(screen.getByTestId('toast-message').textContent).toBe('from bus');
+        expect(screen.getByTestId('toast-type').textContent).toBe(ToastType.WARNING);
+    });
+
+    it('should register its handler with toastBus on mount and unregister it on unmount', () => {
+        vi.mocked(toastBus.registerToastHandler).mockClear();
+        vi.mocked(toastBus.unregisterToastHandler).mockClear();
+
+        const {unmount} = render(
+            <ToastProvider>
+                <TestHarness/>
+            </ToastProvider>
+        );
+
+        expect(toastBus.registerToastHandler).toHaveBeenCalledTimes(1);
+        expect(toastBus.unregisterToastHandler).not.toHaveBeenCalled();
+
+        unmount();
+
+        expect(toastBus.unregisterToastHandler).toHaveBeenCalledTimes(1);
     });
 
     it('should provide a no-op context value when used outside of a ToastProvider', () => {

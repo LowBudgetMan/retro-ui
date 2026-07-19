@@ -63,9 +63,11 @@ describe('TeamService', () => {
           await expect(TeamService.createInvite(TestConfig.teamId)).rejects.toThrow();
       });
 
-      it('should throw exception when location header does not exist', async () => {
+      it('should throw a descriptive error when location header does not exist', async () => {
           setupCreateInviteMock(new Headers());
-          await expect(TeamService.createInvite(TestConfig.teamId)).rejects.toThrow();
+          await expect(TeamService.createInvite(TestConfig.teamId)).rejects.toThrow(
+              'Missing "location" header in createInvite response'
+          );
       });
   });
 

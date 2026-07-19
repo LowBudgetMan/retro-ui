@@ -1,5 +1,7 @@
 import {Client, IMessage} from '@stomp/stompjs';
 import {getConfig, buildConnectHeaders} from "./WebsocketConfig.ts";
+import {notifyToast} from "../../context/toast/toastBus.ts";
+import {ToastType} from "../../context/toast/ToastContextTypes.ts";
 
 interface WebsocketEvent {
     eventType: string;
@@ -26,11 +28,18 @@ interface DestinationEntry {
 let client: Client | null = null;
 let isConnecting = false;
 let hasConnectedOnce = false;
+let hasNotifiedConnectionFailure = false;
 const destinations = new Map<string, DestinationEntry>();
 const reconnectCallbacks = new Set<() => void>();
 
 function handleMessage(destination: string, message: IMessage): void {
-    const event: WebsocketEvent = JSON.parse(message.body);
+    let event: WebsocketEvent;
+    try {
+        event = JSON.parse(message.body);
+    } catch (error) {
+        console.error('Failed to parse websocket message for', destination, error);
+        return;
+    }
     const entry = destinations.get(destination);
     if (!entry) return;
     entry.handlers.forEach((handlerMap) => {
@@ -74,11 +83,20 @@ function ensureConnected(retroId?: string): void {
                 reconnectCallbacks.forEach(cb => cb());
             }
             hasConnectedOnce = true;
+            if (hasNotifiedConnectionFailure) {
+                hasNotifiedConnectionFailure = false;
+                notifyToast({message: "Live updates restored", type: ToastType.SUCCESS});
+            }
         };
         client.activate();
         isConnecting = false;
-    }).catch(() => {
+    }).catch((error) => {
         isConnecting = false;
+        console.error('Failed to establish websocket connection:', error);
+        if (!hasNotifiedConnectionFailure) {
+            hasNotifiedConnectionFailure = true;
+            notifyToast({message: "Live updates are unavailable — retrying connection...", type: ToastType.WARNING});
+        }
     });
 }
 
@@ -114,11 +132,14 @@ function subscribe(destination: string, handlerMap: HandlerMap, options?: Subscr
             destinations.delete(destination);
             if (destinations.size === 0) {
                 if (client?.active) {
-                    client.deactivate().catch();
+                    client.deactivate().catch((error) => {
+                        console.error('Error deactivating websocket client:', error);
+                    });
                 }
                 client = null;
                 isConnecting = false;
                 hasConnectedOnce = false;
+                hasNotifiedConnectionFailure = false;
             }
         }
     };

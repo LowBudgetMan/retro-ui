@@ -1,6 +1,7 @@
 import {Toast} from "./ToastContextTypes.ts";
 import {Toast as ToastComponent} from "./Toast.tsx";
-import {createContext, PropsWithChildren, useState} from "react";
+import {createContext, PropsWithChildren, useEffect, useState} from "react";
+import {registerToastHandler, unregisterToastHandler} from "./toastBus.ts";
 
 type ToastContextValue = {
     toasts: Toast[]
@@ -26,6 +27,11 @@ export function ToastProvider({ children }: PropsWithChildren) {
         setToasts(prevState => prevState.slice(1));
         setDismissCount(count => count + 1);
     }
+
+    useEffect(() => {
+        registerToastHandler(queueToast);
+        return unregisterToastHandler;
+    }, []);
 
     return (
         <ToastContext.Provider value={{toasts, queueToast}}>

@@ -28,7 +28,10 @@ async function createTeam(name: string): Promise<void> {
 async function createInvite(teamId: string): Promise<string> {
     return await fetchClient.post(`${ApiConfig.baseApiUrl()}/api/teams/${teamId}/invites`)
         .then(response => {
-            const locationHeader = response.headers.get('location') as string;
+            const locationHeader = response.headers.get('location');
+            if (!locationHeader) {
+                throw new Error('Missing "location" header in createInvite response');
+            }
             const lastSlashIndex = locationHeader.lastIndexOf('/') + 1;
             return locationHeader.substring(lastSlashIndex);
         });

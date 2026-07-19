@@ -1,4 +1,10 @@
 import {describe, it, expect, vi, beforeEach} from 'vitest';
+import {notifyToast} from '../../context/toast/toastBus.ts';
+import {ToastType} from '../../context/toast/ToastContextTypes.ts';
+
+vi.mock('../../context/toast/toastBus.ts', () => ({
+    notifyToast: vi.fn(),
+}));
 
 const mockStompUnsubscribe = vi.fn();
 const mockSubscribe = vi.fn().mockReturnValue({unsubscribe: mockStompUnsubscribe});
@@ -47,7 +53,10 @@ describe('WebsocketService', () => {
         mockStompUnsubscribe.mockClear();
         mockActivate.mockClear();
         mockDeactivate.mockClear();
+        vi.mocked(notifyToast).mockClear();
         vi.mocked((await import('@stomp/stompjs')).Client).mockClear();
+        const {getConfig} = await import('./WebsocketConfig.ts');
+        vi.mocked(getConfig).mockReset().mockResolvedValue({brokerURL: 'ws://localhost:8080/ws'});
         vi.resetModules();
     });
 
@@ -255,5 +264,75 @@ describe('WebsocketService', () => {
         simulateConnect();
 
         expect(onReconnect).not.toHaveBeenCalled();
+    });
+
+    describe('Connection Failure Toast', () => {
+        it('should emit a warning toast when the connection fails', async () => {
+            const {getConfig} = await import('./WebsocketConfig.ts');
+            vi.mocked(getConfig).mockRejectedValueOnce(new Error('boom'));
+
+            const service = await getService();
+            service.subscribe('/topic/test', {EVENT: vi.fn()});
+            await flushPromises();
+
+            expect(notifyToast).toHaveBeenCalledTimes(1);
+            expect(notifyToast).toHaveBeenCalledWith(expect.objectContaining({type: ToastType.WARNING}));
+        });
+
+        it('should not notify again on further failed retries before a successful connect', async () => {
+            const {getConfig} = await import('./WebsocketConfig.ts');
+            vi.mocked(getConfig)
+                .mockRejectedValueOnce(new Error('boom'))
+                .mockRejectedValueOnce(new Error('boom again'))
+                .mockRejectedValueOnce(new Error('boom the third'));
+
+            const service = await getService();
+            service.subscribe('/topic/a', {EVENT: vi.fn()});
+            await flushPromises();
+            service.subscribe('/topic/b', {EVENT: vi.fn()});
+            await flushPromises();
+            service.subscribe('/topic/c', {EVENT: vi.fn()});
+            await flushPromises();
+
+            expect(notifyToast).toHaveBeenCalledTimes(1);
+        });
+
+        it('should not emit a toast on a normal first-time successful connect', async () => {
+            const service = await getService();
+            service.subscribe('/topic/test', {EVENT: vi.fn()});
+            await flushPromises();
+            simulateConnect();
+
+            expect(notifyToast).not.toHaveBeenCalled();
+        });
+
+        it('should emit a success toast when the connection recovers after a prior failure', async () => {
+            const {getConfig} = await import('./WebsocketConfig.ts');
+            vi.mocked(getConfig).mockRejectedValueOnce(new Error('boom'));
+
+            const service = await getService();
+            service.subscribe('/topic/test', {EVENT: vi.fn()});
+            await flushPromises();
+
+            expect(notifyToast).toHaveBeenNthCalledWith(1, expect.objectContaining({type: ToastType.WARNING}));
+
+            service.subscribe('/topic/other', {EVENT: vi.fn()});
+            await flushPromises();
+            simulateConnect();
+
+            expect(notifyToast).toHaveBeenCalledTimes(2);
+            expect(notifyToast).toHaveBeenNthCalledWith(2, {message: 'Live updates restored', type: ToastType.SUCCESS});
+        });
+
+        it('should not emit a success toast on a reconnect that was not preceded by a failure', async () => {
+            const service = await getService();
+            service.subscribe('/topic/test', {EVENT: vi.fn()}, {onReconnect: vi.fn()});
+            await flushPromises();
+            simulateConnect(); // clean connect
+
+            simulateConnect(); // simulated reconnect, still no prior failure
+
+            expect(notifyToast).not.toHaveBeenCalled();
+        });
     });
 });
