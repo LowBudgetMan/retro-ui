@@ -22,7 +22,7 @@
     width: 20px;
     height: 10px;
     margin-top: -0.35rem;
-    background-color: oklch(0.8358 0.169 91.77);
+    background-color: var(--gold-background);
     border-radius: 12px / 6px;
     z-index: 0;
 }

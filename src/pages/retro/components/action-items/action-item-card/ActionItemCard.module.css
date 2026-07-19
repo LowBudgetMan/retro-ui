@@ -1,6 +1,6 @@
 .card {
-    color: oklch(0.2178 0 0);
-    background-color: oklch(1 0 0);
+    color: var(--gray-218);
+    background-color: var(--color-white);
     border-radius: 4px;
 }
 
