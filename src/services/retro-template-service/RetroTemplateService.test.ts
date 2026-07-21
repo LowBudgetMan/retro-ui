@@ -2,6 +2,20 @@ import { vi } from 'vitest';
 import { fetchClient } from '../../config/FetchClient';
 import { RetroTemplateService } from './RetroTemplateService.ts';
 import { Template } from '../retro-service/RetroService.ts';
+import { hexToOklch } from '../../utils/color/color.ts';
+
+function toExpectedTemplate(template: Template): Template {
+    return {
+        ...template,
+        categories: template.categories.map((category) => ({
+            ...category,
+            lightBackgroundColor: hexToOklch(category.lightBackgroundColor),
+            lightTextColor: hexToOklch(category.lightTextColor),
+            darkBackgroundColor: hexToOklch(category.darkBackgroundColor),
+            darkTextColor: hexToOklch(category.darkTextColor),
+        }))
+    };
+}
 
 vi.mock('../../config/FetchClient', () => ({
     fetchClient: {
@@ -87,7 +101,7 @@ describe('RetroTemplateService', () => {
 
             const result = await RetroTemplateService.getTemplates();
 
-            expect(result).toEqual(mockTemplatesResponse);
+            expect(result).toEqual(mockTemplatesResponse.map(toExpectedTemplate));
             expect(result).toHaveLength(2);
             expect(result[0].id).toBe('template-1');
             expect(result[0].name).toBe('Start, Stop, Continue');
@@ -117,11 +131,10 @@ describe('RetroTemplateService', () => {
             await expect(RetroTemplateService.getTemplates()).rejects.toThrow();
         });
 
-        it('should handle malformed response data', async () => {
+        it('should throw when response data is not an array of templates', async () => {
             vi.mocked(fetchClient.get).mockResolvedValue({data: 'invalid json', status: 200, headers: new Headers()});
 
-            const result = await RetroTemplateService.getTemplates();
-            expect(result).toBe('invalid json');
+            await expect(RetroTemplateService.getTemplates()).rejects.toThrow();
         });
 
         it('should handle templates with minimal data', async () => {
@@ -178,7 +191,7 @@ describe('RetroTemplateService', () => {
 
             const result = await RetroTemplateService.getTemplates();
 
-            expect(result).toEqual([complexTemplate]);
+            expect(result).toEqual([toExpectedTemplate(complexTemplate)]);
             expect(result[0].categories).toHaveLength(3);
             expect(result[0].categories[0].position).toBe(1);
             expect(result[0].categories[1].position).toBe(2);

@@ -13,7 +13,7 @@
 }
 
 .sidePaneAccordionHeader[open] {
-    background-color: #FFF;
+    background-color: var(--color-white);
 }
 
 .sidePaneAccordionHeaderTitle{

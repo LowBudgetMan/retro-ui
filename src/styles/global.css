@@ -1,60 +1,39 @@
 :root {
-    --darkblue: #314F53;
-    --lightblue: #4F97A0;
-    --beige: #EAD0BF;
-    --mud: #B86738;
-    --chocolate: #392119;
     font-family: 'Quicksand', serif;
 }
 
 :root[data-theme="light"] {
-    --bonfire-violet: #776E99;
-    --bonfire-lavender: #B5728E;
-    --bonfire-red: #DA7F7D;
-    --bonfire-orange: #EBB58A;
-    --bonfire-yellow: #F4D797;
-    --bonfire-cream: #FFF2BD;
-    --bonfire-cyan: #66b3ff;
-    --bonfire-good: #2ecc71;
-    --bonfire-bad: #e74c3c;
+    --bonfire-good: var(--color-green);
 
     --background-primary: var(--bonfire-cream);
-    --background-secondary: #f5f5f5;
-    --background-tertiary: #e5e5e5;
-    --text-primary: #1a1a1a;
-    --text-secondary: #4a4a4a;
-    --accent-color: #0066cc;
-    --border-color: #e0e0e0;
-    --border-secondary: #c4c4c4;
-    --shadow-color: rgba(0, 0, 0, 0.1);
-    --header-bg: #ffffff;
+    --background-secondary: var(--gray-970);
+    --background-tertiary: var(--gray-922);
+    --text-primary: var(--gray-218);
+    --text-secondary: var(--gray-409);
+    --accent-color: oklch(0.522 0.1771 255.83);
+    --border-color: var(--gray-907);
+    --border-secondary: var(--gray-820);
+    --shadow-color: oklch(0 0 0 / 10%);
+    --header-bg: var(--color-white);
 
     --theme-gradient: linear-gradient(45deg, var(--bonfire-cream) 20%, var(--bonfire-yellow) 36%, var(--bonfire-orange) 52%, var(--bonfire-red) 68%, var(--bonfire-lavender) 84%, var(--bonfire-violet) 100%);
-    --card-background: #FEFEF0;
+    --card-background: oklch(0.9933 0.0183 106.73);
     --breadcrumb-color: var(--bonfire-lavender);
 }
 
 :root[data-theme="dark"] {
-    --bonfire-violet: #1F214D;
-    --bonfire-lavender: #50366F;
-    --bonfire-red: #BF3475;
-    --bonfire-orange: #EE6C45;
-    --bonfire-yellow: #FFCE61;
-    --bonfire-cream: #FFE58A;
-    --bonfire-cyan: var(--accent-color);
-    --bonfire-good: #27ae60;
-    --bonfire-bad: #c0392b;
+    --bonfire-good: var(--color-green);
 
     --background-primary: var(--bonfire-violet);
-    --background-secondary: #2d2d2d;
-    --background-tertiary: #3f3f3f;
-    --text-primary: #ffffff;
-    --text-secondary: #b3b3b3;
-    --accent-color: #66b3ff;
-    --border-color: #404040;
-    --border-secondary: #202020;
-    --shadow-color: rgba(0, 0, 0, 0.3);
-    --header-bg: #2d2d2d;
+    --background-secondary: var(--gray-297);
+    --background-tertiary: var(--gray-368);
+    --text-primary: var(--color-white);
+    --text-secondary: var(--gray-767);
+    --accent-color: var(--bonfire-cyan);
+    --border-color: var(--gray-372);
+    --border-secondary: var(--gray-244);
+    --shadow-color: oklch(0 0 0 / 30%);
+    --header-bg: var(--gray-297);
 
     --theme-gradient: linear-gradient(45deg, var(--bonfire-violet) 20%, var(--bonfire-lavender) 36%, var(--bonfire-red) 52%, var(--bonfire-orange) 68%, var(--bonfire-yellow) 84%, var(--bonfire-cream) 100%);
     --card-background: var(--bonfire-lavender);

@@ -76,14 +76,14 @@
     grid-area: itemInput;
     padding:.4rem .3rem;
     border: none;
-    border-bottom: 1px solid #007bff;
+    border-bottom: 1px solid var(--blue-underline);
 
 }
 .assignInput {
     grid-area: assignInput;
     padding-left:.3rem;
     border: none;
-    border-bottom: 1px solid #007bff;
+    border-bottom: 1px solid var(--blue-underline);
 }
 .addButton {
     grid-area: addButton;

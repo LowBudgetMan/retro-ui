@@ -1,6 +1,7 @@
 import { fetchClient } from "../../config/FetchClient";
 import { DateTime } from "luxon";
 import {ApiConfig} from "../../config/ApiConfig";
+import {transformCategoryColors} from "../../utils/color/color.ts";
 
 export interface Retro {
     id: string,
@@ -57,7 +58,11 @@ function transformRetro(retro: Retro): Retro {
     return {
         ...retro,
         createdAt: DateTime.fromISO(retro.createdAt as unknown as string),
-        thoughts: retro.thoughts.map((thought) => transformThought(thought))
+        thoughts: retro.thoughts.map((thought) => transformThought(thought)),
+        template: {
+            ...retro.template,
+            categories: retro.template.categories.map(transformCategoryColors)
+        }
     };
 }
 
